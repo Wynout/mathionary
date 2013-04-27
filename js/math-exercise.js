@@ -208,9 +208,21 @@ Game.prototype.shuffle = function() {
 };
 
 /**
- * Randomize Array
+ * Randomize array
+ * @param  array to be randomized
+ * @return array randomized
  */
-Game.prototype.randomize = function(arr) {
-    for(var j,x,i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
-    return arr;
-}
+Game.prototype.randomize = function(array) {
+
+	var length = array.length;
+
+	$.each(array, function(index, value) {
+
+		// Switch current element with a random array element
+		random = parseInt(Math.random() * length, 10);
+		current = array[--length];
+		array[length] = array[random];
+		array[random] = current;
+	});
+	return array;
+};
