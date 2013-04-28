@@ -9,8 +9,6 @@ function Game(config) {
 	// Merge config into this.config
 	$.extend(this.config, config);
 
-	console.log(this.config);
-
 	// Game properties
 	this.length   = 8;
 	this.total    = Math.pow(this.length,2);
@@ -69,7 +67,7 @@ Game.prototype.events = {
 		var self = this; // Self refers to the Game object
 		self.list.on('mouseleave', 'li', function() {
 			// this refers to element wrapped in jQuery
-			$(this).removeClass('hover');
+			$(this).removeClass('hover transition-invalid-move');
 		});
 	},
 
@@ -94,7 +92,6 @@ Game.prototype.events = {
 				return;
 			}
 
-
 			selected.each(function() {
 				// $(this) refers to current selected element
 				var value = $(this).data('answer');
@@ -102,6 +99,7 @@ Game.prototype.events = {
 			});
 
 			if (sum > self.question.answer) {
+				$this.addClass('transition-invalid-move');
 				$this.removeClass('selected');
 
 			} else if(sum===self.question.answer) {
@@ -123,6 +121,19 @@ Game.prototype.events = {
 			self.displayQuestion();
 			event.preventDefault();
 		});
+	}
+};
+
+/**
+ * Animations object contains all animations
+ */
+Game.prototype.animations = {
+	highlight: function() {
+		this.effect('highlight', {}, 1500);
+	},
+
+	invalidMove: function() {
+		//
 	}
 };
 
@@ -186,7 +197,7 @@ Game.prototype.displayQuestion = function() {
  * @return array
  */
 Game.prototype.randomArrayElement = function(array, amount) {
-console.log(amount);
+
 	// default 1
 	amount = amount || 1;
 	// limit min returned elements

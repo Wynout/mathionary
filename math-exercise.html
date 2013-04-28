@@ -8,11 +8,11 @@
 	<meta name="author" content="">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 	<script src="js/math-exercise.js"></script>
 
 	<link href="css/bootstrap.css" rel="stylesheet">
 	<link rel="stylesheet" href="css/main.css">
-
 </head>
 
 <body>
@@ -28,6 +28,9 @@
 		<h3 class="muted">Math Exercise Game in jQuery</h3>
 	</div>
 
+
+	<div class="transition"></div>
+    <div class="click" onclick="if (this.className=='click') { this.className='click clicked'; } else { this.className='click'; }"></div>
 
 
 	<div class="game">
