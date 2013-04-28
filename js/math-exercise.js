@@ -41,7 +41,6 @@ Game.prototype.bindEvents = function() {
 	this.events.answerMouseleave.call(this);
 	this.events.answerClick.call(this);
 	this.events.createQuestion.call(this);
-	this.events.answerShuffle.call(this);
 };
 
 
@@ -74,6 +73,7 @@ Game.prototype.events = {
 		self.list.on('click', 'li', function() {
 
 			var $this = $(this); // $this refers to the clicked list item element wrapped in jQuery
+			$('h3').text($this.data('answer'));
 
 			// Toggle list item selection using "selected" class
 			$this.toggleClass('selected');
@@ -81,6 +81,13 @@ Game.prototype.events = {
 			// Get sum of all selected list items
 			var selected = self.list.find('li.selected'),
 				sum = 0;
+
+			// Select minimal 2 items
+			if (selected.length<2) {
+				return;
+			}
+
+
 			selected.each(function() {
 				// $(this) refers to current selected element
 				var value = $(this).data('answer');
@@ -106,15 +113,7 @@ Game.prototype.events = {
 		var self = this; // Self refers to the Game object
 		self.navigation.find('a#create-question').on('click', function(event) {
 			self.createQuestion();
-			event.preventDefault();
-		});
-	},
-
-	// Shuffle list items button click
-	answerShuffle: function(event) {
-		var self = this; // Self refers to the Game object
-		self.navigation.find('a#shuffle').on('click', function(event) {
-			self.shuffle();
+			self.displayQuestion();
 			event.preventDefault();
 		});
 	}
@@ -144,21 +143,21 @@ Game.prototype.initList = function() {
  */
 Game.prototype.createQuestion = function() {
 
-	var	items    = this.list.find(':not(li.used)'), // items not currently selected
-		itemA    = $(items[Math.floor(items.length * Math.random())]),
-		itemB    = $(items[Math.floor(items.length * Math.random())]),
-		valueA   = parseInt(itemA.text(), 10),
-		valueB   = parseInt(itemB.text(), 10),
-		sum      = valueA + valueB;
-
 	this.list.find('li').removeClass('selected');
+
+	var	items    = this.list.find(':not(li.used)'); // items not used already
+		sum = 0,
+		elements = $(this.randomArrayElement(items, 2));
+
+		elements.each(function() {
+			sum += $(this).data('answer');
+		});
 
 	this.question = {
 		type: 'sum',
 		text: 'Which numbers add up to: ' + sum + ' ?.',
 		answer: sum,
-		itemA: itemA,
-		itemB: itemB
+		elements: elements
 	};
 };
 
@@ -173,34 +172,39 @@ Game.prototype.displayQuestion = function() {
 
 
 /**
- * Shuffle List Items
+ * Returns amount of random array elements
+ *
+ * @param  array to to pick random element
+ * @param  integer amount of random to be returned
+ * @return array
  */
-Game.prototype.shuffle = function() {
-
-	var self = this,
-		items = self.list.find('li'),
-		random = self.randomize(items);
-
-	items = self.list.empty();
-	$(random).appendTo(items);
+Game.prototype.randomArrayElement = function(array, amount) {
+console.log(amount);
+	// default 1
+	amount = amount || 1;
+	// limit min returned elements
+	if (amount < 1 ) {
+		amount = 1;
+	}
+	// limit max returned elements to length array
+	amount = (amount > array.length) ? array.length : amount;
+	return this.shuffleArray(array).slice(0, amount);
 };
 
+
 /**
- * Randomize array
- * @param  array to be randomized
+ * Randomize array element order in-place.
+ * Using Fisher-Yates shuffle algorithm.
+ *
+ * @param array to be randomized
  * @return array randomized
  */
-Game.prototype.randomize = function(array) {
-
-	var length = array.length;
-
-	$.each(array, function(index, value) {
-
-		// Switch current element with a random array element
-		random = parseInt(Math.random() * length, 10);
-		current = array[--length];
-		array[length] = array[random];
-		array[random] = current;
-	});
-	return array;
+Game.prototype.shuffleArray = function(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
 };
