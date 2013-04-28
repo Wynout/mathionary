@@ -46,6 +46,7 @@ div.game {
 div.game ul {
 	list-style: none;
 	margin:0 auto;
+
 }
 
 div.game li {
@@ -79,8 +80,15 @@ div.game li.selected {
 	/*border-bottom: 1px solid rgb(56, 56, 56);*/
 	/*border-right: 1px solid rgb(56, 56, 56);*/
 	color: #fff;
-
 }
+
+div.game li.used {
+	background-color: white;
+	border: 1px dotted white;
+	color:white;
+}
+
+
 
 
 .game li:nth-child(8n +1) {

@@ -15,7 +15,7 @@ function Game() {
 
 	// Initialize Game
 	this.initialize();
-};
+}
 
 /**
  * Initialize Game
@@ -23,23 +23,12 @@ function Game() {
 Game.prototype.initialize = function() {
 
 	this.initList();		// Initialize List Items
-	this.createQuestion();	// Show a question on startup
+	this.createQuestion();	// Show a question on start up
 	this.bindEvents();		// Method for binding all event handlers
 
-	// Setup main interval loop (1 sec)
-	var self = this; // move to top of obect
-	window.setInterval(function() {
-		self.main();
-	}, 1000);
-};
-
-
-/**
- * Main Game loop
- */
-Game.prototype.main = function() {
-
+	// show a question when Game initialized
 	this.createQuestion();
+	this.displayQuestion();
 };
 
 
@@ -48,11 +37,11 @@ Game.prototype.main = function() {
  */
 Game.prototype.bindEvents = function() {
 
-	this.events.listMouseenter.call(this);
-	this.events.listMouseleave.call(this);
-	this.events.listClick.call(this);
-	this.events.linkCreateQuestion.call(this);
-	this.events.linkShuffle.call(this);
+	this.events.answerMouseenter.call(this);
+	this.events.answerMouseleave.call(this);
+	this.events.answerClick.call(this);
+	this.events.createQuestion.call(this);
+	this.events.answerShuffle.call(this);
 };
 
 
@@ -62,14 +51,14 @@ Game.prototype.bindEvents = function() {
 Game.prototype.events = {
 
 	// Add hover classes on list items.
-	listMouseenter: function() {
+	answerMouseenter: function() {
 		var self = this; // Self refers to the Game object
 		self.list.on('mouseenter', 'li', function() {
 			// this refers to element wrapped in jQuery
 			$(this).addClass('hover');
 		});
 	},
-	listMouseleave: function() {
+	answerMouseleave: function() {
 		var self = this; // Self refers to the Game object
 		self.list.on('mouseleave', 'li', function() {
 			// this refers to element wrapped in jQuery
@@ -78,27 +67,42 @@ Game.prototype.events = {
 	},
 
 	// A List Item was clicked
-	listClick: function() {
-		var self = this; // Self refers to the Game object
-		// this refers to the clicked list item element wrapped in jQuery
+	answerClick: function() {
+		var self = this, // Self refers to the Game object
+			valid = false;
+
 		self.list.on('click', 'li', function() {
-			var self = this,
-				$this = $(this), // cache $(this). this refers to list item clicked
-				sum = 0;
+
+			var $this = $(this); // $this refers to the clicked list item element wrapped in jQuery
 
 			// Toggle list item selection using "selected" class
 			$this.toggleClass('selected');
 
+			// Get sum of all selected list items
+			var selected = self.list.find('li.selected'),
+				sum = 0;
+			selected.each(function() {
+				// $(this) refers to current selected element
+				var value = $(this).data('answer');
+				sum += (value!==undefined) ? value : 0;
+			});
 
-			// print sum
-			//$('div.navigation').text('');
-			sum = self.calculateSum();
-			$('div.navigation').append(', ' + sum);
+			if (sum > self.question.answer) {
+				$this.removeClass('selected');
+
+			} else if(sum===self.question.answer) {
+
+				// Mark selected items as used
+				selected.removeClass('selected').addClass('used');
+
+				self.createQuestion();
+				self.displayQuestion();
+			}
 		});
 	},
 
 	// Create question button click
-	linkCreateQuestion: function(event) {
+	createQuestion: function(event) {
 		var self = this; // Self refers to the Game object
 		self.navigation.find('a#create-question').on('click', function(event) {
 			self.createQuestion();
@@ -107,7 +111,7 @@ Game.prototype.events = {
 	},
 
 	// Shuffle list items button click
-	linkShuffle: function(event) {
+	answerShuffle: function(event) {
 		var self = this; // Self refers to the Game object
 		self.navigation.find('a#shuffle').on('click', function(event) {
 			self.shuffle();
@@ -124,9 +128,12 @@ Game.prototype.initList = function() {
 
 	for (var i=1; i<=this.total; i++) {
 
-		$('<li></li>', {
-			text: Math.floor(Math.random()*9+1)
+		var answer = Math.floor( Math.random()*9 + 1 );
+		var item = $('<li></li>', {
+			text: answer
 		})
+			// attach answer html5 data attribute to <li data-answer="integer"> tag
+			.data('answer', answer)
 			.appendTo(this.list);
 	}
 };
@@ -137,25 +144,22 @@ Game.prototype.initList = function() {
  */
 Game.prototype.createQuestion = function() {
 
-	var self     = this,
-		items    = self.getActiveItems(),
+	var	items    = this.list.find(':not(li.used)'), // items not currently selected
 		itemA    = $(items[Math.floor(items.length * Math.random())]),
 		itemB    = $(items[Math.floor(items.length * Math.random())]),
 		valueA   = parseInt(itemA.text(), 10),
 		valueB   = parseInt(itemB.text(), 10),
 		sum      = valueA + valueB;
 
-	self.list.find('li').removeClass('selected');
-	// console.log(self.list);
+	this.list.find('li').removeClass('selected');
 
-	self.question = {
+	this.question = {
+		type: 'sum',
 		text: 'Which numbers add up to: ' + sum + ' ?.',
-		answer: [valueA, valueB],
+		answer: sum,
 		itemA: itemA,
 		itemB: itemB
 	};
-
-	self.displayQuestion();
 };
 
 
@@ -165,32 +169,6 @@ Game.prototype.createQuestion = function() {
 Game.prototype.displayQuestion = function() {
 
 	this.game.find('h1.question').text(this.question.text);
-	this.question.itemA.addClass('selected');
-	this.question.itemB.addClass('selected');
-};
-
-
-/**
- * Create sum of selected list items
- * @return integer [sum]
- */
-Game.prototype.calculateSum = function() {
-
-	var sum = 0;
-	$('div.game').find('li.selected').each(function() {
-		sum += parseInt($(this).text(), 10);
-	});
-	return sum;
-};
-
-
-/**
- * Get all active list items
- * These list items do not have a class of "selected"
- */
-Game.prototype.getActiveItems = function() {
-
-	return this.list.find(':not(li.selected)');
 };
 
 
