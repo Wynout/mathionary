@@ -73,7 +73,6 @@ Game.prototype.events = {
 		self.list.on('click', 'li', function() {
 
 			var $this = $(this); // $this refers to the clicked list item element wrapped in jQuery
-			$('h3').text($this.data('answer'));
 
 			// Toggle list item selection using "selected" class
 			$this.toggleClass('selected');
