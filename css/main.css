@@ -1,6 +1,13 @@
 body {
 	padding-top: 20px;
 	padding-bottom: 40px;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+
 }
 
 /* Custom container */
