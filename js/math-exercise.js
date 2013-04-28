@@ -1,7 +1,15 @@
 /**
  * Math Exercise Game
  */
-function Game() {
+function Game(config) {
+
+	this.config = {
+		//effect: 'slideDown'
+	};
+	// Merge config into this.config
+	$.extend(this.config, config);
+
+	console.log(this.config);
 
 	// Game properties
 	this.length   = 8;
