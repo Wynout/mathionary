@@ -68,7 +68,7 @@ div.game li {
 	float: left;
 	cursor:pointer;
 	color: #dfc48c;
-	font-size: 1.5em;
+	font-size: 1.3em;
 	border-bottom: 1px solid black;
 	border-top: 1px solid #3c3c3c;
 	border-right: 1px solid black;
@@ -99,7 +99,7 @@ div.game li.transition-invalid-move:hover{
 	-o-transition: background-color .2s linear;
 	-ms-transition: background-color .2s linear;
 	transition: background-color .2s linear;
-	font-size: 2em;
+	/*font-size: 2em;*/
 	background-color: #990000;
 	border: 1px solid #590000;
 	cursor:default;
