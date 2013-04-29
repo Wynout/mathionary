@@ -116,7 +116,9 @@ div.game li.used {
 	transition: background-color .3s linear;
 	background-color: white;
 	border: 1px dotted white;
+	font-size: 2em;
 	color:#fff;
+	cursor:default;
 }
 
 

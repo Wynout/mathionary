@@ -80,6 +80,11 @@ Game.prototype.events = {
 
 			var $this = $(this); // $this refers to the clicked list item element wrapped in jQuery
 
+			// Exit when item with class "used" is clicked
+			if ($this.hasClass('used')) {
+				return;
+			}
+
 			// Toggle list item selection using "selected" class
 			$this.toggleClass('selected');
 
