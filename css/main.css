@@ -100,7 +100,9 @@ div.game li.transition-invalid-move:hover{
 	-ms-transition: background-color .2s linear;
 	transition: background-color .2s linear;
 	/*font-size: 2em;*/
-	background-color: #990000;
+	/*background-color: #990000;*/
+	/*background-color: #d43515;*/
+	background-color: #4f1b1b;
 	border: 1px solid #590000;
 	cursor:default;
 	color:#ffcc33;
