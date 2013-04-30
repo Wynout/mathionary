@@ -92,15 +92,11 @@ Game.prototype.events = {
 			var selected = self.list.find('li.selected'),
 				sum = 0;
 
-			// cannot select answer directly, need to select two items
-			if (selected.length===1	&& $(selected[0]).data('answer')>=self.question.answer) {
+			// bug!, cannot select last single item
+			// cannot select answer directly, need to select two items (except for last item)
+			if (self.question.elements.length>1 && selected.length===1	&& $(selected[0]).data('answer')>=self.question.answer) {
 				$this.addClass('transition-invalid-move');
 				$this.removeClass('selected');
-				return;
-			}
-
-			// Select minimal 2 items
-			if (selected.length<2) {
 				return;
 			}
 
