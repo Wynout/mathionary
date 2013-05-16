@@ -33,6 +33,20 @@ function Game(config) {
         answer: null
     };
 
+    // Cache DOM element that we need to access
+    this.cache();
+
+    // Initializes Game
+    this.initialize();
+}
+
+
+/**
+ * Cache method dedicated
+ * to cache anything in the DOM that we need to access.
+ */
+Game.prototype.cache = function ()  {
+
     // Check existence of jQuery wrapped Game HTML elements
     this.game = $('div.game');
     if (!this.game.length) {
@@ -46,10 +60,8 @@ function Game(config) {
     if (!this.navigation.length) {
         throw new Error("Game Constructor: no html navigation element found, 'div.navigation'");
     }
+};
 
-    // Initializes Game
-    this.initialize();
-}
 
 /**
  * Initialize Game
