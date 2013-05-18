@@ -321,8 +321,11 @@ Game.prototype.displayInvalidMove = function () {
 /**
  * Returns amount of random array elements
  *
- * @param {array} containing answer elements
- * @param {integer} amount of random to be returned
+ * Randomization is done by using the Fisher-Yates shuffle algorithm
+ * @link http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+ *
+ * @param {array} containing array elements
+ * @param {integer} amount of random array elements to be returned
  * @return {array}
  */
 Game.prototype.getRandomArrayElements = function (array, amount) {
