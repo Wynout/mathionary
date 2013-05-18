@@ -10,7 +10,7 @@
  */
 function Game(config) {
 
-    // Merge config into this.config
+    // Config properties
     this.config = {
         //effect: 'slideDown'
     };
@@ -18,9 +18,10 @@ function Game(config) {
         parentElement: 'ul',
         childElement: 'li'
     };
+    // Merge config into this.config
     $.extend(this.config, config);
 
-    // Question object
+    // Question properties
     this.question = {
         template: 'Which numbers add up to: {{answer}}?.', // Question template
         text: '', // Question created in method newQuestion using template
@@ -28,37 +29,47 @@ function Game(config) {
         elements: null // jQuery wrapped elements containing the answer
     };
 
-    // User object
+    // User properties
     this.user = {
         answer: null
     };
 
-    // Cache DOM element that we need to access
-    this.cache();
+    // Cached answers elements
+    this.$answers = null;
 
-    // Initializes Game
+    // Cached game container element
+    this.$game = null;
+
+    // Cached navigation elements
+    this.$navigation = null;
+
+
+    // Cache DOM Elements that we need to access
+    this.cacheDomElements();
+
+    // Initializes & Start Game
     this.initialize();
 }
 
 
 /**
- * Cache method dedicated
+ * CacheDomElements method dedicated
  * to cache anything in the DOM that we need to access.
  */
-Game.prototype.cache = function ()  {
+Game.prototype.cacheDomElements = function ()  {
 
     // Check existence of jQuery wrapped Game HTML elements
-    this.game = $('div.game');
-    if (!this.game.length) {
-        throw new Error("Game Constructor: no html game element found, 'div.game'");
+    this.$game = $('div.game');
+    if (!this.$game.length) {
+        throw new Error("Game CacheDomElements: no html game element found, 'div.game'");
     }
-    this.answers = this.game.find(this.config.answer.parentElement).first();
-    if (!this.answers.length) {
-        throw new Error("Game Constructor: no html unordered list element found, 'ul'");
+    this.$answers = this.$game.find(this.config.answer.parentElement).first();
+    if (!this.$answers.length) {
+        throw new Error("Game CacheDomElements: no html unordered list element found, 'ul'");
     }
-    this.navigation = this.game.find('div.navigation');
-    if (!this.navigation.length) {
-        throw new Error("Game Constructor: no html navigation element found, 'div.navigation'");
+    this.$navigation = this.$game.find('div.navigation');
+    if (!this.$navigation.length) {
+        throw new Error("Game CacheDomElements: no html navigation element found, 'div.navigation'");
     }
 };
 
@@ -102,7 +113,7 @@ Game.prototype.events = {
         var self = this; // Self refers to the Game object
         var answerElement = self.config.answer.childElement;
 
-        self.answers.on('mouseenter', answerElement, function() {
+        self.$answers.on('mouseenter', answerElement, function() {
             // This refers to answer element, wrapped in jQuery
             $(this).addClass('hover');
         });
@@ -112,7 +123,7 @@ Game.prototype.events = {
         var self = this; // Self refers to the Game object
         var answerElement = self.config.answer.childElement;
 
-        self.answers.on('mouseleave', answerElement, function() {
+        self.$answers.on('mouseleave', answerElement, function() {
             // This refers to answer element, wrapped in jQuery
             $(this).removeClass('hover transition-invalid-move');
         });
@@ -124,7 +135,7 @@ Game.prototype.events = {
         var self = this; // Self refers to the Game object
         var answerElement = self.config.answer.childElement;
 
-        self.answers.on('click', answerElement, function() {
+        self.$answers.on('click', answerElement, function() {
 
             var $this = $(this); // $this refers to the clicked answer element wrapped in jQuery
 
@@ -137,7 +148,7 @@ Game.prototype.events = {
             $this.toggleClass('selected');
 
             // A selected element is an element where class="selected"
-            var selectedElements = self.answers.find('.selected');
+            var selectedElements = self.$answers.find('.selected');
 
             // Answer is calculated by summing all HTML5 data attribute values
             self.user.answer = self.sumDataAttributes('answer', selectedElements);
@@ -194,7 +205,7 @@ Game.prototype.initAnswerElements = function () {
             })
             // Attach HTML5 data attribute
             .data('answer', answer)
-            .appendTo(this.answers);
+            .appendTo(this.$answers);
     }
 };
 
@@ -210,10 +221,10 @@ Game.prototype.initAnswerElements = function () {
 Game.prototype.newQuestion = function (displayQuestion) {
 
     // Remove all selected answers
-    this.answers.find(this.config.answerElement).removeClass('selected');
+    this.$answers.find(this.config.answerElement).removeClass('selected');
 
     // Find answers not used already.
-    var availableAnswers = this.answers.find(':not(.used)');
+    var availableAnswers = this.$answers.find(':not(.used)');
 
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
     var randomAnswer = $(this.getRandomArrayElements(availableAnswers, 2));
@@ -235,7 +246,7 @@ Game.prototype.newQuestion = function (displayQuestion) {
     this.question.text = template.replace( /{{answer}}/ig, answer );
 
     // Update all h1 question tags
-    return this.game.find('h1.question').text(this.question.text);
+    return this.$game.find('h1.question').text(this.question.text);
 };
 
 
