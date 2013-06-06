@@ -96,6 +96,10 @@ div.game ul {
 	line-height: 50px;
 	text-align: center;
 	width: 50px;
+
+	padding: 0;
+	list-style: none;
+
 }
 
 .game .hover {
