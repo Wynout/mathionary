@@ -91,14 +91,14 @@ $ git checkout gh-pages
 	<script src="https://rawgithub.com/Wynout/mathionary/master/js/math-exercise.js"></script>
 
 	<script type="text/javascript">
-	$(document).ready(function(){
+  (function(){
+    // Self Invoking Anonymous Function
+    var config =  {
+      container: 'div.game'
+    };
 
-		var config =  {
-			container: 'div.game'
-		};
-
-		var game = new Game(config);
-	});
+    var game = new Game(config);
+  })();
 	</script>
 
 
