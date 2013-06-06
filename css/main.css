@@ -1,6 +1,11 @@
 body {
-	padding-top: 20px;
-	padding-bottom: 40px;
+
+	background-image: -webkit-gradient(radial, 50% 30%, 0, 50% 30%, 600, from(rgb(255, 255, 255)), to(rgb(162, 162, 162)));
+	background-color: rgb(255, 255, 255);
+	/*background-image: -webkit-gradient(radial, 50% 30%, 0, 50% 30%, 600, from(#006EA0), to(#304160));*/
+	background-attachment: fixed;
+
+	margin: 20px 20px 40px 0;
 
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -109,7 +114,7 @@ div.game ul {
 	font-size: 2em;
 }
 
-.game .transition-invalid-move:hover{
+.game .transition-invalid-answer:hover{
 	-webkit-transition: background-color .15s linear;
 	-moz-transition: background-color .15s linear;
 	-o-transition: background-color .15s linear;

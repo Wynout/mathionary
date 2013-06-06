@@ -18,8 +18,8 @@
 	<div class="masthead">
 		<ul class="nav nav-pills pull-right">
 		<li class="active"><a href="#">Home</a></li>
-		<li><a href="#">About</a></li>
-		<li><a href="#">Contact</a></li>
+		<li><a href="qunit-tests.html">QUnit Test Suite</a></li>
+
 		</ul>
 		<h3 class="muted">Math Exercise Game in jQuery</h3>
 	</div>
@@ -28,10 +28,10 @@
 		<div class="navigation">
 			<h1 class="question">Question</h1>
 		</div>
-		<ul></ul>
 		<script id="questionTemplate" type="game/template">
 			Which numbers add up to: {{answer}}?.
 		</script>
+		<ul></ul>
 	</div>
 
 </div>
@@ -46,7 +46,7 @@
 $(document).ready(function(){
 
 	var config =  {
-		effect: 'custom effect'
+		container: 'div.game'
 	};
 
 	var game = new Game(config);

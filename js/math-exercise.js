@@ -1,5 +1,6 @@
 /**
  * Math Exercise Game, initialized with a value.
+ *
  * @param {Object} config.
  * @constructor
  *
@@ -10,18 +11,21 @@
  */
 function Game(config) {
 
-    // Config properties
+    /**
+     * Config properties.
+     *
+     * @property {Object}
+     */
     this.config = {
-        //effect: 'slideDown'
+        container: 'div.game'
     };
-    this.config.answer = {
-        parentElement: 'ul',
-        childElement: 'li'
-    };
-    // Merge config into this.config
     $.extend(this.config, config);
 
-    // Question properties
+    /**
+     * Question properties.
+     *
+     * @property {Object}
+     */
     this.question = {
         template: 'Which numbers add up to: {{answer}}?.', // Question template
         text: '', // Question created in method newQuestion using template
@@ -29,22 +33,30 @@ function Game(config) {
         elements: null // jQuery wrapped elements containing the answer
     };
 
-    // User properties
+    /**
+     * User properties
+     *
+     * @type {Object}
+     */
     this.user = {
         answer: null
     };
 
-    // Cached answers elements
+    /**
+     * Cached answers elements, wrapped in jQuery
+     *
+     * @type {Object}
+     */
     this.$answers = null;
 
-    // Cached game container element
+    /**
+     * Cached game container element, wrapped in jQuery
+     *
+     * @type {Object}
+     */
     this.$game = null;
 
-    // Cached navigation elements
-    this.$navigation = null;
-
-
-    // Cache DOM Elements that we need to access
+    // Cache DOM Elements that we need to access multiple times
     this.cacheDomElements();
 
     // Initializes & Start Game
@@ -53,45 +65,42 @@ function Game(config) {
 
 
 /**
- * CacheDomElements method dedicated
- * to cache anything in the DOM that we need to access.
+ * CacheDomElements method dedicated to cache anything in the DOM that we need to access.
+ *
+ * @this {Game}
+ * @throws {Error} when elements not found
  */
 Game.prototype.cacheDomElements = function ()  {
 
-    // Check existence of jQuery wrapped Game HTML elements
-    this.$game = $('div.game');
+    this.$game = $(this.config.container);
     if (!this.$game.length) {
         throw new Error("Game CacheDomElements: no html game element found, 'div.game'");
     }
-    this.$answers = this.$game.find(this.config.answer.parentElement).first();
+    this.$answers = this.$game.find('ul').first();
     if (!this.$answers.length) {
         throw new Error("Game CacheDomElements: no html unordered list element found, 'ul'");
-    }
-    this.$navigation = this.$game.find('div.navigation');
-    if (!this.$navigation.length) {
-        throw new Error("Game CacheDomElements: no html navigation element found, 'div.navigation'");
     }
 };
 
 
 /**
  * Initialize Game
+ *
+ * @this {Game}
  */
 Game.prototype.initialize = function () {
 
-    // Initialize Answer Elements
-    this.initAnswerElements();
-
-    // Method for binding all event handlers
-    this.bindEvents();
-
-    // Show a new question when Game initializes
-    this.newQuestion();
+    this.initializeAnswers();  // Game.$answers holds all the answers
+    this.bindEvents();          // Method for organizing event handlers
+    this.newQuestionCycle();    // Show a question, when Game starts
 };
 
 
 /**
- * Method for binding all event handlers
+ * Method for binding all event handlers.
+ * Organized in one method, for maintainability
+ *
+ * @this {Game}
  */
 Game.prototype.bindEvents = function () {
 
@@ -102,18 +111,23 @@ Game.prototype.bindEvents = function () {
 
 
 /**
- * Object events contains all event handlers
+ * Object events contains all event handlers.
+ * Organized in one method, for maintainability
+ *
+ * Event Delegation:
+ * Adds one event listener to the parent <ul> and use selector 'li' to filter delegated events on <li> elements.
+ *
+ * @this {Game}
  */
 Game.prototype.events = {
 
     // Answer element mouseenter and mouseleave events
     // Add hover classes on elements
-    answerMouseenter: function() {
+    answerMouseenter: function () {
 
         var self = this; // Self refers to the Game object
-        var answerElement = self.config.answer.childElement;
 
-        self.$answers.on('mouseenter', answerElement, function() {
+        self.$answers.on('mouseenter', 'li', function () {
             // This refers to answer element, wrapped in jQuery
             $(this).addClass('hover');
         });
@@ -121,11 +135,10 @@ Game.prototype.events = {
     answerMouseleave: function() {
 
         var self = this; // Self refers to the Game object
-        var answerElement = self.config.answer.childElement;
 
-        self.$answers.on('mouseleave', answerElement, function() {
+        self.$answers.on('mouseleave', 'li', function () {
             // This refers to answer element, wrapped in jQuery
-            $(this).removeClass('hover transition-invalid-move');
+            $(this).removeClass('hover transition-invalid-answer');
         });
     },
 
@@ -133,39 +146,39 @@ Game.prototype.events = {
     answerClick: function() {
 
         var self = this; // Self refers to the Game object
-        var answerElement = self.config.answer.childElement;
 
-        self.$answers.on('click', answerElement, function() {
+        self.$answers.on('click', 'li', function () {
 
             var $this = $(this); // $this refers to the clicked answer element wrapped in jQuery
 
-            // Cannot use elements where class="used"
-            if ($this.hasClass('used')) {
+            // Ignoring clicked used elements
+            if (self.isAnswerMarkedAsUsed.call(self, $this)) {
                 return;
             }
 
-            // Toggle element selection
+            // On answer click, toggle element selection
             $this.toggleClass('selected');
 
-            // A selected element is an element where class="selected"
-            var selectedElements = self.$answers.find('.selected');
+            var $selected = self.$answers.find('.selected');
 
             // Answer is calculated by summing all HTML5 data attribute values
-            self.user.answer = self.sumDataAttributes('answer', selectedElements);
+            self.user.answer = self.sumDataAttributes($selected);
 
-            if (self.isValidAnswer(selectedElements)===false) {
-                // This refers to the element that was clicked
-                self.displayInvalidMove.call(this);
+            // Selected answer invalid?
+            if (self.isInvalidAnswer($selected)===true) {
+
+                self.displayInvalidAnswer.call(this);
                 return;
             }
 
-            // New question if answered correctly
+            // Create new question when answered correctly
             if (self.isQuestionAnswered()) {
-                // Mark selected answer elements as used
-                selectedElements.removeClass('selected').addClass('used');
+
+                // Add class 'used' to elements that are selected
+                self.markAnswersAsUsed($selected);
 
                 // Create and display new question.
-                self.newQuestion();
+                self.newQuestionCycle();
             }
         });
     }
@@ -173,97 +186,152 @@ Game.prototype.events = {
 
 
 /**
- * Object effects contains all effects
+ * Initializes Answer Elements
+ *
+ * Creates elements and appends them to the parent element $answers
+ * Attaches an 'answer' HTML5 data attribute to each answer element, e.g.: <li data-answer="integer" /> tag.
+ *
+ * @this {Game}
+ * @param {Number} amount, optional default 64
+ * @return {Object} $answers (wrapped in jQuery)
  */
-Game.prototype.effects = {
+Game.prototype.initializeAnswers = function (amount) {
 
-    highlight: function () {
-        this.effect('highlight', {}, 1500);
-    },
-    displayInvalidMove: function () {
-        //
-    }
-};
+    amount = amount || 64;
 
+    this.$answers.remove('li');
 
-/**
- * Initialize Answer Elements
- * Creates elements and appends them to the parent this.answers
- * Attaches an 'answer' HTML5 data attribute to each list item: <element data-answer="integer" /> tag.
- */
-Game.prototype.initAnswerElements = function () {
-
-    var answerElement = this.config.answer.childElement;
-
-    // Create answer and append them to answers
-    for (var i=1; i<=64; i++) {
+    // Create answer and append them to $answers
+    for (var i=1; i<=amount; i++) {
 
         var answer = Math.floor( Math.random()*9 + 1 );
-        var createElement = '<'+answerElement+'></'+answerElement+'>'; // e.g. '<li></li>'
-        var item = $(createElement, {
+        var newElement = '<li></li>';
+        var item = $(newElement, {
                 text: answer
             })
             // Attach HTML5 data attribute
             .data('answer', answer)
             .appendTo(this.$answers);
     }
+    return this.$answers;
 };
 
 
 /**
- * Create a new question and store question in Game object question.
- * <h1/> tags will show question.
+ * Create a new Question object
  *
- * @param {object} this.answers
- * @param {object} HTML script element "#questionTemplate"
- * @return {object} jQuery wrapped element containing the question text
+ * @this {Game}
+ * @return {Object} new question object
  */
-Game.prototype.newQuestion = function (displayQuestion) {
+Game.prototype.newQuestionCycle = function () {
 
-    // Remove all selected answers
-    this.$answers.find(this.config.answerElement).removeClass('selected');
+    // Clear all selected answer elements
+    this.deselectAllAnswers();
 
     // Find answers not used already.
-    var availableAnswers = this.$answers.find(':not(.used)');
+    var $availableAnswers = this.getAvailableAnswers();
+
+    // Create question and answer
+    this.question = this.createNewQuestion($availableAnswers, '#questionTemplate');
+
+    // Display newly created question
+    this.displayQuestion();
+
+    return this.question;
+};
+
+
+/**
+ * Remove all 'selected' class from $answers
+ *
+ * @this {Game}
+ * @return {Object} $answers, answer elements, wrapped in jQuery
+ */
+Game.prototype.deselectAllAnswers = function () {
+
+    return this.$answers.find('li')
+        .removeClass('selected');
+};
+
+
+/**
+ * Returns all answer elements that do not have the 'used' class
+ *
+ * @this {Game}
+ * @return {Object} $answers answer elements, wrapped in jQuery
+ */
+Game.prototype.getAvailableAnswers = function () {
+
+    return this.$answers.find('li:not(.used)');
+};
+
+
+/**
+ * Creates a new Question and Answer
+ *
+ * @this {Game}
+ * @param {Object} $availableAnswers answer elements, wrapped in jQuery
+ * @param {String} templateSelector selector where question template is stored
+ * @return {Object} question
+ */
+Game.prototype.createNewQuestion = function($availableAnswers, templateSelector) {
 
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
-    var randomAnswer = $(this.getRandomArrayElements(availableAnswers, 2));
+    var $answerElements = this.getRandomArrayElements($availableAnswers, 2);
 
     // Calculate answer from html5 data attribute
     var answer = 0;
-    randomAnswer.each(function() {
+    $answerElements.each(function() {
+
         answer += $(this).data('answer');
     });
 
-    // Store Question in Game object
-    this.question.answer = answer;
-    this.question.elements = randomAnswer;
+    // Question template stored in HTML element
+    var template = this.getTemplate(templateSelector);
 
-    // Retrieve Question template from HTML
-    var template = $.trim( $('#questionTemplate').html() );
+    var question = {
+        answer: answer,
+        elements: $answerElements,
+        text: this.renderTemplate(template, {answer: answer})
+    };
+    return question;
+ };
 
-    // Replace all Question template variables
-    this.question.text = template.replace( /{{answer}}/ig, answer );
+/**
+ * Retrieves template from HTML element
+ *
+ * @param {String} selector HTML element containing template
+ * @return {String} template
+ */
+Game.prototype.getTemplate = function (selector) {
 
-    // Update all h1 question tags
-    return this.$game.find('h1.question').text(this.question.text);
+    return $.trim( $(selector).html() );
+};
+
+/**
+ * Displays the Question
+ *
+ * @this {Game}
+ * @return {Object} Question element, wrapped in jQuery
+ */
+Game.prototype.displayQuestion = function () {
+
+    return this.$game.find('.question').text(this.question.text);
 };
 
 
 /**
- * Returns Sum of all HTML5 data attribute 'answer' <element data-answer="integer" /> tags.
+ * Returns Sum of all HTML5 data attributes 'answer' <element data-answer="integer" />.
  *
- * @param {string} data attribute name
- * @param {object} containing elements
- * @return {integer}
+ * @param {Object} elements. Containing elements, wrapped in jQuery
+ * @return {Number} Sum
  */
-Game.prototype.sumDataAttributes = function (attributeName, elements) {
+Game.prototype.sumDataAttributes = function ($elements) {
 
     var sum = 0;
-    elements = elements || {};
-    elements.each(function() {
+    $elements.each(function() {
         // $(this) refers to current element
-        var value = $(this).data(attributeName);
+        var value = $(this).data('answer');
         sum += (value!==undefined) ? value : 0;
     });
     return sum;
@@ -271,33 +339,34 @@ Game.prototype.sumDataAttributes = function (attributeName, elements) {
 
 
 /**
- * Validate the answer
+ * Returns true when answer is invalid
  *
- * @param {object} selected, jQuery wrapped answer elements
- * @param {object} this.question
- * @return {boolean} returns true/false on valid answer
+ * @this {Game}
+ * @param {Object} selected, answer elements wrapped in jQuery
+ * @return {Boolean} returns true on invalid answer otherwise false
  */
-Game.prototype.isValidAnswer = function (selected) {
+Game.prototype.isInvalidAnswer = function (selected) {
 
     // Cannot select answer directly,
     // need to select at least two answers (except for last possible answer)
     var answersNeeded = this.question.elements.length;
     var selectedAnswer = $(selected[0]).data('answer');
-    if ( answersNeeded>1 && selected.length===1 && selectedAnswer>=this.question.answer) {
 
-        return false;
+    if (answersNeeded>1 && selected.length==1 && selectedAnswer==this.question.answer) {
+
+        return true; // Invalid answer, answer chosen directly
     }
 
     // Invalid answer when user has answer greater then question answer
-    return (this.user.answer > this.question.answer) ? false : true;
+    return (this.user.answer > this.question.answer) ? true : false;
 };
 
 
 /**
- * Check if the question is answered
+ * Returns boolean if question is answered
  *
- * @param {object} this.user.answer
- * @return {Boolean} [description]
+ * @this {Game}
+ * @return {Boolean} true on answered, otherwise false.
  */
 Game.prototype.isQuestionAnswered = function () {
 
@@ -307,14 +376,56 @@ Game.prototype.isQuestionAnswered = function () {
 
 
 /**
- * Display an invalid move
+ * Display an invalid answer
  *
- * @param  {object} element that was clicked
- * @return {object} jQuery wrapped element
+ * @this {Game}
+ * @return {Object} element, wrapped in jQuery
  */
-Game.prototype.displayInvalidMove = function () {
-    // This refers to the element that was clicked.
-    return $(this).addClass('transition-invalid-move').removeClass('selected');
+Game.prototype.displayInvalidAnswer = function () {
+
+    // This refers to the element that was clicked
+    return $(this).addClass('transition-invalid-answer').removeClass('selected');
+};
+
+
+/**
+ * Marks $elements as used. Adds class 'used' to all elements
+ *
+ * @param {Object} $elements, wrapped in jQuery
+ * @return {Object} elements, wrapped in jQuery
+ */
+Game.prototype.markAnswersAsUsed = function ($elements) {
+
+    return $elements.removeClass('selected').addClass('used');
+};
+
+/**
+ * Returns boolean if $answer is used.
+ *
+ * @param {Object} $answer, wrapped in jQuery
+ * @return {Boolean} true if has class, otherwise false
+ */
+Game.prototype.isAnswerMarkedAsUsed = function ($answer) {
+
+    return $answer.hasClass('used') ? true : false;
+};
+
+
+/**
+ * Returns rendered template
+ *
+ * @param {String} template "This is a {{test}}."
+ * @param {Object} replacements {test:"pass"}
+ * @return {String}/{Boolean} "This is a pass."
+ */
+Game.prototype.renderTemplate = function (template, replacements) {
+
+    var rendered = template;
+    $.each(replacements, function (search, replace) {
+        var regexp = new RegExp('{{'+search+'}}', 'ig');
+        rendered = rendered.replace( regexp, replace );
+    });
+    return rendered;
 };
 
 
@@ -324,9 +435,10 @@ Game.prototype.displayInvalidMove = function () {
  * Randomization is done by using the Fisher-Yates shuffle algorithm
  * @link http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
  *
- * @param {array} containing array elements
- * @param {integer} amount of random array elements to be returned
- * @return {array}
+ * @this {Game}
+ * @param {Object} containing array elements
+ * @param {Number} amount of random array elements to be returned, defaults to 1
+ * @return {Array}
  */
 Game.prototype.getRandomArrayElements = function (array, amount) {
 
@@ -342,12 +454,13 @@ Game.prototype.getRandomArrayElements = function (array, amount) {
 /**
  * Randomize array element order in-place using Fisher-Yates shuffle algorithm.
  *
- * @param {array} to be randomized
- * @return {array} randomized
+ * @param {Object} array to be randomized
+ * @return {Array} randomized
  */
 Game.prototype.shuffleArray = function (array) {
 
     for ( var i=array.length-1; i>0; i--) {
+
         var j = Math.floor(Math.random() * (i+1));
         var temp = array[i];
         array[i] = array[j];
