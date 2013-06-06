@@ -7,6 +7,7 @@
     <meta name="description" content="Mathionary : Math Exercise Game in jQuery" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" href="https://rawgithub.com/Wynout/mathionary/master/css/main.css">
 
     <title>Mathionary</title>
   </head>
@@ -31,6 +32,19 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
+
+	<div class="game">
+		<div class="navigation">
+			<h1 class="question">Question</h1>
+		</div>
+		<script id="questionTemplate" type="game/template">
+			Which numbers add up to: {{answer}}?.
+		</script>
+		<ul></ul>
+	</div>
+
+
+
         <h3>
 <a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
 
@@ -72,6 +86,22 @@ $ git checkout gh-pages
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.js"></script>
+	<script src="https://rawgithub.com/Wynout/mathionary/master/js/math-exercise.js"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+		var config =  {
+			container: 'div.game'
+		};
+
+		var game = new Game(config);
+	});
+	</script>
+
+
 
               <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
