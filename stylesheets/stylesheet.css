@@ -427,7 +427,7 @@ Full-Width Styles
 }
 
 #main_content {
-	min-height:525px;
+	overflow: hidden;
 	padding-top: 40px;
 }
 
