@@ -8,9 +8,9 @@
 /**
  * Game.prototype.cacheDomElements
  */
-module('Game.prototype.cacheDomElements', {
+module('Game.prototype.cacheDomElements()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         this.Game = $.extend({
@@ -18,8 +18,6 @@ module('Game.prototype.cacheDomElements', {
                 container: '#qunit-fixture div.game'
             }
         }, Game.prototype);
-
-        // this.Game.cacheDomElements.call(this.Game);
     }
 });
 test('Test throw Errors', 2, function () {
@@ -50,9 +48,9 @@ test('Test if DOM elements are being cached', 2, function () {
 /**
  * Game.prototype.initialize
  */
-module('Game.prototype.initialize', {
+module('Game.prototype.initialize(): Test initialize answers', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         jQuery(
@@ -67,17 +65,39 @@ module('Game.prototype.initialize', {
         '</div>')
             .appendTo('#qunit-fixture');
 
+        var testState = {
+            storageKey: 'should:not-exists',
+            gameInProgress: false,
+            answers: [],
+            question: {
+                template: 'Which numbers add up to: {{answer}}?.',
+                text: '',
+                answer: 0,
+                answersNeeded: 0
+            },
+            user: {
+                answer: 0
+            }
+        };
+
         this.Game = $.extend({
             $game: $('#qunit-fixture div.game'),
-            $answers: $('#qunit-fixture ul').first()
+            $answers: $('#qunit-fixture ul').first(),
+            state: testState
+
         }, Game.prototype);
 
-        this.Game.initialize.call(this.Game, 8);
+        localStorage.removeItem('should:not-exists');
+
+        this.Game.initialize.call(this.Game, 64);
     }
 });
-test('Test initialization', 6, function () {
+test('Test answer elements', 7, function () {
 
+    var gameState = this.Game.state;
     var $answers = this.Game.$answers.find('li');
+
+    // DOM elements created?
     strictEqual($answers.length, 64, 'Game.$answers contains 64 answer elements.');
 
     // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
@@ -91,13 +111,82 @@ test('Test initialization', 6, function () {
     });
     strictEqual(count, 3, 'Answer element has 3 events.');
 
-    // Test question
-    strictEqual(typeof this.Game.question.answer, 'number', 'typeof Game.question.answer equals to "number".');
-    strictEqual(this.Game.question.elements.length, 2, 'Game.question.elements.length equals to 2.');
-    strictEqual(typeof this.Game.question.text, 'string', 'typeof Game.question.text equals to "string".');
-    ok(this.Game.question.text.length, 'Game.question.text.length greater then 0.');
+    // Test if question is created (question is random)
+    strictEqual(typeof gameState.question.answer, 'number', 'typeof Game.state.question.answer equals to "number".');
+    strictEqual(typeof gameState.question.text, 'string', 'typeof Game.state.question.text equals to "string".');
+    strictEqual(gameState.question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
+    strictEqual(gameState.question.text==='', false, 'Game.state.question.text is not an empty string.');
+
+    // Test if array gameState.answers contains answer objects
+    strictEqual(gameState.answers.length, 64, 'Game.state.answers.length equals to 64.');
 });
 
+module('Game.prototype.initialize(): Test loadGameState', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">'+
+            '<div class="navigation">'+
+                '<h1 class="question">Question</h1>'+
+            '</div>'+
+            '<script id="questionTemplate" type="game/template">'+
+                'Which numbers add up to: {{answer}}?.'+
+            '</script>'+
+            '<ul></ul>'+
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        var testState = {
+            storageKey: 'test:load-game-state',
+            gameInProgress: true,
+            answers: [
+                {index: 0, answer: 3, selected: true, used: false },
+                {index: 1, answer: 2, selected: true, used: false }
+            ],
+            question: {
+                template: 'Which numbers add up to: {{answer}}?.',
+                text: 'Which numbers add up to: 5?.',
+                answer: 5,
+                answersNeeded: 2
+            },
+            user: {
+                answer: 5
+            }
+        };
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            state: testState
+
+        }, Game.prototype);
+
+        this.testString = JSON.stringify(testState);
+        // Setup test string in Storage
+        localStorage['test:load-game-state'] = this.testString; // JSON
+
+        this.Game.initialize.call(this.Game);
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test storageKey must be unset after testing
+        localStorage.removeItem('test:load-game-state');
+    }
+});
+test('Test loading Game State from Storage', 5, function () {
+
+    strictEqual(this.Game.state.answers.length, 2, 'Game.state.answers.length equals to 2.');
+
+    var $answers = this.Game.$answers.find('li');
+    strictEqual($answers.eq(0).data('index'), 0, 'First answer attribute data-index equals to 0');
+    strictEqual($answers.eq(0).data('answer'), 3, 'First answer attribute data-answer equals to 3.');
+    strictEqual($answers.eq(0).hasClass('selected'), true, 'First answer has class "selected."');
+    strictEqual($answers.eq(0).hasClass('used'), false, 'First answer does not have class "selected."');
+});
 
 
 /**
@@ -107,7 +196,7 @@ test('Test initialization', 6, function () {
  */
 module('Game.prototype.bindEvents', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         jQuery(
@@ -144,7 +233,7 @@ test('Test bindEvents', 3, function () {
  */
 module('Game.prototype.events', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         jQuery(
@@ -159,18 +248,27 @@ module('Game.prototype.events', {
         '</div>')
             .appendTo('#qunit-fixture');
 
+        this.testState = {
+            gameInProgress: true,
+            question: {
+                answer: 5,
+                template: 'Which numbers add up to: {{answer}}?.',
+                text: 'Which numbers add up to: 5?.',
+                answerNeeded: 2
+            },
+            answers: [
+                {answer: 2, selected: false, used: false},
+                {answer: 3, selected: false, used: false}
+                ],
+            user: {
+                answer: 2
+            }
+        };
+
         this.Game = $.extend({
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
-            user: {
-                answer: null
-            },
-            question: {
-                text: null,
-                answer: 5,
-                // answer to the question
-                elements : jQuery('<li data-answer="2">2</li><li data-answer="3">3</li>')
-            }
+            state: this.testState
         }, Game.prototype);
 
         // Bind all Events
@@ -182,7 +280,7 @@ test('answerMouseenter', 1, function () {
     // Test mouseleave event on <li /> element
     jQuery('<li data-answer="1">1</li>').appendTo(this.Game.$answers);
 
-    $answer = this.Game.$answers.find('li').first()
+    var $answer = this.Game.$answers.find('li').first()
         .trigger('mouseenter');
     strictEqual($answer.hasClass('hover'), true, 'Answer element gets class "hover" on mouseenter.');
 });
@@ -190,7 +288,7 @@ test('answerMouseleave', 2, function () {
 
     // Test mouseleave event on <li /> element
     jQuery('<li class="hover transition-invalid-answer" data-answer="1">1</li>').appendTo(this.Game.$answers);
-    $answer = this.Game.$answers.find('li').first()
+    var $answer = this.Game.$answers.find('li').first()
         .addClass('hover')
         .trigger('mouseleave');
 
@@ -203,7 +301,7 @@ test('answerClick: Test toggle answer selection', 2, function () {
     jQuery('<li data-answer="1">1</li>')
         .appendTo(this.Game.$answers);
 
-    $answer = this.Game.$answers.find('li').first()
+    var $answer = this.Game.$answers.find('li').first()
         .trigger('click');
 
     // Test if answer can be selected
@@ -224,11 +322,11 @@ test('answerClick: Test property Game.user.answer', 1, function () {
     '<li data-answer="5">5</li>') // trigger click
         .appendTo(this.Game.$answers);
 
-    $answer = this.Game.$answers.find('li').last()
+    var $answer = this.Game.$answers.find('li').last()
         .trigger('click');
 
     // Test if user.answer is correct
-    strictEqual(this.Game.user.answer, 5, 'Game.user.answer equals to 5.');
+    strictEqual(this.Game.state.user.answer, 5, 'Game.state.user.answer equals to 5.');
 });
 test('answerClick: Test if used answers cannot be selected', 1, function () {
 
@@ -236,7 +334,7 @@ test('answerClick: Test if used answers cannot be selected', 1, function () {
     jQuery('<li class="used" data-answer="1">1</li>')
         .appendTo(this.Game.$answers);
 
-    $answer = this.Game.$answers.find('li')
+    var $answer = this.Game.$answers.find('li')
         .trigger('click');
 
     // Cannot select used answers. Used answers must be ignored.
@@ -246,9 +344,18 @@ test('answerClick: Test invalid moves', 2, function () {
 
     // Test mouse click event on <li /> element
     jQuery(
-    '<li data-answer="5">5</li>'+ // 5 is the answer
-    '<li data-answer="6">6</li>')
+    '<li data-answer="6">6</li>'+
+    '<li data-answer="7">6</li>')
         .appendTo(this.Game.$answers);
+
+    this.Game.state = {
+        question: {
+            answer: 0
+        },
+        user: {
+            answer: 0
+        }
+    };
 
     // Test invalid answer: cannot select answer directly
     $answer = this.Game.$answers.find('li').first()
@@ -256,7 +363,7 @@ test('answerClick: Test invalid moves', 2, function () {
     strictEqual($answer.hasClass('transition-invalid-answer'), true, 'Invalid move: Cannot select answer directly. Answer element gets class "transition-invalid-answer".');
 
     // Test invalid answer: cannot select answer higher question.answer
-    $answer = this.Game.$answers.find('li').last()
+    var $answer = this.Game.$answers.find('li').last()
         .trigger('click');
     strictEqual($answer.hasClass('transition-invalid-answer'), true, 'Invalid move: Cannot select answer higher question.answer. Answer element gets class "transition-invalid-answer".');
 });
@@ -271,7 +378,7 @@ test('answerClick: Test if answer is correct', 2, function () {
         .appendTo(this.Game.$answers);
 
     // Test if correct answer receives class "used"
-    $answer = this.Game.$answers.find('li').eq(2) // contains the answer 3
+    var $answer = this.Game.$answers.find('li').eq(2) // contains the answer 3
         .trigger('click');
     strictEqual($answer.hasClass('used'), true, 'Correct answer gets class "used" on click.');
 
@@ -282,38 +389,392 @@ test('answerClick: Test if answer is correct', 2, function () {
 
 
 /**
- * Game.prototype.initializeAnswers()
+ * Game.prototype.loadGameState()
  */
-module('Game.prototype.initializeAnswers()', {
+module('Game.prototype.loadGameState()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">'+
+            '<div class="navigation">'+
+                '<h1 class="question">Question</h1>'+
+            '</div>'+
+            '<ul></ul>'+
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            state: {}
+        }, Game.prototype);
+
+        this.testState = {
+            gameInProgress: true,
+            question: {
+                answer: 3,
+                template: 'Which numbers add up to: {{answer}}?.',
+                text: 'Which numbers add up to: 3?.',
+                answerNeeded: 2
+            },
+            answers: [
+                {index: 0, answer: 1, selected: false, used: true},
+                {index: 1, answer: 2, selected: true, used: false}
+                ],
+            user: {
+                answer: 2
+            }
+        };
+        this.testString = JSON.stringify(this.testState);
+        // Setup test string in Storage
+        localStorage['test:loadGameState'] = this.testString; // JSON
+        // Setup invalid GameState in Storage
+        localStorage['test:cannotLoadGameState'] = 'This is not a well formed JSON string';
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('test:loadGameState');
+        localStorage.removeItem('test:cannotLoadGameState');
+    }
+});
+test('Test if Game State Object can be loaded from Storage', 2, function () {
+
+    // Load Game State from Storage
+    var result = this.Game.loadGameState('test:loadGameState');
+
+    // Test if result is equal to true
+    deepEqual(result, true, 'Result equals true when gameState cannot be loaded from Storage.');
+
+    // Test Game State object
+    deepEqual(this.Game.state, this.testState, 'Game.state object equals to this.testState.');
+});
+test('Test if Game State Object cannot be loaded from Storage', 2, function () {
+
+    // Load Game State from Storage
+    var result = this.Game.loadGameState('test:cannotLoadGameState');
+
+    // Test failure loading JSON string from Storage
+    deepEqual(result, false, 'Result equals false when gameState cannot be loaded from Storage.');
+
+    // Test Game State object
+    deepEqual(this.Game.state, this.Game.state, 'Game.state object equals to this.testState.');
+});
+test('Test Game.state.question object after loading from Storage', 1, function () {
+
+    // Load Game State from Storage
+    this.Game.loadGameState('test:loadGameState');
+
+    // Test if object loaded from Storage
+    deepEqual(JSON.stringify(this.Game.state), this.testString, 'Game.state equals to Test state.');
+});
+
+
+
+/**
+ * Game.prototype.saveGameState()
+ */
+module('Game.prototype.saveGameState()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        // Test key must be unset before testing
+        localStorage.removeItem('test:saveGameState');
+
+        // These answers will be stored in gameState
+        jQuery(
+        '<div class="game">'+
+            '<ul>'+
+                '<li class="used" data-answer="1">1</li>'+
+                '<li class="selected" data-answer="2">2</li>'+
+            '</ul>'+
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        // Test properties of Game State
+        var gameState = {
+            gameInProgress: true,
+            answers: []
+        };
+
+        this.Game = $.extend({
+            state: gameState,
+            $answers: $('#qunit-fixture ul').first()
+        }, Game.prototype);
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('test:saveGameState');
+    }
+});
+test('Test if Game State is saved to Storage', 7, function () {
+
+    // Save Game State to Storage
+    var result = this.Game.saveGameState('test:saveGameState'),
+        gameState = $.parseJSON(localStorage['test:saveGameState']);
+
+    // Test gameInProgress
+    strictEqual(gameState.gameInProgress, true, 'gameState.gameInProgress equals to true');
+
+    // Test first answer
+    strictEqual(gameState.answers[0].answer, 1, 'gameState.answers[0].answer equals to 1');
+    strictEqual(gameState.answers[0].selected, false, 'gameState.answers[0].selected equals to false');
+    strictEqual(gameState.answers[0].used, true, 'gameState.answers[0].used equals to true');
+
+    // Test second answer
+    strictEqual(gameState.answers[1].answer, 2, 'gameState.answers[1].answer equals to 2');
+    strictEqual(gameState.answers[1].selected, true, 'gameState.answers[1].selected equals to true');
+    strictEqual(gameState.answers[1].used, false, 'gameState.answers[1].used equals to false');
+});
+
+
+
+/**
+ * Game.prototype.getFromStorage()
+ */
+module('Game.prototype.getFromStorage', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        // Set test JSON string
+        localStorage['test:get'] = '{"key":"a value"}';
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('test:get');
+    }
+});
+test('Test if object is returned from Storage', 1, function () {
+
+    var testObject = {key: 'a value'};
+
+    result = Game.prototype.getFromStorage('test:get');
+    strictEqual(result.key,testObject.key,"result['test:get'] must equal to object {key: 'value'}.");
+});
+
+
+
+/**
+ * Game.prototype.saveToStorage()
+ */
+module('Game.prototype.saveToStorage', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        // Test key must be unset before testing
+        localStorage.removeItem('test:save');
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('test:save');
+    }
+});
+test('Test if object can be saved to Storage', 1, function () {
+
+    var testObject = {key: 'a value'},
+        testString = JSON.stringify(testObject), // '{"key":"a value"}'
+        result = Game.prototype.saveToStorage('test:save', testObject);
+
+    strictEqual(localStorage['test:save'],testString,"localStorage['test:save'] must equal to string "+'{"key":"a value"}');
+});
+
+
+
+/**
+ * Game.prototype.deleteFromStorage()
+ */
+module('Game.prototype.deleteFromStorage', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        // Set test values
+        localStorage['test-remove:me'] = 'remove';
+        localStorage['test-keep:me']   = 'keep';
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('test-remove:me');
+        localStorage.removeItem('test-keep:me');
+    }
+});
+test('Test if a localStorage[key] can be deleted', 2, function () {
+
+    // Test if key is removed from Storage
+    var result = Game.prototype.deleteFromStorage('test-remove:');
+    strictEqual(localStorage['test-remove:me'],undefined,"localStorage['test-remove:me'] must equal to undefined.");
+
+    // Test if another key is not removed from Storage
+    strictEqual(localStorage['test-keep:me'],'keep',"localStorage['test-keep:me'] must equal to 'keep'.");
+});
+
+
+
+/**
+ * Game.prototype.isBrowserSupportingDOMStorage()
+ */
+module('Game.prototype.isBrowserSupportingDOMStorage()');
+test('Test when browser window supports HTML5 Local Storage', 1, function () {
+
+    var testStorage = function (){}, result;
+
+    result = Game.prototype.isBrowserSupportingDOMStorage(testStorage);
+    strictEqual(result, true, 'Equals to boolean true when browser window supports HTML5 Local Storage.');
+});
+test('Test when browser window does not support HTML5 Local Storage', 1, function () {
+
+    var testStorage, result;
+
+    result = Game.prototype.isBrowserSupportingDOMStorage(testStorage);
+    strictEqual(result, false, 'Equals to boolean false when browser window does not support HTML5 Local Storage.');
+});
+
+
+
+/**
+ * Game.prototype.createNewAnswers()
+ */
+module('Game.prototype.createNewAnswers()', {
+
+    // Setup callback runs before each test
     setup: function () {
 
         jQuery('<div class="game"><ul></ul></div>')
             .appendTo('#qunit-fixture');
 
+        var testState = {
+            answers: []
+        };
+
         this.Game = $.extend({
-            $answers: $('#qunit-fixture ul').first()
+            $answers: $('#qunit-fixture ul').first(),
+            state: testState
         }, Game.prototype);
     }
 });
 test('Test if answer elements are created', 1, function () {
 
-    var $answers = this.Game.initializeAnswers(8);
+    var $answers = this.Game.createNewAnswers(8);
     strictEqual($answers.find('li').length, 8, 'Amount of answer elements created equals to 8.');
 });
-test('Test if all answer elements have a HTML5 data attribute', 1, function () {
+test('Test if all answer elements have HTML5 data-index attribute', 1, function () {
 
-    var $answers = this.Game.initializeAnswers(8),
-        result = true;
+    var $answers = this.Game.createNewAnswers(8);
 
+    var result = true;
     $answers.find('li').each(function() {
+
+        if (typeof $(this).data('index')!=='number') {
+            result = false;
+        }
+    });
+
+    strictEqual(result, true, 'All answer elements have a HTML5 data attribute with a number.');
+});
+test('Test if all answer elements have HTML5 data-answer attribute', 1, function () {
+
+    var $answers = this.Game.createNewAnswers(8);
+
+    var result = true;
+    $answers.find('li').each(function() {
+
         if (typeof $(this).data('answer')!=='number') {
             result = false;
         }
     });
 
     strictEqual(result, true, 'All answer elements have a HTML5 data attribute with a number.');
+});
+test('Test answer objects in Game.state.answers', 1, function () {
+
+    this.Game.createNewAnswers(8);
+    var answers = this.Game.state.answers;
+
+    strictEqual(answers.length, 8, 'Game.state.answers.length equals to 8');
+});
+
+
+
+/**
+ * Game.prototype.setupAnswerElements()
+ */
+module('Game.prototype.setupAnswerElements()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">'+
+            '<div class="navigation">'+
+                '<h1 class="question">Question</h1>'+
+            '</div>'+
+            '<ul></ul>'+
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            state: {
+                answers:[]
+            }
+        }, Game.prototype);
+    }
+});
+test('Test if answers are setup', 10, function () {
+
+    var answers = [
+        {index: 0, answer: 1, selected: false, used: true},
+        {index: 1, answer: 2, selected: true, used: false}
+    ];
+
+    var result = this.Game.setupAnswerElements(answers);
+    strictEqual(result, true, 'Returns true when answers are setup');
+
+    var $answers = this.Game.$answers.find('li');
+    strictEqual($answers.length, 2, '<ul/> element contains 2 answers');
+
+    strictEqual($answers.eq(0).data('index'), 0, 'First <li/> element has data-index attribute equal to 0.');
+    strictEqual($answers.eq(0).data('answer'), 1, 'First <li/> element has data-answer attribute equal to 1.');
+    strictEqual($answers.eq(0).hasClass('selected'), false, 'First <li/> element does not has class="selected".');
+    strictEqual($answers.eq(0).hasClass('used'), true, 'First <li/> element has class="used".');
+
+    strictEqual($answers.eq(1).data('index'), 1, 'Second <li/> element has data-index attribute equal to 1');
+    strictEqual($answers.eq(1).data('answer'), 2, 'Second <li/> element has data-answer attribute equal to 2.');
+    strictEqual($answers.eq(1).hasClass('selected'), true, 'Second <li/> element has class="selected".');
+    strictEqual($answers.eq(1).hasClass('used'), false, 'Second <li/> element does not have class="used".');
+});
+test('Test when answers could not be setup', 2, function () {
+
+    var answers = [
+        {index: 0, answer: 1, selected: false, used: true},
+        {} // does not contain the answer properties
+    ];
+
+    var result = this.Game.setupAnswerElements(answers);
+    strictEqual(result, false, 'Returns false when answers could not be setup');
+
+    var $answers = this.Game.$answers.find('li');
+    strictEqual($answers.length, 0, 'No answer elements should be created on failure');
 });
 
 
@@ -344,7 +805,8 @@ module('Game.prototype.newQuestionCycle()', {
 
         this.Game = $.extend({
             $game: $('#qunit-fixture div.game'),
-            $answers: $('#qunit-fixture ul').first()
+            $answers: $('#qunit-fixture ul').first(),
+            state: {}
         }, Game.prototype);
     }
 });
@@ -352,9 +814,9 @@ test('Test if a new question is created', 3, function () {
 
     var question = this.Game.newQuestionCycle();
 
-    strictEqual(question.answer, 5, 'Question.answer equals to 5.');
-    strictEqual(question.elements.length, 2, 'Question.elements.length equals to 2.');
-    strictEqual(question.text, 'Which numbers add up to: 5?.', 'Question.text equals to "Which numbers add up to: 5?.".');
+    strictEqual(question.answer, 5, 'Game.state.question.answer equals to 5.');
+    strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
+    strictEqual(question.text, 'Which numbers add up to: 5?.', 'Game.state.question.text equals to "Which numbers add up to: 5?.".');
 });
 
 
@@ -364,7 +826,7 @@ test('Test if a new question is created', 3, function () {
  */
 module('Game.prototype.deselectAllAnswers()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         // Initialize answers, two answers are selected
@@ -385,7 +847,7 @@ module('Game.prototype.deselectAllAnswers()', {
 });
 test('Test if all answers have class "selected" removed', 1, function () {
 
-    $answers = this.Game.deselectAllAnswers.call(this.Game);
+    var $answers = this.Game.deselectAllAnswers.call(this.Game);
 
     strictEqual($answers.find('li.selected').length, 0, 'Class "selected" removed from all answers ($answers.length equals to 0).');
 });
@@ -397,7 +859,7 @@ test('Test if all answers have class "selected" removed', 1, function () {
  */
 module('Game.prototype.getAvailableAnswers()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         // Initialize answers, available answers = 1
@@ -442,7 +904,7 @@ test('Test new question object', 3, function () {
         result = Game.prototype.createNewQuestion(availableAnswers, '#qunit-fixture #questionTemplate');
 
     strictEqual(result.answer, 3, 'Question.answer equals to 3.');
-    strictEqual(result.elements.length, 2, 'Question.elements.length equals to 2.');
+    strictEqual(result.answersNeeded, 2, 'Question.answersNeeded equals to 2.');
     strictEqual(result.text, 'answer = 3', 'Question.text equals to "answer = 3".');
 });
 
@@ -470,7 +932,7 @@ test('Test retrieval question template from HTML', 1, function () {
  */
 module('Game.prototype.displayQuestion()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         jQuery(
@@ -484,7 +946,9 @@ module('Game.prototype.displayQuestion()', {
 
         this.Game = $.extend({
             $game: $('#qunit-fixture div.game'),
-            question: {text: 'test question text'}
+            state: {
+                question: {text: 'test question text'}
+            }
         }, Game.prototype);
     }
 });
@@ -518,7 +982,7 @@ test('Test sum data answer attributes', 1, function () {
  */
 module('Game.prototype.isInvalidAnswer()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
         jQuery(
@@ -531,30 +995,37 @@ module('Game.prototype.isInvalidAnswer()', {
         '</div>')
             .appendTo('#qunit-fixture');
 
-        this.Game = $.extend({
+        var testGameState = {
             question: {
                 answer: 3,
-                elements: $('#qunit-fixture li:not(.selected)')
+                answersNeeded: 2
             },
-            user: {answer: null}
+            user: {
+                answer: 3
+            }
+        };
+
+        this.Game = $.extend({
+            $answers: $('#qunit-fixture ul').first(),
+            state: testGameState
         }, Game.prototype);
     }
 });
 test('Test cannot select answer directly', 1, function () {
 
-    this.Game.user.answer = 3;
+    var selected = this.Game.$answers.find('.selected');
+    var result = this.Game.isInvalidAnswer(selected);
 
-    var selected = $('#qunit-fixture').find('.selected'),
-        result = this.Game.isInvalidAnswer(selected);
+
 
     strictEqual(result, true, 'Equals to true when answer is selected directly.');
 });
 test('Test selected answer is higher then Question answer.', 1, function () {
 
-   this.Game.user.answer = 4;
+    this.Game.state.user.answer = 4;
 
     var selected = $('#qunit-fixture').find('.selected'),
-        result = this.Game.isInvalidAnswer(selected);
+        result = this.Game.isInvalidAnswer.call(this.Game, selected);
 
     strictEqual(result, true, 'Equals to true when user answer is higher then question answer.');
 });
@@ -566,24 +1037,36 @@ test('Test selected answer is higher then Question answer.', 1, function () {
  */
 module('Game.prototype.isQuestionAnswered()', {
 
-    // setup callback runs before each test
+    // Setup callback runs before each test
     setup: function () {
 
-        this.question = {answer: 123};
-        this.user     = {answer: 123};
-    },
-    // teardown callback runs after each test
-    teardown: function () {
+        jQuery('<div class="game"><ul></ul></div>')
+            .appendTo('#qunit-fixture');
+
+        var testGameState = {
+
+            question: {
+                answer: 123
+            },
+            user: {
+                answer: 123
+            }
+        };
+
+        this.Game = $.extend({
+            $answers: $('#qunit-fixture ul').first(),
+            state: testGameState
+        }, Game.prototype);
     }
 });
 test('Test is question answered correctly', 2, function () {
 
-    var result = Game.prototype.isQuestionAnswered.call(this);
-    strictEqual(result, true, 'Equals to true. Question answered correctly.');
+    var result = Game.prototype.isQuestionAnswered.call(this.Game);
+    strictEqual(result, true, 'Equals to true when question is answered correctly.');
 
-    this.user.answer = 321;
-    result = Game.prototype.isQuestionAnswered.call(this);
-    strictEqual(result, false, 'Equals to false. Question answered incorrectly.');
+    this.Game.state.user.answer = 321; // incorrect answer
+    result = Game.prototype.isQuestionAnswered.call(this.Game);
+    strictEqual(result, false, 'Equals to false when question answered incorrectly.');
 });
 
 
