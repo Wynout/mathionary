@@ -35,7 +35,7 @@
  * Game.prototype.getRandomArrayElements()
  * Game.prototype.shuffleArray()
  * Game.prototype.sumDataAttributes()
- /
+ *
  *
  * @param {Object} config.
  * @constructor
