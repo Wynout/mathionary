@@ -1,6 +1,42 @@
 /**
  * Math Exercise Game, initialized with a value.
  *
+ * Methods:
+ *
+ * Game.prototype.cacheDomElements()
+ * Game.prototype.initialize()
+ * Game.prototype.bindEvents()
+ * Game.prototype.events()
+ *
+ * Game.prototype.newQuestionCycle()
+ * Game.prototype.createNewAnswers()
+ * Game.prototype.createNewQuestion()
+ * Game.prototype.deselectAllAnswers()
+ * Game.prototype.getAvailableAnswers()
+ * Game.prototype.isAnswerMarkedAsUsed()
+ * Game.prototype.isInvalidAnswer()
+ * Game.prototype.isQuestionAnswered()
+ * Game.prototype.markAnswersAsUsed()
+ * Game.prototype.setupAnswerElements()
+ *
+ * Game.prototype.displayInvalidAnswer()
+ * Game.prototype.displayQuestion()
+ *
+ * Game.prototype.isBrowserSupportingDOMStorage()
+ * Game.prototype.loadGameState()
+ * Game.prototype.saveGameState()
+ * Game.prototype.getFromStorage()
+ * Game.prototype.saveToStorage()
+ * Game.prototype.deleteFromStorage()
+ *
+ * Game.prototype.getTemplate()
+ * Game.prototype.renderTemplate()
+ *
+ * Game.prototype.getRandomArrayElements()
+ * Game.prototype.shuffleArray()
+ * Game.prototype.sumDataAttributes()
+ /
+ *
  * @param {Object} config.
  * @constructor
  *
@@ -22,6 +58,20 @@ function Game(config) {
     $.extend(this.config, config);
 
     /**
+     * Cached answers elements, wrapped in jQuery
+     *
+     * @type {Object}
+     */
+    this.$answers = null;
+
+    /**
+     * Cached game container element, wrapped in jQuery
+     *
+     * @type {Object}
+     */
+    this.$game = null;
+
+    /**
      * Holds the current Game state
      *
      * @property {Object}
@@ -41,20 +91,6 @@ function Game(config) {
             name: ''
         }
     };
-
-    /**
-     * Cached answers elements, wrapped in jQuery
-     *
-     * @type {Object}
-     */
-    this.$answers = null;
-
-    /**
-     * Cached game container element, wrapped in jQuery
-     *
-     * @type {Object}
-     */
-    this.$game = null;
 
     // Cache DOM Elements that we need to access multiple times
     this.cacheDomElements();
@@ -215,6 +251,291 @@ Game.prototype.events = {
 
 
 /**
+ * Create a new Question object
+ *
+ * @this {Game}
+ * @return {Object} new question object
+ */
+Game.prototype.newQuestionCycle = function () {
+
+    // Clear all selected answer elements
+    this.deselectAllAnswers();
+
+    // Find answers not used already.
+    var $availableAnswers = this.getAvailableAnswers();
+
+    // Create question and answer
+    this.state.question = this.createNewQuestion($availableAnswers, '#questionTemplate');
+
+    // Display new question
+    this.displayQuestion();
+
+    return this.state.question;
+};
+
+
+/**
+ * Populates $answer parent <ul/> with answer elements <li/>
+ *
+ * Creates elements and appends them to the parent element <ul/> containing the
+ * Attaches an 'answer' HTML5 data attribute to each answer element, e.g.: <li data-answer="integer" /> tag.
+ *
+ * @this {Game}
+ * @param {Number} amount, optional default 64
+ * @return {Object} $answers (wrapped in jQuery)
+ */
+Game.prototype.createNewAnswers = function (amount) {
+
+    // Default 64 elements are created
+    amount = amount || 64;
+
+    // Clear all answers
+    this.$answers.remove('li');
+    this.state.answers = [];
+
+    // Create {amount} answers with random value between 1-9
+    // and append them to the parent element <ul/>
+    for (var index=0; index<amount; index++) {
+
+        var randomNumber = Math.floor( Math.random()*9 + 1 );
+
+        // Add new answer to Game State,
+        this.state.answers.push({
+            answer: randomNumber,
+            selected: false,
+            used: false
+        });
+
+        // Append a new answer element to the DOM
+        $('<li></li>', {text: randomNumber})
+            // Attach HTML5 data attributes
+            .data('index', index)
+            .data('answer', randomNumber)
+            // Append to parent element <ul/>
+            .appendTo(this.$answers);
+    }
+    return this.$answers;
+};
+
+
+/**
+ * Creates a new Question and Answer
+ *
+ * @this {Game}
+ * @param {Object} $availableAnswers answer elements, wrapped in jQuery
+ * @param {String} templateSelector selector where question template is stored
+ * @return {Object} question
+ */
+Game.prototype.createNewQuestion = function($availableAnswers, templateSelector) {
+
+    // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
+    var $answerElements = this.getRandomArrayElements($availableAnswers, 2);
+
+    // Calculate answer from html5 data attribute
+    var answer = 0;
+    $answerElements.each( function (index) {
+
+        answer += $(this).data('answer');
+    });
+
+    // Question template stored in HTML element
+    var template = this.getTemplate(templateSelector);
+
+    var question = {
+        answer: answer,
+        text: this.renderTemplate(template, {answer: answer}),
+        answersNeeded: $answerElements.length,
+    };
+    return question;
+ };
+
+
+/**
+ * Remove all 'selected' class from $answers
+ *
+ * @this {Game}
+ * @return {Object} $answers, answer elements, wrapped in jQuery
+ */
+Game.prototype.deselectAllAnswers = function () {
+
+    return this.$answers.find('li')
+        .removeClass('selected');
+};
+
+
+/**
+ * Returns all answer elements that do not have the 'used' class
+ *
+ * @this {Game}
+ * @return {Object} $answers answer elements, wrapped in jQuery
+ */
+Game.prototype.getAvailableAnswers = function () {
+
+    return this.$answers.find('li:not(.used)');
+};
+
+
+/**
+ * Returns boolean if $answer is used.
+ *
+ * @param {Object} $answer, wrapped in jQuery
+ * @return {Boolean} true if has class, otherwise false
+ */
+Game.prototype.isAnswerMarkedAsUsed = function ($answer) {
+
+    return $answer.hasClass('used') ? true : false;
+};
+
+
+/**
+ * Returns true when answer is invalid
+ *
+ * @this {Game}
+ * @param {Object} $selected, answer elements wrapped in jQuery
+ * @return {Boolean} returns true on invalid answer otherwise false
+ */
+Game.prototype.isInvalidAnswer = function ($selected) {
+
+    var self = this,
+        isInvalid = false;
+
+    // Need to select at least two answers (except for last possible answer)
+    $selected.each(function (key, element) {
+
+        var $element = $(element);
+
+        if ($element.length===1 && self.state.question.answersNeeded>1
+            && $element.data('answer')===self.state.question.answer) {
+
+            isInvalid = true;
+        }
+    });
+
+    // Invalid answer when user has answer greater then question answer
+    if (this.state.user.answer > this.state.question.answer) {
+        isInvalid = true;
+    }
+
+    return isInvalid;
+};
+
+
+/**
+ * Returns boolean if question is answered
+ *
+ * @this {Game}
+ * @return {Boolean} true on answered, otherwise false.
+ */
+Game.prototype.isQuestionAnswered = function () {
+
+    return (this.state.user.answer===this.state.question.answer) ? true : false;
+};
+
+
+/**
+ * Marks $elements as used. Adds class 'used' to all elements
+ *
+ * @param {Object} $elements, wrapped in jQuery
+ * @return {Object} elements, wrapped in jQuery
+ */
+Game.prototype.markAnswersAsUsed = function ($elements) {
+
+    return $elements.removeClass('selected').addClass('used');
+};
+
+
+/**
+ * Populates $answers <ul/> with answers
+ *
+ * @param  {Array} answers [{index:0, answer: 5, selected:true, used:false, ...},...]
+ * @return {Boolean} true on success or false on failure
+ */
+Game.prototype.setupAnswerElements = function (answers) {
+
+    var self = this;
+
+    // Clear all answers
+    this.$answers.remove('li');
+
+    // Validate existence of answer properties
+    var invalid = false,
+        required = ['index', 'answer', 'selected', 'used'];
+    $.each(answers, function (i, answer) {
+
+        $.each(required, function (j, property) {
+
+            if (!(property in answer)) {
+
+                invalid = true;
+            }
+        });
+    });
+    if (invalid) {
+
+        return false;
+    }
+
+    // Append answer elements to the DOM
+    $.each(answers, function () {
+
+        var $element = $('<li></li>', {text: this.answer})
+            // Attach HTML5 data attributes
+            .data('index', this.index)
+            .data('answer', this.answer);
+
+        if (this.selected===true) {
+
+            $element.addClass('selected')
+        }
+        if (this.used===true) {
+
+            $element.addClass('used')
+        }
+        // Append to parent element <ul/>
+        $element.appendTo(self.$answers);
+    });
+    return true;
+}
+
+
+/**
+ * Display an invalid answer
+ *
+ * @this {Game}
+ * @return {Object} element, wrapped in jQuery
+ */
+Game.prototype.displayInvalidAnswer = function () {
+
+    // This refers to the element that was clicked
+    return $(this).addClass('transition-invalid-answer').removeClass('selected');
+};
+
+
+/**
+ * Displays the Question
+ *
+ * @this {Game}
+ * @return {Object} Question element, wrapped in jQuery
+ */
+Game.prototype.displayQuestion = function () {
+
+    return this.$game.find('.question').text(this.state.question.text);
+};
+
+
+/**
+ * Returns Boolean if browser is supporting DOM Storage
+ *
+ * @param  {Object} Storage constructor function
+ * @return {Boolean} supporting
+ */
+Game.prototype.isBrowserSupportingDOMStorage = function (Storage) {
+
+    return typeof(Storage)!=='undefined' ? true : false;
+};
+
+
+/**
  * Loads Game State from Storage into {Game}.$answers
  *
  * @this {Game}
@@ -282,6 +603,7 @@ Game.prototype.getFromStorage = function (key) {
     return obj;
 }
 
+
 /**
  * Saves an object to Storage as a JSON formatted string
  *
@@ -317,196 +639,6 @@ Game.prototype.deleteFromStorage = function (matchingKeys) {
 
 
 /**
- * Returns Boolean if browser is supporting DOM Storage
- *
- * @param  {Object} Storage constructor function
- * @return {Boolean} supporting
- */
-Game.prototype.isBrowserSupportingDOMStorage = function (Storage) {
-
-    return typeof(Storage)!=='undefined' ? true : false;
-};
-
-
-/**
- * Populates $answer parent <ul/> with answer elements <li/>
- *
- * Creates elements and appends them to the parent element <ul/> containing the
- * Attaches an 'answer' HTML5 data attribute to each answer element, e.g.: <li data-answer="integer" /> tag.
- *
- * @this {Game}
- * @param {Number} amount, optional default 64
- * @return {Object} $answers (wrapped in jQuery)
- */
-Game.prototype.createNewAnswers = function (amount) {
-
-    // Default 64 elements are created
-    amount = amount || 64;
-
-    // Clear all answers
-    this.$answers.remove('li');
-    this.state.answers = [];
-
-    // Create {amount} answers with random value between 1-9
-    // and append them to the parent element <ul/>
-    for (var index=0; index<amount; index++) {
-
-        var randomNumber = Math.floor( Math.random()*9 + 1 );
-
-        // Add new answer to Game State,
-        this.state.answers.push({
-            answer: randomNumber,
-            selected: false,
-            used: false
-        });
-
-        // Append a new answer element to the DOM
-        $('<li></li>', {text: randomNumber})
-            // Attach HTML5 data attributes
-            .data('index', index)
-            .data('answer', randomNumber)
-            // Append to parent element <ul/>
-            .appendTo(this.$answers);
-    }
-    return this.$answers;
-};
-
-
-/**
- * Populates $answers <ul/> with answers
- *
- * @param  {Array} answers [{index:0, answer: 5, selected:true, used:false, ...},...]
- * @return {Boolean} true on success or false on failure
- */
-Game.prototype.setupAnswerElements = function (answers) {
-
-    var self = this;
-
-    // Clear all answers
-    this.$answers.remove('li');
-
-    // Validate existence of answer properties
-    var invalid = false,
-        required = ['index', 'answer', 'selected', 'used'];
-    $.each(answers, function (i, answer) {
-
-        $.each(required, function (j, property) {
-
-            if (!(property in answer)) {
-
-                invalid = true;
-            }
-        });
-    });
-    if (invalid) {
-
-        return false;
-    }
-
-    // Append answer elements to the DOM
-    $.each(answers, function () {
-
-        var $element = $('<li></li>', {text: this.answer})
-            // Attach HTML5 data attributes
-            .data('index', this.index)
-            .data('answer', this.answer);
-
-        if (this.selected===true) {
-
-            $element.addClass('selected')
-        }
-        if (this.used===true) {
-
-            $element.addClass('used')
-        }
-        // Append to parent element <ul/>
-        $element.appendTo(self.$answers);
-    });
-    return true;
-}
-
-
-/**
- * Create a new Question object
- *
- * @this {Game}
- * @return {Object} new question object
- */
-Game.prototype.newQuestionCycle = function () {
-
-    // Clear all selected answer elements
-    this.deselectAllAnswers();
-
-    // Find answers not used already.
-    var $availableAnswers = this.getAvailableAnswers();
-
-    // Create question and answer
-    this.state.question = this.createNewQuestion($availableAnswers, '#questionTemplate');
-
-    // Display new question
-    this.displayQuestion();
-
-    return this.state.question;
-};
-
-
-/**
- * Remove all 'selected' class from $answers
- *
- * @this {Game}
- * @return {Object} $answers, answer elements, wrapped in jQuery
- */
-Game.prototype.deselectAllAnswers = function () {
-
-    return this.$answers.find('li')
-        .removeClass('selected');
-};
-
-
-/**
- * Returns all answer elements that do not have the 'used' class
- *
- * @this {Game}
- * @return {Object} $answers answer elements, wrapped in jQuery
- */
-Game.prototype.getAvailableAnswers = function () {
-
-    return this.$answers.find('li:not(.used)');
-};
-
-
-/**
- * Creates a new Question and Answer
- *
- * @this {Game}
- * @param {Object} $availableAnswers answer elements, wrapped in jQuery
- * @param {String} templateSelector selector where question template is stored
- * @return {Object} question
- */
-Game.prototype.createNewQuestion = function($availableAnswers, templateSelector) {
-
-    // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
-    var $answerElements = this.getRandomArrayElements($availableAnswers, 2);
-
-    // Calculate answer from html5 data attribute
-    var answer = 0;
-    $answerElements.each( function (index) {
-
-        answer += $(this).data('answer');
-    });
-
-    // Question template stored in HTML element
-    var template = this.getTemplate(templateSelector);
-
-    var question = {
-        answer: answer,
-        text: this.renderTemplate(template, {answer: answer}),
-        answersNeeded: $answerElements.length,
-    };
-    return question;
- };
-
-/**
  * Retrieves template from HTML element
  *
  * @param {String} selector HTML element containing template
@@ -515,116 +647,6 @@ Game.prototype.createNewQuestion = function($availableAnswers, templateSelector)
 Game.prototype.getTemplate = function (selector) {
 
     return $.trim( $(selector).html() );
-};
-
-/**
- * Displays the Question
- *
- * @this {Game}
- * @return {Object} Question element, wrapped in jQuery
- */
-Game.prototype.displayQuestion = function () {
-
-    return this.$game.find('.question').text(this.state.question.text);
-};
-
-
-/**
- * Returns Sum of all HTML5 data attributes 'answer' <element data-answer="integer" />.
- *
- * @param {Object} elements. Containing elements, wrapped in jQuery
- * @return {Number} Sum
- */
-Game.prototype.sumDataAttributes = function ($elements) {
-
-    var sum = 0;
-    $elements.each(function() {
-        // $(this) refers to current element
-        var value = $(this).data('answer');
-        sum += (value!==undefined) ? value : 0;
-    });
-    return sum;
-};
-
-
-/**
- * Returns true when answer is invalid
- *
- * @this {Game}
- * @param {Object} $selected, answer elements wrapped in jQuery
- * @return {Boolean} returns true on invalid answer otherwise false
- */
-Game.prototype.isInvalidAnswer = function ($selected) {
-
-    var self = this,
-        isInvalid = false;
-
-    // Need to select at least two answers (except for last possible answer)
-    $selected.each(function (key, element) {
-
-        var $element = $(element);
-
-        if ($element.length===1 && self.state.question.answersNeeded>1
-            && $element.data('answer')===self.state.question.answer) {
-
-            isInvalid = true;
-        }
-    });
-
-    // Invalid answer when user has answer greater then question answer
-    if (this.state.user.answer > this.state.question.answer) {
-        isInvalid = true;
-    }
-
-    return isInvalid;
-};
-
-
-/**
- * Returns boolean if question is answered
- *
- * @this {Game}
- * @return {Boolean} true on answered, otherwise false.
- */
-Game.prototype.isQuestionAnswered = function () {
-
-    return (this.state.user.answer===this.state.question.answer) ? true : false;
-};
-
-
-/**
- * Display an invalid answer
- *
- * @this {Game}
- * @return {Object} element, wrapped in jQuery
- */
-Game.prototype.displayInvalidAnswer = function () {
-
-    // This refers to the element that was clicked
-    return $(this).addClass('transition-invalid-answer').removeClass('selected');
-};
-
-
-/**
- * Marks $elements as used. Adds class 'used' to all elements
- *
- * @param {Object} $elements, wrapped in jQuery
- * @return {Object} elements, wrapped in jQuery
- */
-Game.prototype.markAnswersAsUsed = function ($elements) {
-
-    return $elements.removeClass('selected').addClass('used');
-};
-
-/**
- * Returns boolean if $answer is used.
- *
- * @param {Object} $answer, wrapped in jQuery
- * @return {Boolean} true if has class, otherwise false
- */
-Game.prototype.isAnswerMarkedAsUsed = function ($answer) {
-
-    return $answer.hasClass('used') ? true : false;
 };
 
 
@@ -684,4 +706,22 @@ Game.prototype.shuffleArray = function (array) {
         array[j] = temp;
     }
     return array;
+};
+
+
+/**
+ * Returns Sum of all HTML5 data attributes 'answer' <element data-answer="integer" />.
+ *
+ * @param {Object} elements. Containing elements, wrapped in jQuery
+ * @return {Number} Sum
+ */
+Game.prototype.sumDataAttributes = function ($elements) {
+
+    var sum = 0;
+    $elements.each(function() {
+        // $(this) refers to current element
+        var value = $(this).data('answer');
+        sum += (value!==undefined) ? value : 0;
+    });
+    return sum;
 };
