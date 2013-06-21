@@ -1018,8 +1018,7 @@ module('Game.prototype.getFromStorage', {
 });
 test('Test if object is returned from Storage', 1, function () {
 
-    var testObject = {key: 'a value'};
-
+    var testObject = {key: 'a value'},
     result = Game.prototype.getFromStorage('test:get');
     strictEqual(result.key,testObject.key,"result['test:get'] must equal to object {key: 'value'}.");
 });
