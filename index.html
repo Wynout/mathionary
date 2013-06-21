@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8' />
+	<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+	<meta name="description" content="Mathionary : Math Exercise Game in jQuery" />
+	<meta name="viewport" content="initial-scale=1.0, width=device-width, height=device-height, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>Mathionary</title>
+	<link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+	<link rel="stylesheet" href="stylesheets/game.css">
+	<script src="javascripts/jquery.1.9.1.min.js"></script>
+</head>
+
+<body class="blue-background">
+
+	<!-- HEADER -->
+	<div id="header_wrap" class="outer">
+		<header class="inner">
+			<a id="forkme_banner" href="https://github.com/Wynout/mathionary">View on GitHub</a>
+			<h1 id="project_title">Mathionary</h1>
+			<h2 id="project_tagline">Math Exercise Game in jQuery</h2>
+
+				<section id="downloads">
+					<a class="zip_download_link" href="https://github.com/Wynout/mathionary/zipball/master">Download this project as a .zip file</a>
+					<a class="tar_download_link" href="https://github.com/Wynout/mathionary/tarball/master">Download this project as a tar.gz file</a>
+				</section>
+		</header>
+	</div>
+
+	<!-- MAIN CONTENT -->
+	<div id="main_content_wrap" class="outer">
+		<section id="main_content" class="inner">
+
+			<div class="game blue">
+				<div class="navigation">
+					<h1 class="question">Question</h1>
+				</div>
+				<script id="questionTemplate" type="game/template">
+					Which numbers add up to: {{answer}}?.
+				</script>
+				<ul></ul>
+			</div>
+
+			<div id="switchGreen" class="game green"><ul><li>&plus;</li></ul></div>
+			<div id="switchRed" class="game red"><ul><li>&minus;</li></ul></div>
+			<div id="switchBlue" class="game blue"><ul><li>&times;</li></ul></div>
+			<div id="switchYellow" class="game yellow"><ul><li>&divide;</li></ul></div>
+
+			<script>
+			$('#switchBlue').on('click', function () {
+					$('div.game').first().attr('class','game').addClass('blue');
+					$('body').attr('class','blue-background');
+					$('#header_wrap').addClass('fade');
+				});
+			$('#switchGreen').on('click', function () {
+					$('div.game').first().attr('class','game').addClass('green');
+					$('body').attr('class','green-background');
+					$('#header_wrap').addClass('fade');
+				});
+			$('#switchRed').on('click', function () {
+					$('div.game').first().attr('class','game').addClass('red');
+					$('body').attr('class','red-background');
+					$('#header_wrap').addClass('fade');
+				});
+			$('#switchYellow').on('click', function () {
+					$('div.game').first().attr('class','game').addClass('yellow');
+					$('body').attr('class','yellow-background');
+					$('#header_wrap').addClass('fade');
+				});
+			</script>
+
+		</section>
+	</div>
+
+	<!-- FOOTER  -->
+	<div id="footer_wrap" class="outer">
+		<footer class="inner">
+
+			<p>Written in <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a> + <a href="http://jquery.com/">jQuery</a></p>
+			<p>Project Management by <a href="https://www.pivotaltracker.com/s/projects/846635">Pivotal Tracker</a>
+			<p>Revision controlled by <a href="http://git-scm.com/">git</a></p>
+			<p>Code hosted by <a href="http://github.com">GitHub</a></p>
+			<p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+
+			<p class="copyright">Code maintained by <a href="https://github.com/Wynout">Wynout</a></p>
+		</footer>
+	</div>
+
+	<script src="javascripts/mathionary.js"></script>
+	<script type="text/javascript">
+	(function(){
+		// Self Invoking Anonymous Function
+		var config =  {
+			container: 'div.game'
+		};
+
+		var game = new Game(config);
+	})();
+	</script>
+
+	<script type="text/javascript">
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+		try {
+			var pageTracker = _gat._getTracker("UA-41528113-1");
+			pageTracker._trackPageview();
+		} catch(err) {}
+	</script>
+
+</body>
+</html>
