@@ -344,7 +344,7 @@ Game.prototype.createNewQuestion = function($availableAnswers, templateSelector)
     var question = {
         answer: answer,
         text: this.renderTemplate(template, {answer: answer}),
-        answersNeeded: $answerElements.length,
+        answersNeeded: $answerElements.length
     };
     return question;
  };
@@ -404,8 +404,8 @@ Game.prototype.isInvalidAnswer = function ($selected) {
 
         var $element = $(element);
 
-        if ($element.length===1 && self.state.question.answersNeeded>1
-            && $element.data('answer')===self.state.question.answer) {
+        if ($element.length===1 && self.state.question.answersNeeded>1 &&
+            $element.data('answer')===self.state.question.answer) {
 
             isInvalid = true;
         }
@@ -485,17 +485,17 @@ Game.prototype.setupAnswerElements = function (answers) {
 
         if (this.selected===true) {
 
-            $element.addClass('selected')
+            $element.addClass('selected');
         }
         if (this.used===true) {
 
-            $element.addClass('used')
+            $element.addClass('used');
         }
         // Append to parent element <ul/>
         $element.appendTo(self.$answers);
     });
     return true;
-}
+};
 
 
 /**
@@ -544,11 +544,12 @@ Game.prototype.isBrowserSupportingDOMStorage = function (Storage) {
  */
 Game.prototype.loadGameState = function (prefix) {
 
-    var self = this;
+    var self = this,
+        savedState;
 
     // Merge stored content into this.state
     try  {
-        var savedState = $.parseJSON(localStorage[prefix]);
+        savedState = $.parseJSON(localStorage[prefix]);
     }
     catch (error) {
 
@@ -596,12 +597,16 @@ Game.prototype.saveGameState = function (prefix) {
  */
 Game.prototype.getFromStorage = function (key) {
 
+    var obj = {};
+
     try {
-        var obj = $.parseJSON(localStorage[key]);
+        obj = $.parseJSON(localStorage[key]);
     }
-    catch (error) { obj = {}; }
+    catch (error) {
+        // Capture exception when JSON cannot be parsed
+    }
     return obj;
-}
+};
 
 
 /**
@@ -613,7 +618,7 @@ Game.prototype.getFromStorage = function (key) {
  */
 Game.prototype.saveToStorage = function (key, obj) {
 
-    return localStorage[key] = JSON.stringify(obj);
+    return (localStorage[key] = JSON.stringify(obj));
 };
 
 
