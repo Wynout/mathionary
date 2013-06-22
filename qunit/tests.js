@@ -66,7 +66,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
             .appendTo('#qunit-fixture');
 
         var testState = {
-            storageKey: 'should:not-exists',
+            storageKey: 'should-not-exists',
             gameInProgress: false,
             answers: [],
             question: {
@@ -87,9 +87,16 @@ module('Game.prototype.initialize(): Test initialize answers', {
 
         }, Game.prototype);
 
-        localStorage.removeItem('should:not-exists');
+        localStorage.removeItem('should-not-exists');
 
         this.Game.initialize.call(this.Game, 64);
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('should-not-exists');
     }
 });
 test('Test answer elements', 7, function () {
@@ -249,6 +256,7 @@ module('Game.prototype.events', {
             .appendTo('#qunit-fixture');
 
         this.testState = {
+            storageKey: 'test',
             gameInProgress: true,
             question: {
                 answer: 5,
@@ -273,6 +281,13 @@ module('Game.prototype.events', {
 
         // Bind all Events
         this.Game.bindEvents.call(this.Game);
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test key must be unset after testing
+        localStorage.removeItem('test');
     }
 });
 test('answerMouseenter', 1, function () {
@@ -349,6 +364,7 @@ test('answerClick: Test invalid moves', 2, function () {
         .appendTo(this.Game.$answers);
 
     this.Game.state = {
+        storageKey: 'test',
         question: {
             answer: 0
         },
@@ -391,7 +407,7 @@ test('answerClick: Test if Game state is saved', 1, function () {
         .appendTo(this.Game.$answers);
 
     this.Game.state = {
-        storageKey: 'test:save-game-state',
+        storageKey: 'test',
         question: {
             answer: 14,
             answersNeeded: 2
@@ -406,7 +422,7 @@ test('answerClick: Test if Game state is saved', 1, function () {
 
 
     var obj = {};
-    try { obj = $.parseJSON(localStorage['test:save-game-state']); } catch (error) {}
+    try { obj = $.parseJSON(localStorage['test']); } catch (error) {}
 
     var isSelected = false;
     if (typeof obj.answers!=='undefined' && obj.answers.length==1 && 'selected' in obj.answers[0]) {
