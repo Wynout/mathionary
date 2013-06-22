@@ -313,7 +313,7 @@ test('answerClick: Test toggle answer selection', 2, function () {
     // Test if answer can be deselected
     strictEqual($answer.hasClass('selected'), false, 'Class "selected" is removed from answer element on click.');
 });
-test('answerClick: Test property Game.user.answer', 1, function () {
+test('answerClick: Test property Game.state.user.answer', 1, function () {
 
     // Test mouse click event on <li /> element
     jQuery(
@@ -384,6 +384,36 @@ test('answerClick: Test if answer is correct', 2, function () {
 
     // Test if new question is created. available answers are 1 and 4.
     strictEqual($('h1.question').text(), 'Which numbers add up to: 5?.', 'Test if new question is created. New question equals to "Which numbers add up to: 5?.".');
+});
+test('answerClick: Test if Game state is saved', 1, function () {
+
+     jQuery('<li data-index="0" data-answer="9" class="">9</li>')
+        .appendTo(this.Game.$answers);
+
+    this.Game.state = {
+        storageKey: 'test:save-game-state',
+        question: {
+            answer: 14,
+            answersNeeded: 2
+        },
+        user: {
+            answer: 0
+        }
+    };
+
+    var $answer = this.Game.$answers.find('li').eq(0)
+        .trigger('click');
+
+
+    var obj = {};
+    try { obj = $.parseJSON(localStorage['test:save-game-state']); } catch (error) {}
+
+    var isSelected = false;
+    if (typeof obj.answers!=='undefined' && obj.answers.length==1 && 'selected' in obj.answers[0]) {
+        isSelected = obj.answers[0].selected===true ? true : false;
+    }
+
+    strictEqual(isSelected, true, 'Game.state.answers[0].selected equals to true');
 });
 
 
