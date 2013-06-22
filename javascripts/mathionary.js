@@ -222,7 +222,6 @@ Game.prototype.events = {
 
             // Toggle answer selection
             var index = $this.data('index');
-            // self.state.answers[ index ].selected = self.state.answers[ index ].selected ? true : false
 
             var $selected = self.$answers.find('.selected');
 
@@ -245,6 +244,8 @@ Game.prototype.events = {
                 // Create and display new question.
                 self.newQuestionCycle();
             }
+
+            self.saveGameState(self.state.storageKey);
         });
     }
 };
@@ -404,7 +405,6 @@ Game.prototype.isInvalidAnswer = function ($selected) {
     $selected.each(function (key, element) {
 
         var $element = $(element);
-
         if ($element.length===1 && self.state.question.answersNeeded>1 &&
             $element.data('answer')===self.state.question.answer) {
 
