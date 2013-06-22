@@ -132,7 +132,7 @@ Game.prototype.initialize = function (amount) {
     var isStateLoaded = this.loadGameState(this.state.storageKey),
         createNewGame = false;
 
-    if (isStateLoaded ) {
+    if (isStateLoaded) {
 
         // Create new game if answers cannot be set.
         if (this.setupAnswerElements(this.state.answers)===true) {
@@ -270,15 +270,16 @@ Game.prototype.newQuestionCycle = function () {
     // Display new question
     this.displayQuestion();
 
+    // Save Game State
+    this.saveGameState(this.state.storageKey);
+
     return this.state.question;
 };
 
 
 /**
  * Populates $answer parent <ul/> with answer elements <li/>
- *
- * Creates elements and appends them to the parent element <ul/> containing the
- * Attaches an 'answer' HTML5 data attribute to each answer element, e.g.: <li data-answer="integer" /> tag.
+ * Populates this.state.answers with answer objects
  *
  * @this {Game}
  * @param {Number} amount, optional default 64
@@ -470,6 +471,7 @@ Game.prototype.setupAnswerElements = function (answers) {
             }
         });
     });
+
     if (invalid) {
 
         return false;
@@ -573,10 +575,12 @@ Game.prototype.saveGameState = function (prefix) {
 
     // Create answes array containing all answers, used for converting to JSON
     var listItems = this.$answers.find('li');
+
     var answers = $.map(listItems, function (item, index) {
 
         var $item = $(item);
         return {
+            'index': $item.data('index'),
             'answer': $item.data('answer'),
             'selected': $item.hasClass('selected'),
             'used': $item.hasClass('used')

@@ -388,7 +388,6 @@ test('answerClick: Test if answer is correct', 2, function () {
 
 
 
-
 /**
  * Game.prototype.newQuestionCycle()
  */
@@ -413,11 +412,26 @@ module('Game.prototype.newQuestionCycle()', {
         '</div>')
             .appendTo('#qunit-fixture');
 
+        this.testState = {
+            storageKey: 'test:save-game-state',
+            gameInProgress: true
+        };
+
         this.Game = $.extend({
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
-            state: {}
+            state: this.testState
         }, Game.prototype);
+
+        // Storage key must not exists when test starts
+        localStorage.removeItem('test:save-game-state');
+    },
+
+    // Teardown callback runs after each test
+    teardown: function () {
+
+        // Test storageKey must be unset after testing
+        localStorage.removeItem('test:save-game-state');
     }
 });
 test('Test if a new question is created', 3, function () {
@@ -428,7 +442,13 @@ test('Test if a new question is created', 3, function () {
     strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
     strictEqual(question.text, 'Which numbers add up to: 5?.', 'Game.state.question.text equals to "Which numbers add up to: 5?.".');
 });
+test('Test if Game State is saved', 1, function () {
 
+    var result = this.Game.newQuestionCycle(),
+        testString = JSON.stringify(this.Game.state);
+
+    strictEqual(localStorage['test:save-game-state'], JSON.stringify(this.Game.state), 'localStorage["test:save-game-state"] equals to JSON.stringify(this.Game.state)');
+});
 
 
 /**
@@ -950,8 +970,8 @@ module('Game.prototype.saveGameState()', {
         jQuery(
         '<div class="game">'+
             '<ul>'+
-                '<li class="used" data-answer="1">1</li>'+
-                '<li class="selected" data-answer="2">2</li>'+
+                '<li data-index="0" data-answer="1" class="used">1</li>'+
+                '<li data-index="1" data-answer="2" class="selected">2</li>'+
             '</ul>'+
         '</div>')
             .appendTo('#qunit-fixture');
@@ -975,7 +995,7 @@ module('Game.prototype.saveGameState()', {
         localStorage.removeItem('test:saveGameState');
     }
 });
-test('Test if Game State is saved to Storage', 7, function () {
+test('Test if Game State is saved to Storage', 9, function () {
 
     // Save Game State to Storage
     var result = this.Game.saveGameState('test:saveGameState'),
@@ -985,11 +1005,13 @@ test('Test if Game State is saved to Storage', 7, function () {
     strictEqual(gameState.gameInProgress, true, 'gameState.gameInProgress equals to true');
 
     // Test first answer
+    strictEqual(gameState.answers[0].index, 0, 'gameState.answers[0].index equals to 0');
     strictEqual(gameState.answers[0].answer, 1, 'gameState.answers[0].answer equals to 1');
     strictEqual(gameState.answers[0].selected, false, 'gameState.answers[0].selected equals to false');
     strictEqual(gameState.answers[0].used, true, 'gameState.answers[0].used equals to true');
 
     // Test second answer
+    strictEqual(gameState.answers[1].index, 1, 'gameState.answers[1].index equals to 1');
     strictEqual(gameState.answers[1].answer, 2, 'gameState.answers[1].answer equals to 2');
     strictEqual(gameState.answers[1].selected, true, 'gameState.answers[1].selected equals to true');
     strictEqual(gameState.answers[1].used, false, 'gameState.answers[1].used equals to false');
