@@ -299,7 +299,7 @@ Full-Width Styles
 	padding: 10px 50px 10px 15px;
 	color: #fff;
 	background: url('../images/blacktocat.png') rgb(14, 123, 206) no-repeat 95% 50%;
-	font-weight: 700;
+	font-weight: 100;
 }
 #forkme_banner:hover {
 	-webkit-transition: background-color .5s;
@@ -349,23 +349,25 @@ Full-Width Styles
 }
 
 #header_wrap .inner {
-	padding: 50px 10px 30px 10px;
+	/*padding: 50px 10px 30px 10px;*/
+	padding: 30px 10px 20px 10px;
 }
 
 #project_title {
+	font-family: 'Wendy One', Calibri, Helvetica, Arial, sans-serif;
 	margin: 0;
 	color: #fff;
-	font-size: 50px;
-	font-weight: 700;
-	text-shadow: #111 0px 0px 10px;
+	font-size: 55px;
+	font-weight: 100;
+	text-shadow: #111 0px 0px 15px;
 }
 
 #project_tagline {
 	color: #fff;
-	font-size: 24px;
-	font-weight: 300;
+	font-size: 20px;
+	font-weight: 100;
 	background: none;
-	text-shadow: #111 0px 0px 10px;
+	text-shadow: #111 0px 0px 5px;
 }
 
 /* disabled */
