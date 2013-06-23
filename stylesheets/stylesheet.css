@@ -132,12 +132,36 @@ a {
 
 #main_content a:hover {
 	color: #0069ba;
-	text-shadow: #0090ff 0px 0px 2px;
+	text-shadow: #0090ff 0 0 2px;
 }
 
-footer a:hover {
+.red-background footer a {
+	color: #c43;
+}
+.red-background footer a:hover {
+	color: #E94E3B;
+	text-shadow: #D35748 0 0 2px;
+}
+.blue-background footer a {
+	color: #007edf;
+}
+.blue-background footer a:hover {
 	color: #43adff;
-	text-shadow: #0090ff 0px 0px 2px;
+	text-shadow: #0090ff 0 0 2px;
+}
+.green-background footer a {
+	color: #090;
+}
+.green-background footer a:hover {
+	color: #12AF12;
+	text-shadow: #0CB10C 0 0 2px;
+}
+.yellow-background footer a {
+	color: #e99b0f;
+}
+.yellow-background footer a:hover {
+	color: #E9A428;
+	text-shadow: #E9AA39 0 0 2px;
 }
 
 em {
@@ -150,17 +174,12 @@ strong {
 
 img {
 	position: relative;
-	margin: 0 auto;
+	margin: 10px auto;
 	max-width: 739px;
 	padding: 5px;
-	margin: 10px 0 10px 0;
 	border: 1px solid #ebebeb;
-
-	box-shadow: 0 0 5px #ebebeb;
 	-webkit-box-shadow: 0 0 5px #ebebeb;
-	-moz-box-shadow: 0 0 5px #ebebeb;
-	-o-box-shadow: 0 0 5px #ebebeb;
-	-ms-box-shadow: 0 0 5px #ebebeb;
+	box-shadow: 0 0 5px #ebebeb;
 }
 
 pre, code {
@@ -333,8 +352,6 @@ Full-Width Styles
 .yellow-background #forkme_banner:hover{
 	background-color: #DF9D27;
 }
-
-
 
 #header_wrap {
 	background: -webkit-linear-gradient(top, #373737, #212121);
