@@ -1,5 +1,9 @@
 /* game container */
 div.game {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 	float:left;
 	margin: 10px;
 	text-align: center;
@@ -16,8 +20,8 @@ div.game {
 	position: relative;
 }
 .game li {
-	cursor:pointer;
-	display: inline;
+	cursor: pointer;
+	/*display: inline;*/
 	float: left;
 	font-size: 1.4em;
 	height: 50px;
@@ -35,7 +39,8 @@ div.game {
 	transition: font-size .3s linear;
 	border-radius: 25px;
 	color: #fff;
-	font-size: 2em;
+	font-size: 35px;
+	line-height: 48px;
 }
 .game .transition-invalid-answer:hover{
 	-webkit-transition: background-color .15s linear;
@@ -44,9 +49,8 @@ div.game {
 	-ms-transition: background-color .15s linear;
 	transition: background-color .15s linear;
 	background-color: #990000;
-	color:#fff;
-	cursor:default;
-	border-radius: 25px;
+	color: #fff;
+	cursor: pointer;
 }
 .game .used {
 	-webkit-transition: background-color .3s linear;
@@ -55,11 +59,11 @@ div.game {
 	-ms-transition: background-color .3s linear;
 	transition: background-color .3s linear;
 	color: transparent;
-	cursor:default;
+	cursor: default;
 	font-size: 2em;
 }
 .game li:nth-child(8n +1) {
-	clear:left;
+	clear: left;
 }
 
 
@@ -92,12 +96,16 @@ div.game {
 	background-color: #e64433;
 	color: #fff;
 }
-.red .selected {
+.red .selected,
+.red .used {
 	background-color: #494949;
+
 }
 .red .used {
-	background-color: rgba(245,245,245,.7);
+	background-color: rgba(245, 245, 245, .7);
+	color: transparent;
 }
+
 
 /************ blue ************/
 .blue-background {
@@ -119,12 +127,17 @@ div.game {
 	background-color: rgb(86, 163, 241);
 	color: #fff;
 }
-.blue .selected {
+.blue .selected,
+.blue .used {
 	background-color: #494949;
+
 }
 .blue .used {
-	background-color: rgba(245,245,245,.7);
+	background-color: rgba(245, 245, 245, .7);
+	color: transparent;
 }
+
+
 
 /************ green ************/
 .green-background {
@@ -146,12 +159,16 @@ div.game {
 	background-color: #0b0;
 	color: #fff;
 }
-.green .selected {
+.green .selected,
+.green .used {
 	background-color: #494949;
+
 }
 .green .used {
-	background-color: rgba(245,245,245,.7);
+	background-color: rgba(245, 245, 245, .7);
+	color: transparent;
 }
+
 
 /************ yellow ************/
 .yellow-background {
@@ -173,9 +190,12 @@ div.game {
 	background-color: rgb(236, 170, 51);
 	color: #fff;
 }
-.yellow .selected {
+.yellow .selected,
+.yellow .used {
 	background-color: #494949;
+
 }
 .yellow .used {
-	background-color: rgba(245,245,245,.7);
+	background-color: rgba(245, 245, 245, .7);
+	color: transparent;
 }

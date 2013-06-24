@@ -728,6 +728,7 @@ Game.prototype.sumDataAttributes = function ($elements) {
 
     var sum = 0;
     $elements.each(function() {
+
         // $(this) refers to current element
         var value = $(this).data('answer');
         sum += (value!==undefined) ? value : 0;
