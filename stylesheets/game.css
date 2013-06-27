@@ -1,16 +1,108 @@
-/* game container */
+
+/*** body class addition operation ***/
+.addition-operation {
+	background: -webkit-radial-gradient(#28de28, #093309);
+	background: -moz-radial-gradient(#28de28, #093309);
+	background: -o-radial-gradient(#28de28, #093309);
+	background: -ms-radial-gradient(#28de28, #093309);
+	background: radial-gradient(#28de28, #093309);
+	background-color: #28de28;
+}
+.addition-operation #forkme_banner{
+	background-color: #079707;
+}
+.addition-operation #forkme_banner:hover{
+	background-color: #09AC09;
+}
+.addition-operation footer a {
+	color: #090;
+}
+.addition-operation footer a:hover {
+	color: #12AF12;
+	text-shadow: #0CB10C 0 0 2px;
+}
+/*** body class subtraction operation ***/
+.subtraction-operation {
+	background: -webkit-radial-gradient(#c43, #210b08);
+	background: -moz-radial-gradient(#c43, #210b08);
+	background: -o-radial-gradient(#c43, #210b08);
+	background: -ms-radial-gradient(#c43, #210b08);
+	background: radial-gradient(#c43, #210b08);
+	background-color: #c43;
+}
+.subtraction-operation #forkme_banner{
+	background-color: #c43;
+}
+.subtraction-operation #forkme_banner:hover{
+	background-color: #E2503E;
+}
+.subtraction-operation footer a {
+	color: #c43;
+}
+.subtraction-operation footer a:hover {
+	color: #E94E3B;
+	text-shadow: #D35748 0 0 2px;
+}
+/*** body class multiplication operation ***/
+.multiplication-operation {
+	background: -webkit-radial-gradient(#27c, #061321);
+	background: -moz-radial-gradient(#27c, #061321);
+	background: -o-radial-gradient(#27c, #061321);
+	background: -ms-radial-gradient(#27c, #061321);
+	background: radial-gradient(#27c, #061321);
+	background-color: #27c;
+}
+.multiplication-operation #forkme_banner{
+	background-color: #27c;
+}
+.multiplication-operation #forkme_banner:hover{
+	background-color: #2A81D8;
+}
+.multiplication-operation footer a {
+	color: #007edf;
+}
+.multiplication-operation footer a:hover {
+	color: #43adff;
+	text-shadow: #0090ff 0 0 2px;
+}
+/*** body class division operation ***/
+.division-operation {
+	background: -webkit-radial-gradient(#e2920b, #392503);
+	background: -moz-radial-gradient(#e2920b, #392503);
+	background: -o-radial-gradient(#e2920b, #392503);
+	background: -ms-radial-gradient(#e2920b, #392503);
+	background: radial-gradient(#e2920b, #392503);
+	background-color: #e2920b;
+}
+.division-operation #forkme_banner{
+	background-color: #D3911B;
+}
+.division-operation #forkme_banner:hover{
+	background-color: #DF9D27;
+}
+.division-operation footer a {
+	color: #e99b0f;
+}
+.division-operation footer a:hover {
+	color: #E9A428;
+	text-shadow: #E9AA39 0 0 2px;
+}
+
+
+/*** game container ***/
 div.game {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	float:left;
-	margin: 10px;
-	text-align: center;
+	display: block;
+	margin: 10px auto;
+	width: 430px;
 }
 
-/* game answers */
-.game ul {
+
+/*** game answers ***/
+.answers {
 	border-radius: 15px;
 	box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
 	display: inline-block;
@@ -19,9 +111,13 @@ div.game {
 	padding: 0;
 	position: relative;
 }
-.game li {
+.answers li {
+	-webkit-transition: all .3s cubic-bezier(.02,.96,.05,.97);
+	-moz-transition: all .3s cubic-bezier(.02,.96,.05,.97);
+	-o-transition: all .3s cubic-bezier(.02,.96,.05,.97);
+	-ms-transition: all .3s cubic-bezier(.02,.96,.05,.97);
+	transition: all .3s cubic-bezier(.02,.96,.05,.97);
 	cursor: pointer;
-	/*display: inline;*/
 	float: left;
 	font-size: 1.4em;
 	height: 50px;
@@ -31,171 +127,148 @@ div.game {
 	text-align: center;
 	width: 50px;
 }
-.game .selected {
-	-webkit-transition: font-size .3s linear;
-	-moz-transition: font-size .3s linear;
-	-o-transition: font-size .3s linear;
-	-ms-transition: font-size .3s linear;
-	transition: font-size .3s linear;
+.answers .selected {
 	border-radius: 25px;
 	color: #fff;
 	font-size: 35px;
 	line-height: 48px;
 }
-.game .transition-invalid-answer:hover{
-	-webkit-transition: background-color .15s linear;
-	-moz-transition: background-color .15s linear;
-	-o-transition: background-color .15s linear;
-	-ms-transition: background-color .15s linear;
-	transition: background-color .15s linear;
+.answers .invalid-answer:hover{
 	background-color: #990000;
 	color: #fff;
 	cursor: pointer;
+	font-size: 35px;
 }
-.game .used {
-	-webkit-transition: background-color .3s linear;
-	-moz-transition: background-color .3s linear;
-	-o-transition: background-color .3s linear;
-	-ms-transition: background-color .3s linear;
-	transition: background-color .3s linear;
+.answers .used {
 	color: transparent;
 	cursor: default;
-	font-size: 2em;
 }
-.game li:nth-child(8n +1) {
+.answers li:nth-child(8n+1) {
 	clear: left;
 }
 
 
-/* navigation */
+/*** navigation ***/
 .navigation {
 	margin-bottom: 5px;
 }
-.question {
-	font-size: 1.5em;
-}
 
 
-/************ red ************/
-.red-background {
-	background: -webkit-radial-gradient(#c43 , #210b08);
-	background: -moz-radial-gradient(#c43 , #210b08);
-	background: -o-radial-gradient(#c43 , #210b08);
-	background: -ms-radial-gradient(#c43 , #210b08);
-	background: radial-gradient(#c43 , #210b08);
-	background-color: #c43;
-}
-.red ul, .red li {
-	background-color: #c43;
-	color: silver;
-}
-.red ul {
-	border: 15px solid rgba(245,245,245,.3);
-}
-.red .hover {
-	background-color: #e64433;
-	color: #fff;
-}
-.red .selected,
-.red .used {
-	background-color: #494949;
-
-}
-.red .used {
-	background-color: rgba(245, 245, 245, .7);
-	color: transparent;
-}
-
-
-/************ blue ************/
-.blue-background {
-	background: -webkit-radial-gradient(#27c , #061321);
-	background: -moz-radial-gradient(#27c , #061321);
-	background: -o-radial-gradient(#27c , #061321);
-	background: -ms-radial-gradient(#27c , #061321);
-	background: radial-gradient(#27c , #061321);
-	background-color: #27c;
-}
-.blue ul, .blue li {
-	background-color: #27c;
-	color: silver;
-}
-.blue ul {
-	border: 15px solid rgba(245,245,245,.3);
-}
-.blue .hover {
-	background-color: rgb(86, 163, 241);
-	color: #fff;
-}
-.blue .selected,
-.blue .used {
-	background-color: #494949;
-
-}
-.blue .used {
-	background-color: rgba(245, 245, 245, .7);
-	color: transparent;
-}
-
-
-
-/************ green ************/
-.green-background {
-	background: -webkit-radial-gradient(#28de28 , #093309);
-	background: -moz-radial-gradient(#28de28 , #093309);
-	background: -o-radial-gradient(#28de28 , #093309);
-	background: -ms-radial-gradient(#28de28 , #093309);
-	background: radial-gradient(#28de28 , #093309);
-	background-color: #28de28;
-}
-.green ul, .green li {
+/*** addition operator: green ***/
+.addition {
 	background-color: #090;
-	color: silver;
-}
-.green ul {
 	border: 15px solid rgba(245,245,245,.3);
+	color: rgba(245,245,245,.9);
 }
-.green .hover {
+.addition li.hover {
 	background-color: #0b0;
 	color: #fff;
 }
-.green .selected,
-.green .used {
+.addition li.selected,
+.addition li.used {
 	background-color: #494949;
 
 }
-.green .used {
+.addition li.used {
 	background-color: rgba(245, 245, 245, .7);
 	color: transparent;
 }
 
-
-/************ yellow ************/
-.yellow-background {
-	background: -webkit-radial-gradient(#e2920b , #392503);
-	background: -moz-radial-gradient(#e2920b , #392503);
-	background: -o-radial-gradient(#e2920b , #392503);
-	background: -ms-radial-gradient(#e2920b , #392503);
-	background: radial-gradient(#e2920b , #392503);
-	background-color: #e2920b;
+/*** subtraction operator: red ***/
+.subtraction {
+	background-color: #c43;
+	border: 15px solid rgba(245,245,245,.3);
+	color: silver;
 }
-.yellow ul, .yellow li {
+.subtraction li.hover {
+	background-color: #e64433;
+	color: #fff;
+}
+.subtraction li.selected,
+.subtraction li.used {
+	background-color: #494949;
+
+}
+.subtraction li.used {
+	background-color: rgba(245, 245, 245, .7);
+	color: transparent;
+}
+
+/*** multiplication operator: blue ***/
+.multiplication {
+	background-color: #27c;
+	border: 15px solid rgba(245,245,245,.3);
+	color: silver;
+}
+.multiplication li.hover {
+	background-color: rgb(86, 163, 241);
+	color: #fff;
+}
+.multiplication li.selected,
+.multiplication li.used {
+	background-color: #494949;
+}
+.multiplication li.used {
+	background-color: rgba(245, 245, 245, .7);
+	color: transparent;
+}
+
+/*** division operator: yellow ***/
+.division {
 	background-color: #e99b0f;
 	color: rgb(94, 88, 76);
 }
-.yellow ul {
+.division {
 	border: 15px solid rgba(245,245,245,.3);
 }
-.yellow .hover {
+.division .hover {
 	background-color: rgb(236, 170, 51);
 	color: #fff;
 }
-.yellow .selected,
-.yellow .used {
+.division .selected,
+.division .used {
 	background-color: #494949;
-
 }
-.yellow .used {
+.division .used {
 	background-color: rgba(245, 245, 245, .7);
 	color: transparent;
+}
+/***/
+
+
+/*** question ***/
+.question {
+	font-size: 1.5em;
+}
+.question span {
+	display: inline-block;
+	text-align: center;
+}
+.question .addition, .question .subtraction, .question .multiplication, .question .division {
+	display: inline-block;
+	font-size: 35px;
+	height: 40px;
+	line-height: 40px;
+	text-align: center;
+	width: 40px;
+
+	margin: 0 10px;
+
+	border-radius: 12px;
+	border-width: 10px;
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
+}
+.question .number {
+	background-color: #494949;
+	border-radius: 25px;
+	color: #fff;
+	font-size: 35px;
+	line-height: 48px;
+	width: 50px;
+	height: 50px;
+}
+.question .equals {
+	height: 50px;
+	font-size: 50px;
+	margin: 0 5px;
 }

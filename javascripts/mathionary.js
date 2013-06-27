@@ -199,7 +199,7 @@ Game.prototype.events = {
 
         self.$answers.on('mouseleave', 'li', function () {
             // This refers to answer element, wrapped in jQuery
-            $(this).removeClass('hover transition-invalid-answer');
+            $(this).removeClass('hover invalid-answer');
         });
     },
 
@@ -509,7 +509,7 @@ Game.prototype.setupAnswerElements = function (answers) {
 Game.prototype.displayInvalidAnswer = function () {
 
     // This refers to the element that was clicked
-    return $(this).addClass('transition-invalid-answer').removeClass('selected');
+    return $(this).addClass('invalid-answer').removeClass('selected');
 };
 
 
