@@ -135,35 +135,6 @@ a {
 	text-shadow: #0090ff 0 0 2px;
 }
 
-.red-background footer a {
-	color: #c43;
-}
-.red-background footer a:hover {
-	color: #E94E3B;
-	text-shadow: #D35748 0 0 2px;
-}
-.blue-background footer a {
-	color: #007edf;
-}
-.blue-background footer a:hover {
-	color: #43adff;
-	text-shadow: #0090ff 0 0 2px;
-}
-.green-background footer a {
-	color: #090;
-}
-.green-background footer a:hover {
-	color: #12AF12;
-	text-shadow: #0CB10C 0 0 2px;
-}
-.yellow-background footer a {
-	color: #e99b0f;
-}
-.yellow-background footer a:hover {
-	color: #E9A428;
-	text-shadow: #E9AA39 0 0 2px;
-}
-
 em {
 	font-style: italic;
 }
@@ -193,9 +164,6 @@ pre, code {
 	border-radius: 2px;
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
-
-
-
 }
 
 pre {
@@ -328,30 +296,6 @@ Full-Width Styles
 	transition: background-color .5s;
 	background-color: #0090ff;
 }
-.red-background #forkme_banner{
-	background-color: #c43;
-}
-.red-background #forkme_banner:hover{
-	background-color: #E2503E;
-}
-.blue-background #forkme_banner{
-	background-color: #27c;
-}
-.blue-background #forkme_banner:hover{
-	background-color: #2A81D8;
-}
-.green-background #forkme_banner{
-	background-color: #079707;
-}
-.green-background #forkme_banner:hover{
-	background-color: #09AC09;
-}
-.yellow-background #forkme_banner{
-	background-color: #D3911B;
-}
-.yellow-background #forkme_banner:hover{
-	background-color: #DF9D27;
-}
 
 #header_wrap {
 	background: -webkit-linear-gradient(top, #373737, #212121);
@@ -368,7 +312,6 @@ Full-Width Styles
 }
 
 #header_wrap .inner {
-	/*padding: 50px 10px 30px 10px;*/
 	padding: 30px 10px 20px 10px;
 }
 
