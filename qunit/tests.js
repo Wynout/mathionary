@@ -302,13 +302,13 @@ test('answerMouseenter', 1, function () {
 test('answerMouseleave', 2, function () {
 
     // Test mouseleave event on <li /> element
-    jQuery('<li class="hover transition-invalid-answer" data-answer="1">1</li>').appendTo(this.Game.$answers);
+    jQuery('<li class="hover invalid-answer" data-answer="1">1</li>').appendTo(this.Game.$answers);
     var $answer = this.Game.$answers.find('li').first()
         .addClass('hover')
         .trigger('mouseleave');
 
     strictEqual($answer.hasClass('hover'), false, 'Class "hover" is removed from answer element on mouseleave.');
-    strictEqual($answer.hasClass('transition-invalid-answer'), false, 'Class "transition-invalid-answer" is removed from answer element on mouseleave.');
+    strictEqual($answer.hasClass('invalid-answer'), false, 'Class "invalid-answer" is removed from answer element on mouseleave.');
 });
 test('answerClick: Test toggle answer selection', 2, function () {
 
@@ -376,12 +376,12 @@ test('answerClick: Test invalid moves', 2, function () {
     // Test invalid answer: cannot select answer directly
     $answer = this.Game.$answers.find('li').first()
         .trigger('click');
-    strictEqual($answer.hasClass('transition-invalid-answer'), true, 'Invalid move: Cannot select answer directly. Answer element gets class "transition-invalid-answer".');
+    strictEqual($answer.hasClass('invalid-answer'), true, 'Invalid move: Cannot select answer directly. Answer element gets class "invalid-answer".');
 
     // Test invalid answer: cannot select answer higher question.answer
     var $answer = this.Game.$answers.find('li').last()
         .trigger('click');
-    strictEqual($answer.hasClass('transition-invalid-answer'), true, 'Invalid move: Cannot select answer higher question.answer. Answer element gets class "transition-invalid-answer".');
+    strictEqual($answer.hasClass('invalid-answer'), true, 'Invalid move: Cannot select answer higher question.answer. Answer element gets class "invalid-answer".');
 });
 test('answerClick: Test if answer is correct', 2, function () {
 
@@ -854,7 +854,7 @@ test('Test display invalid answer', 2, function () {
         .appendTo('#qunit-fixture');
     var $result = $(Game.prototype.displayInvalidAnswer.call(answer)[0]);
 
-    strictEqual($result.hasClass('transition-invalid-answer'), true, 'Answer element gets class "transition-invalid-answer".');
+    strictEqual($result.hasClass('invalid-answer'), true, 'Answer element gets class "invalid-answer".');
     strictEqual($result.hasClass('selected'), false, 'Class "selected" is removed from answer element.');
 });
 
