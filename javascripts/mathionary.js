@@ -76,6 +76,13 @@ function Game(config) {
      *
      * @property {Object}
      */
+    this.$statement = null;
+
+    /**
+     * Holds the current Game state
+     *
+     * @property {Object}
+     */
     this.state = {
         storageKey: 'Mathionary-Add:',
         gameInProgress: false,
@@ -115,6 +122,10 @@ Game.prototype.cacheDomElements = function ()  {
     this.$answers = this.$game.find('ul').first();
     if (!this.$answers.length) {
         throw new Error("Game CacheDomElements: no html unordered list element found, 'ul'");
+    }
+    this.$statement = this.$game.find('div.statement');
+    if (!this.$statement.length) {
+        throw new Error("Game CacheDomElements: no statement element found, 'div.statement'");
     }
 };
 
@@ -240,11 +251,13 @@ Game.prototype.events = {
 
                 // Add class 'used' to elements that are selected
                 self.markAnswersAsUsed($selected);
-
                 // Create and display new question.
                 self.newQuestionCycle();
-            }
 
+            } else  {
+
+                self.displayQuestion();
+            }
             self.saveGameState(self.state.storageKey);
         });
     }
@@ -266,7 +279,7 @@ Game.prototype.newQuestionCycle = function () {
     var $availableAnswers = this.getAvailableAnswers();
 
     // Create question and answer
-    this.state.question = this.createNewQuestion($availableAnswers, '#questionTemplate');
+    this.state.question = this.createNewQuestion($availableAnswers, '.question-addition-template');
 
     // Display new question
     this.displayQuestion();
@@ -521,7 +534,37 @@ Game.prototype.displayInvalidAnswer = function () {
  */
 Game.prototype.displayQuestion = function () {
 
-    return this.$game.find('.question').text(this.state.question.text);
+    // Clear previous question
+    this.$statement.find('span').remove('span');
+
+    // Show Question argument
+    var $selected     = this.$answers.find('li.selected'),
+        x             = $selected.eq(0).data('answer'),
+        y             = $selected.eq(1).data('answer'),
+        answer        = this.state.question.answer,
+        span          = '<span></span>';
+
+    // Show selected answer in statement
+    x = (x===null) ? 0 : parseInt(x, 10);
+    y = (y===null) ? 0 : parseInt(y, 10)
+
+    if (this.isQuestionAnswered()===false) {
+
+        x = x + y;
+        x = x===0 ? 'X' : x;
+        y = 'Y'
+    }
+
+    // Append span elements to div.statement
+    $(span, {class: 'number', text: x}).appendTo(this.$statement);
+    $(span, {class: 'addition', html: '&plus;'}).appendTo(this.$statement);
+    $(span, {class: 'number', text: y}).appendTo(this.$statement);
+    $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
+    $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
+
+    // Show Question Text
+    return this.$game.find('div.question .question-text')
+        .text(this.state.question.text);
 };
 
 
@@ -622,7 +665,8 @@ Game.prototype.getFromStorage = function (key) {
  */
 Game.prototype.saveToStorage = function (key, obj) {
 
-    return (localStorage[key] = JSON.stringify(obj));
+    localStorage[key] = JSON.stringify(obj);
+    return localStorage[key];
 };
 
 

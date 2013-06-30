@@ -239,12 +239,17 @@ div.game {
 /*** question ***/
 .question {
 	font-size: 1.5em;
+	margin: 20px auto;
+	text-align: center;
 }
 .question span {
 	display: inline-block;
 	text-align: center;
 }
-.question .addition, .question .subtraction, .question .multiplication, .question .division {
+.question .addition,
+.question .subtraction,
+.question .multiplication,
+.question .division {
 	display: inline-block;
 	font-size: 35px;
 	height: 40px;
@@ -258,7 +263,8 @@ div.game {
 	border-width: 10px;
 	box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
 }
-.question .number {
+.question .number,
+.question .answer {
 	background-color: #494949;
 	border-radius: 25px;
 	color: #fff;
@@ -267,8 +273,12 @@ div.game {
 	width: 50px;
 	height: 50px;
 }
-.question .equals {
+.question .equal {
 	height: 50px;
 	font-size: 50px;
 	margin: 0 5px;
+}
+.question .question-text {
+	font-size: 18px;
+	margin: 5px auto 0px;
 }
