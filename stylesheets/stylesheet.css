@@ -322,6 +322,7 @@ Full-Width Styles
 	font-size: 55px;
 	font-weight: 100;
 	text-shadow: #111 0px 0px 15px;
+	-webkit-text-stroke: 1px;
 }
 
 #project_tagline {

@@ -34,11 +34,22 @@
 		<section id="main_content" class="inner">
 
 			<div class="game">
-				<div class="navigation">
-					<h1 class="question">Question</h1>
-				</div>
-				<script id="questionTemplate" type="game/template">
-					Which numbers add up to: {{answer}}?.
+				<div class="question">
+	                <div class="statement"></div>
+	                <div class="question-text">Question here, please</div>
+	            </div>
+
+				<script class="question-addition-template" type="game/template">
+					Which numbers add up to {{answer}}?
+				</script>
+				<script class="question-subtraction-template" type="game/template">
+					Which numbers subtract to {{answer}}?
+				</script>
+				<script class="question-multiplication-template" type="game/template">
+					Which numbers multiply to {{answer}}?
+				</script>
+				<script class="question-division-template" type="game/template">
+					Which numbers divide to {{answer}}?
 				</script>
 				<ul class="answers addition"></ul>
 			</div>
@@ -52,7 +63,7 @@
 				<span class="equals">=</span>
 				<span class="number">6</span>
 			</div>
-			<p>User selects answer 1 &amp; 5 and completes the question.</p>
+			<p class="question-text">User selects answer 1 &amp; 5 and completes the question.</p>
 			<div class="question">
 				<span class="number">6</span>
 				<span class="subtraction">&minus;</span>
@@ -60,7 +71,7 @@
 				<span class="equals">=</span>
 				<span class="number">X</span>
 			</div>
-			<p>Repeat the given answers by showing the opposite question.</p>
+			<p class="question-text">Repeat the given answers by showing the opposite question.</p>
 			<div style="">
 				<div id="switchAddition" class="game" style="display:inline;margin-right:10px;"><ul class="answers addition"><li>&plus;</li></ul></div>
 				<div id="switchSubtraction" class="game" style="display:inline;margin-right:10px;"><ul class="answers subtraction"><li>&minus;</li></ul></div>
