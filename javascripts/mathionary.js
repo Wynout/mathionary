@@ -665,6 +665,12 @@ Game.prototype.getFromStorage = function (key) {
  */
 Game.prototype.saveToStorage = function (key, obj) {
 
+
+    if (obj===undefined || obj===null) {
+        obj = {};
+    }
+
+
     localStorage[key] = JSON.stringify(obj);
     return localStorage[key];
 };
