@@ -143,7 +143,7 @@ Game.prototype.initialize = function (amount) {
     var isStateLoaded = this.loadGameState(this.state.storageKey),
         createNewGame = false;
 
-    if (isStateLoaded) {
+    if (isStateLoaded===true) {
 
         // Create new game if answers cannot be set.
         if (this.setupAnswerElements(this.state.answers)===true) {
@@ -594,15 +594,19 @@ Game.prototype.loadGameState = function (prefix) {
 
     // Merge stored content into this.state
     try  {
-        savedState = $.parseJSON(localStorage[prefix]);
+        savedState = $.parseJSON(localStorage.getItem(prefix));
+
     }
     catch (error) {
 
         // Capture exception when JSON cannot be parsed
         return false;
     }
-    $.extend(this.state, savedState);
+    if (savedState===null) {
+        return false;
+    }
 
+    $.extend(this.state, savedState);
     return true;
 };
 
@@ -647,7 +651,7 @@ Game.prototype.getFromStorage = function (key) {
     var obj = {};
 
     try {
-        obj = $.parseJSON(localStorage[key]);
+        obj = $.parseJSON(localStorage.getItem(key));
     }
     catch (error) {
         // Capture exception when JSON cannot be parsed
@@ -665,29 +669,29 @@ Game.prototype.getFromStorage = function (key) {
  */
 Game.prototype.saveToStorage = function (key, obj) {
 
-    localStorage[key] = JSON.stringify(obj);
-    return localStorage[key];
+    try {
+        obj = localStorage.setItem(key, JSON.stringify(obj));
+    }
+    catch (error) {
+        // Capture exception when localStorage is not available
+    }
+    return obj;
 };
 
 
 /**
  * Deletes matching keys from Storage
  *
- * @param {String} matching keys to remove from Storage
- * @return {Object} localStorage object
+ * @param {key} matching key is removed from Storage
+ * @return {Boolean} on success
  */
-Game.prototype.deleteFromStorage = function (matchingKeys) {
+Game.prototype.deleteFromStorage = function (key) {
 
-    Object.keys(localStorage)
-        .forEach( function (key) {
-
-            // Remove all keys that match with matchingKeys
-            var reg = new RegExp('^' + matchingKeys);
-            if (reg.test(key)) {
-                localStorage.removeItem(key);
-            }
-    });
-    return localStorage;
+    if (localStorage===undefined) {
+        return false;
+    }
+    localStorage.removeItem(key);
+    return true;
 };
 
 
