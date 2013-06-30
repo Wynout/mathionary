@@ -155,7 +155,7 @@ module('Game.prototype.initialize(): Test loadGameState', {
             .appendTo('#qunit-fixture');
 
         var testState = {
-            storageKey: 'test:load-game-state',
+            storageKey: 'test-load-game-state',
             gameInProgress: true,
             answers: [
                 {index: 0, answer: 3, selected: true, used: false },
@@ -181,7 +181,7 @@ module('Game.prototype.initialize(): Test loadGameState', {
 
         this.testString = JSON.stringify(testState);
         // Setup test string in Storage
-        localStorage['test:load-game-state'] = this.testString; // JSON
+        localStorage.setItem('test-load-game-state', this.testString); // JSON
 
         this.Game.initialize.call(this.Game);
     },
@@ -190,7 +190,7 @@ module('Game.prototype.initialize(): Test loadGameState', {
     teardown: function () {
 
         // Test storageKey must be unset after testing
-        localStorage.removeItem('test:load-game-state');
+        localStorage.removeItem('test-load-game-state');
     }
 });
 test('Test loading Game State from Storage', 5, function () {
@@ -431,7 +431,7 @@ test('answerClick: Test if Game state is saved', 1, function () {
 
 
     var obj = {};
-    try { obj = $.parseJSON(localStorage['test']); } catch (error) {}
+    try { obj = $.parseJSON(localStorage.getItem('test')); } catch (error) {}
 
     var isSelected = false;
     if (typeof obj.answers!=='undefined' && obj.answers.length==1 && 'selected' in obj.answers[0]) {
@@ -478,7 +478,7 @@ module('Game.prototype.newQuestionCycle()', {
             .appendTo('#qunit-fixture');
 
         this.testState = {
-            storageKey: 'test:save-game-state',
+            storageKey: 'test-save-game-state',
             question: {
                 answer: null
             },
@@ -496,14 +496,14 @@ module('Game.prototype.newQuestionCycle()', {
         }, Game.prototype);
 
         // Storage key must not exists when test starts
-        localStorage.removeItem('test:save-game-state');
+        localStorage.removeItem('test-save-game-state');
     },
 
     // Teardown callback runs after each test
     teardown: function () {
 
         // Test storageKey must be unset after testing
-        localStorage.removeItem('test:save-game-state');
+        localStorage.removeItem('test-save-game-state');
     }
 });
 test('Test if a new question is created', 3, function () {
@@ -519,7 +519,7 @@ test('Test if Game State is saved', 1, function () {
     var result = this.Game.newQuestionCycle(),
         testString = JSON.stringify(this.Game.state);
 
-    strictEqual(localStorage['test:save-game-state'], JSON.stringify(this.Game.state), 'localStorage["test:save-game-state"] equals to JSON.stringify(this.Game.state)');
+    strictEqual(localStorage.getItem('test-save-game-state'), JSON.stringify(this.Game.state), 'localStorage.getItem("test-save-game-state") equals to JSON.stringify(this.Game.state)');
 });
 
 
@@ -1032,23 +1032,23 @@ module('Game.prototype.loadGameState()', {
         };
         this.testString = JSON.stringify(this.testState);
         // Setup test string in Storage
-        localStorage['test:loadGameState'] = this.testString; // JSON
+        localStorage.setItem('test-load-game-state', this.testString); // JSON
         // Setup invalid GameState in Storage
-        localStorage['test:cannotLoadGameState'] = 'This is not a well formed JSON string';
+        localStorage.setItem('test-cannot-load-game-state', 'This is not a well formed JSON string');
     },
 
     // Teardown callback runs after each test
     teardown: function () {
 
         // Test key must be unset after testing
-        localStorage.removeItem('test:loadGameState');
-        localStorage.removeItem('test:cannotLoadGameState');
+        localStorage.removeItem('test-load-game-state');
+        localStorage.removeItem('test-cannot-load-game-state');
     }
 });
 test('Test if Game State Object can be loaded from Storage', 2, function () {
 
     // Load Game State from Storage
-    var result = this.Game.loadGameState('test:loadGameState');
+    var result = this.Game.loadGameState('test-load-game-state');
 
     // Test if result is equal to true
     deepEqual(result, true, 'Result equals true when gameState cannot be loaded from Storage.');
@@ -1059,7 +1059,7 @@ test('Test if Game State Object can be loaded from Storage', 2, function () {
 test('Test if Game State Object cannot be loaded from Storage', 2, function () {
 
     // Load Game State from Storage
-    var result = this.Game.loadGameState('test:cannotLoadGameState');
+    var result = this.Game.loadGameState('test-cannot-load-game-state');
 
     // Test failure loading JSON string from Storage
     deepEqual(result, false, 'Result equals false when gameState cannot be loaded from Storage.');
@@ -1070,7 +1070,7 @@ test('Test if Game State Object cannot be loaded from Storage', 2, function () {
 test('Test Game.state.question object after loading from Storage', 1, function () {
 
     // Load Game State from Storage
-    this.Game.loadGameState('test:loadGameState');
+    this.Game.loadGameState('test-load-game-state');
 
     // Test if object loaded from Storage
     deepEqual(JSON.stringify(this.Game.state), this.testString, 'Game.state equals to Test state.');
@@ -1087,7 +1087,7 @@ module('Game.prototype.saveGameState()', {
     setup: function () {
 
         // Test key must be unset before testing
-        localStorage.removeItem('test:saveGameState');
+        localStorage.removeItem('test-save-game-state');
 
         // These answers will be stored in gameState
         jQuery(
@@ -1115,14 +1115,14 @@ module('Game.prototype.saveGameState()', {
     teardown: function () {
 
         // Test key must be unset after testing
-        localStorage.removeItem('test:saveGameState');
+        localStorage.removeItem('test-save-game-state');
     }
 });
 test('Test if Game State is saved to Storage', 9, function () {
 
     // Save Game State to Storage
-    var result = this.Game.saveGameState('test:saveGameState'),
-        gameState = $.parseJSON(localStorage['test:saveGameState']);
+    var result = this.Game.saveGameState('test-save-game-state'),
+        gameState = $.parseJSON(localStorage.getItem('test-save-game-state'));
 
     // Test gameInProgress
     strictEqual(gameState.gameInProgress, true, 'gameState.gameInProgress equals to true');
@@ -1151,21 +1151,21 @@ module('Game.prototype.getFromStorage', {
     setup: function () {
 
         // Set test JSON string
-        localStorage['test:get'] = '{"key":"a value"}';
+        localStorage.setItem('test-get-from-storage', '{"key":"a value"}');
     },
 
     // Teardown callback runs after each test
     teardown: function () {
 
         // Test key must be unset after testing
-        localStorage.removeItem('test:get');
+        localStorage.removeItem('test-get-from-storage');
     }
 });
+
 test('Test if object is returned from Storage', 1, function () {
 
-    var testObject = {key: 'a value'},
-    result = Game.prototype.getFromStorage('test:get');
-    strictEqual(result.key,testObject.key,"result['test:get'] must equal to object {key: 'value'}.");
+    Game.prototype.getFromStorage('test-get-from-storage');
+    strictEqual(localStorage.getItem('test-get-from-storage'), '{"key":"a value"}', "localStorage.getItem('test-get-from-storage') must equal to object {key: 'value'}.");
 });
 
 
@@ -1195,7 +1195,7 @@ test('Test if object can be saved to Storage', 1, function () {
         testString = JSON.stringify(testObject), // '{"key":"a value"}'
         result = Game.prototype.saveToStorage('test:save', testObject);
 
-    strictEqual(localStorage['test:save'],testString,"localStorage['test:save'] must equal to string "+'{"key":"a value"}');
+    strictEqual(localStorage.getItem('test:save'),testString,"localStorage.getItem('test:save') must equal to string "+'{"key":"a value"}');
 });
 
 
@@ -1209,26 +1209,26 @@ module('Game.prototype.deleteFromStorage', {
     setup: function () {
 
         // Set test values
-        localStorage['test-remove:me'] = 'remove';
-        localStorage['test-keep:me']   = 'keep';
+        localStorage.setItem('test-remove-me', 'remove');
+        localStorage.setItem('test-keep-me', 'keep');
     },
 
     // Teardown callback runs after each test
     teardown: function () {
 
         // Test key must be unset after testing
-        localStorage.removeItem('test-remove:me');
-        localStorage.removeItem('test-keep:me');
+        localStorage.removeItem('test-remove-me');
+        localStorage.removeItem('test-keep-me');
     }
 });
-test('Test if a localStorage[key] can be deleted', 2, function () {
+test('Test if key can be deleted from Storage', 2, function () {
 
     // Test if key is removed from Storage
-    var result = Game.prototype.deleteFromStorage('test-remove:');
-    strictEqual(localStorage['test-remove:me'],undefined,"localStorage['test-remove:me'] must equal to undefined.");
+    var result = Game.prototype.deleteFromStorage('test-remove-me');
+    strictEqual(localStorage.getItem('test-remove-me'),null,"localStorage.getItem('test-remove-me') must equal to undefined.");
 
     // Test if another key is not removed from Storage
-    strictEqual(localStorage['test-keep:me'],'keep',"localStorage['test-keep:me'] must equal to 'keep'.");
+    strictEqual(localStorage.getItem('test-keep-me'),'keep',"localStorage.getItem('test-keep-me') must equal to 'keep'.");
 });
 
 
