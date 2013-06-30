@@ -1,12 +1,12 @@
 
 /*** body class addition operation ***/
 .addition-operation {
+	background-color: #28de28; /* fallback */
 	background: -webkit-radial-gradient(#28de28, #093309);
 	background: -moz-radial-gradient(#28de28, #093309);
 	background: -o-radial-gradient(#28de28, #093309);
 	background: -ms-radial-gradient(#28de28, #093309);
 	background: radial-gradient(#28de28, #093309);
-	background-color: #28de28;
 }
 .addition-operation #forkme_banner{
 	background-color: #079707;
@@ -23,12 +23,13 @@
 }
 /*** body class subtraction operation ***/
 .subtraction-operation {
+	background-color: #c43; /* fallback */
 	background: -webkit-radial-gradient(#c43, #210b08);
 	background: -moz-radial-gradient(#c43, #210b08);
 	background: -o-radial-gradient(#c43, #210b08);
 	background: -ms-radial-gradient(#c43, #210b08);
 	background: radial-gradient(#c43, #210b08);
-	background-color: #c43;
+
 }
 .subtraction-operation #forkme_banner{
 	background-color: #c43;
@@ -45,12 +46,12 @@
 }
 /*** body class multiplication operation ***/
 .multiplication-operation {
+	background-color: #27c; /* fallback */
 	background: -webkit-radial-gradient(#27c, #061321);
 	background: -moz-radial-gradient(#27c, #061321);
 	background: -o-radial-gradient(#27c, #061321);
 	background: -ms-radial-gradient(#27c, #061321);
 	background: radial-gradient(#27c, #061321);
-	background-color: #27c;
 }
 .multiplication-operation #forkme_banner{
 	background-color: #27c;
@@ -67,12 +68,12 @@
 }
 /*** body class division operation ***/
 .division-operation {
+	background-color: #e2920b; /* fallback */
 	background: -webkit-radial-gradient(#e2920b, #392503);
 	background: -moz-radial-gradient(#e2920b, #392503);
 	background: -o-radial-gradient(#e2920b, #392503);
 	background: -ms-radial-gradient(#e2920b, #392503);
 	background: radial-gradient(#e2920b, #392503);
-	background-color: #e2920b;
 }
 .division-operation #forkme_banner{
 	background-color: #D3911B;
@@ -104,6 +105,7 @@ div.game {
 /*** game answers ***/
 .answers {
 	border-radius: 15px;
+	-webkit-box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
 	box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
 	display: inline-block;
 	list-style: none;
@@ -250,18 +252,17 @@ div.game {
 .question .subtraction,
 .question .multiplication,
 .question .division {
+	border-radius: 12px;
+	border-width: 10px;
+	-webkit-box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
 	display: inline-block;
 	font-size: 35px;
 	height: 40px;
 	line-height: 40px;
+	margin: 0 10px;
 	text-align: center;
 	width: 40px;
-
-	margin: 0 10px;
-
-	border-radius: 12px;
-	border-width: 10px;
-	box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
 }
 .question .number,
 .question .answer {
@@ -269,13 +270,13 @@ div.game {
 	border-radius: 25px;
 	color: #fff;
 	font-size: 35px;
+	height: 50px;
 	line-height: 48px;
 	width: 50px;
-	height: 50px;
 }
 .question .equal {
-	height: 50px;
 	font-size: 50px;
+	height: 50px;
 	margin: 0 5px;
 }
 .question .question-text {
