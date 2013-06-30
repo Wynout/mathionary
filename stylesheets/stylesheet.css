@@ -56,18 +56,19 @@ Theme Styles
 *******************************************************************************/
 
 body {
-	background-color: rgb(255, 255, 255);
-	background-attachment: fixed;
-	padding: 20px 20px 40px 20px;
-	margin:0;
-
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
 	box-sizing: border-box;
-	color:#373737;
-	font-size: 16px;
-	font-family: 'Roboto', Calibri, Helvetica, Arial, sans-serif;
-
-	line-height: 1.5;
 	-webkit-font-smoothing: antialiased;
+	background-attachment: fixed;
+	background-color: rgb(255, 255, 255);
+	color:#373737;
+	font-family: 'Roboto', Calibri, Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	margin:0;
+	padding: 20px 20px 40px 20px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -114,20 +115,20 @@ footer p {
 }
 
 a {
-	text-decoration: none;
-	color: #007edf;
-	text-shadow: none;
-
-	transition: color 0.5s ease;
-	transition: text-shadow 0.5s ease;
 	-webkit-transition: color 0.5s ease;
-	-webkit-transition: text-shadow 0.5s ease;
 	-moz-transition: color 0.5s ease;
-	-moz-transition: text-shadow 0.5s ease;
 	-o-transition: color 0.5s ease;
-	-o-transition: text-shadow 0.5s ease;
 	-ms-transition: color 0.5s ease;
+	transition: color 0.5s ease;
+
+	-webkit-transition: text-shadow 0.5s ease;
+	-moz-transition: text-shadow 0.5s ease;
+	-o-transition: text-shadow 0.5s ease;
 	-ms-transition: text-shadow 0.5s ease;
+	transition: text-shadow 0.5s ease;
+	color: #007edf;
+	text-decoration: none;
+	text-shadow: none;
 }
 
 #main_content a:hover {
@@ -144,51 +145,50 @@ strong {
 }
 
 img {
-	position: relative;
+	-webkit-box-shadow: 0 0 5px #ebebeb;
+	box-shadow: 0 0 5px #ebebeb;
+	border: 1px solid #ebebeb;
 	margin: 10px auto;
 	max-width: 739px;
 	padding: 5px;
-	border: 1px solid #ebebeb;
-	-webkit-box-shadow: 0 0 5px #ebebeb;
-	box-shadow: 0 0 5px #ebebeb;
+	position: relative;
 }
 
 pre, code {
-	width: 100%;
-	color: #222;
 	background-color: #fff;
-
+	border-radius: 2px;
+	color: #222;
 	font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 	font-size: 14px;
-
-	border-radius: 2px;
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
+	width: 100%;
 }
 
 pre {
-	width: 100%;
-	padding: 10px;
+	-webkit-box-shadow: 0 0 10px rgba(0,0,0,.1);
 	box-shadow: 0 0 10px rgba(0,0,0,.1);
 	overflow: auto;
+	padding: 10px;
+	width: 100%;
 }
 
 code {
-	padding: 3px;
-	margin: 0 3px;
+	-webkit-box-shadow: 0 0 10px rgba(0,0,0,.1);
 	box-shadow: 0 0 10px rgba(0,0,0,.1);
+	margin: 0 3px;
+	padding: 3px;
 }
 
 pre code {
 	display: block;
+	-webkit-box-shadow: none;
 	box-shadow: none;
 }
 
 blockquote {
+	border-left: 3px solid #bbb;
 	color: #666;
 	margin-bottom: 20px;
 	padding: 0 0 0 20px;
-	border-left: 3px solid #bbb;
 }
 
 ul, ol, dl {
@@ -210,20 +210,20 @@ dl dt {
 }
 
 dl dd {
-	padding-left: 20px;
 	font-style: italic;
+	padding-left: 20px;
 }
 
 dl p {
-	padding-left: 20px;
 	font-style: italic;
+	padding-left: 20px;
 }
 
 hr {
+	background: url('../images/bg_hr.png') repeat-x center;
+	border: none;
 	height: 1px;
 	margin-bottom: 5px;
-	border: none;
-	background: url('../images/bg_hr.png') repeat-x center;
 }
 
 table {
@@ -240,8 +240,8 @@ th {
  }
 
 td {
-	padding: 10px;
 	border: 1px solid #373737;
+	padding: 10px;
  }
 
 form {
@@ -250,8 +250,8 @@ form {
 }
 
 img {
-	width: 100%;
 	max-width: 100%;
+	width: 100%;
 }
 
 /*******************************************************************************
@@ -303,6 +303,7 @@ Full-Width Styles
 	background: -o-linear-gradient(top, #373737, #212121);
 	background: -ms-linear-gradient(top, #373737, #212121);
 	background: linear-gradient(top, #373737, #212121);
+
 	border-radius: 25px 25px 0 0;
 	-webkit-box-shadow: 0px 0px 3px 1px rgba(0,0,0,.5);
 	box-shadow: 0px 0px 3px 1px rgba(0,0,0,.5);
@@ -316,33 +317,33 @@ Full-Width Styles
 }
 
 #project_title {
-	font-family: 'Wendy One', Calibri, Helvetica, Arial, sans-serif;
-	margin: 0;
+	-webkit-text-stroke: 1px; /* chrome fix */
 	color: #fff;
+	font-family: 'Wendy One', Calibri, Helvetica, Arial, sans-serif;
 	font-size: 55px;
 	font-weight: 100;
+	margin: 0;
 	text-shadow: #111 0px 0px 15px;
-	-webkit-text-stroke: 1px;
 }
 
 #project_tagline {
+	background: none;
 	color: #fff;
 	font-size: 20px;
 	font-weight: 100;
-	background: none;
 	text-shadow: #111 0px 0px 5px;
 }
 
 /* disabled */
 #downloads {
+	background: url('../images/icon_download.png') no-repeat 0% 90%;
+	bottom: -40px;
 	display: none;
+	height: 70px;
 	position: absolute;
+	right: 0;
 	width: 210px;
 	z-index: 10;
-	bottom: -40px;
-	right: 0;
-	height: 70px;
-	background: url('../images/icon_download.png') no-repeat 0% 90%;
 }
 .zip_download_link,
 .tar_download_link {
@@ -354,26 +355,24 @@ Full-Width Styles
 
 }
 .zip_download_link {
-
+	background: url(../images/sprite_download.png) no-repeat bottom left;
 	display: block;
 	float: right;
-	width: 90px;
 	height:70px;
-	text-indent: -5000px;
 	overflow: hidden;
-	background: url(../images/sprite_download.png) no-repeat bottom left;
+	text-indent: -5000px;
+	width: 90px;
 }
 
 .tar_download_link {
-
+	background: url(../images/sprite_download.png) no-repeat bottom right;
 	display: block;
 	float: right;
-	width: 90px;
 	height:70px;
-	text-indent: -5000px;
-	overflow: hidden;
-	background: url(../images/sprite_download.png) no-repeat bottom right;
 	margin-left: 10px;
+	overflow: hidden;
+	text-indent: -5000px;
+	width: 90px;
 }
 
 .zip_download_link:hover {
@@ -388,6 +387,7 @@ Full-Width Styles
 	background: #f2f2f2;
 	border-top: 1px solid #111;
 	border-bottom: 1px solid #111;
+	-webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,.2);
 	box-shadow: 0px 0px 1px 1px rgba(0,0,0,.2);
 }
 
@@ -397,13 +397,13 @@ Full-Width Styles
 }
 
 #footer_wrap {
+	background: #212121;
+	border-radius: 0 0 25px 25px;
+	-webkit-box-shadow: 0px 0px 3px 1px rgba(0,0,0,.5);
+	box-shadow: 0px 0px 3px 1px rgba(0,0,0,.5);
 	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
 	filter: alpha(opacity=90);
 	opacity: .9;
-
-	background: #212121;
-	border-radius: 0 0 25px 25px;
-	box-shadow: 0px 0px 3px 1px rgba(0,0,0,.5);
 }
 
 
