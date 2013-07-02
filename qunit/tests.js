@@ -910,8 +910,7 @@ module('Game.prototype.displayQuestion()', {
                 '<div class="question-text"><!--Question text appended here?--></div>' +
             '</div>' +
             '<ul>' +
-                // '<li class="selected" data-answer="7">7</li>' +
-                // '<li data-answer="8">8</li>' +
+                '<li class="selected" data-answer="1">1</li>' +
                 '<li class="selected" data-answer="5">5</li>' +
                 '<li class="selected" data-answer="7">7</li>' +
             '</ul>'+
@@ -934,11 +933,11 @@ module('Game.prototype.displayQuestion()', {
         }, Game.prototype);
     }
 });
-test('Test .displayQuestion() when question is answered', 4, function () {
+test('Test .displayQuestion() Test existence of statement span elements ', 4, function () {
 
     // Setup question answered
     this.Game.state.question.answer = 15;
-    this.Game.state.user.answer = 15;
+    this.Game.state.user.answer = 13; // selected answers 1 + 7 + 5
 
     this.Game.displayQuestion.call(this.Game);
 
@@ -958,17 +957,22 @@ test('Test .displayQuestion() when question is answered', 4, function () {
     classCount = $statement.find('span.equal').length;
     strictEqual(classCount, 1, 'Statement contain 1 span element with class of "equal"');
 });
-test('Test .displayQuestion() question not answered, X = state.user.answer', 1, function () {
+test('Test .displayQuestion() question not answered, Statement contains user answer', 2, function () {
 
     // Setup test
+    // <span>13</span> <span>+<span> <span>X</span> = 15
     this.Game.state.question.answer = 15;
-    this.Game.state.user.answer = 12; // selected answers 7 + 5
+    this.Game.state.user.answer = 13; // selected answers 1 + 7 + 5
 
     this.Game.displayQuestion();
 
-    // if question not answered, x = user.answer
-    var x = this.Game.$statement.find('span.number').first();
-    strictEqual(x.text(), '12', 'X equals to string "12", when question not answered.');
+    // When question not answered, first span.number contains state.user.answer.
+    var first = this.Game.$statement.find('span.number').eq(0);
+    strictEqual(first.text(), '13', 'First span.number contains the string "13", when question not answered.');
+
+    // When question not answered, second span.number contains the string 'Y'.
+    var second = this.Game.$statement.find('span.number').eq(1);
+    strictEqual(second.text(), 'X', 'Second span.number contains the string "X", when question not answered.');
 });
 
 

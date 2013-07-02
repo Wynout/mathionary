@@ -546,13 +546,18 @@ Game.prototype.displayQuestion = function () {
 
     // Show selected answer in statement
     x = (x===null) ? 0 : parseInt(x, 10);
-    y = (y===null) ? 0 : parseInt(y, 10)
+    y = (y===null) ? 0 : parseInt(y, 10);
 
-    if (this.isQuestionAnswered()===false) {
+    // answers given but question not answered
+    if (this.state.user.answer>0 && this.isQuestionAnswered()===false) {
 
-        x = x + y;
-        x = x===0 ? 'X' : x;
-        y = 'Y'
+        // Use user answer in statement
+        x = this.state.user.answer;
+        y = 'X';
+    } else  {
+
+        x = 'X';
+        y = 'Y';
     }
 
     // Append span elements to div.statement
