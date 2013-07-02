@@ -281,6 +281,9 @@ Game.prototype.newQuestionCycle = function () {
     // Create question and answer
     this.state.question = this.createNewQuestion($availableAnswers, '.question-addition-template');
 
+    // Clear user answer
+    this.state.user.answer = 0;
+
     // Display new question
     this.displayQuestion();
 
