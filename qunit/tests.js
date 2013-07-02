@@ -506,10 +506,11 @@ module('Game.prototype.newQuestionCycle()', {
         localStorage.removeItem('test-save-game-state');
     }
 });
-test('Test if a new question is created', 3, function () {
+test('Test if a new question is created', 4, function () {
 
     var question = this.Game.newQuestionCycle.call(this.Game);
 
+    strictEqual(this.Game.state.user.answer, 0, 'Game.state.user.answer equals to 0.');
     strictEqual(question.answer, 5, 'Game.state.question.answer equals to 5.');
     strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
     strictEqual(question.text, 'Which numbers add up to: 5?', 'Game.state.question.text equals to "Which numbers add up to: 5?.".');
