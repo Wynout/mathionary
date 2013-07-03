@@ -344,6 +344,7 @@ test('answerClick: Test property Game.state.user.answer', 1, function () {
 
     // Test mouse click event on <li /> element
     jQuery(
+    '<li data-answer="1">1</li>'+
     '<li data-answer="2">2</li>'+
     '<li data-answer="3">3</li>'+
     '<li data-answer="5">5</li>') // trigger click
@@ -523,6 +524,45 @@ test('Test if Game State is saved', 1, function () {
     strictEqual(localStorage.getItem('test-save-game-state'), JSON.stringify(this.Game.state), 'localStorage.getItem("test-save-game-state") equals to JSON.stringify(this.Game.state)');
 });
 
+
+/**
+ * Game.prototype.newLevelCycle()
+ */
+module('Game.prototype.newLevelCycle()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">'+
+            '<ul>'+
+                '<li class="used" data-answer="1">1</li>'+
+                '<li data-answer="2">2</li>'+
+                '<li data-answer="3">3</li>'+
+            '</ul>'+
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.testState = {
+            level: 42
+        };
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            $statement: $('#qunit-fixture div.statement'),
+            state: this.testState
+        }, Game.prototype);
+    }
+});
+test('Test newLevelCycle', 2, function () {
+
+    var result = this.Game.newLevelCycle.call(this.Game);
+    strictEqual(result, 43, 'New level equals to 43.');
+
+    var answerCount = this.Game.$answers.find('li').length;
+    strictEqual(answerCount, 64, 'New level should contain 64 answers (default).');
+});
 
 /**
  * Game.prototype.createNewAnswers()
@@ -782,6 +822,51 @@ test('Test is question answered correctly', 2, function () {
     this.Game.state.user.answer = 321; // incorrect answer
     result = Game.prototype.isQuestionAnswered.call(this.Game);
     strictEqual(result, false, 'Equals to false when question answered incorrectly.');
+});
+
+
+
+/**
+ * Game.prototype.isLevelFinished()
+ */
+module('Game.prototype.isLevelFinished()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery('<div class="game"><ul></ul></div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $answers: $('#qunit-fixture ul').first()
+        }, Game.prototype);
+    }
+});
+test('Test if level not finished', 1, function () {
+
+    jQuery(
+    '<ul>' +
+        '<li class="used">1</li>' +
+        '<li>2</li>' + // 2 available answers (2 & 3)
+        '<li>3</li>' +
+    '</ul>')
+        .appendTo(this.Game.$answers);
+
+    var result = Game.prototype.isLevelFinished.call(this.Game);
+    strictEqual(result, false, 'Equals to false when level not finished.');
+});
+test('Test if level finished', 1, function () {
+
+    jQuery(
+    '<ul>' +
+        '<li class="used">1</li>' +
+        '<li class="used">2</li>' +
+        '<li>3</li>' + // 1 available answers
+    '</ul>')
+        .appendTo(this.Game.$answers);
+
+    var result = Game.prototype.isLevelFinished.call(this.Game);
+    strictEqual(result, true, 'Equals to true when level finished.');
 });
 
 
