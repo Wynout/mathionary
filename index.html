@@ -34,6 +34,7 @@
 		<section id="main_content" class="inner">
 
 			<div class="game">
+				<div class="level">Level <span class="number">1</span></div>
 				<div class="question">
 	                <div class="statement"></div>
 	                <div class="question-text">Question here, please</div>
@@ -56,7 +57,7 @@
 
 			<br/><br/><br/>
 			<h1>Math Operators Symbols</h1>
-			<div class="question">
+			<div style="text-align:left;" class="question">
 				<span class="number">X</span>
 				<span class="addition">&plus;</span>
 				<span class="number">Y</span>
@@ -64,7 +65,7 @@
 				<span class="number">6</span>
 			</div>
 			<p class="question-text">User selects answer 1 &amp; 5 and completes the question.</p>
-			<div class="question">
+			<div <div style="text-align:left;" class="question">
 				<span class="number">6</span>
 				<span class="subtraction">&minus;</span>
 				<span class="number">1</span>
@@ -72,28 +73,32 @@
 				<span class="number">X</span>
 			</div>
 			<p class="question-text">Repeat the given answers by showing the opposite question.</p>
-			<div style="">
-				<div id="switchAddition" class="game" style="display:inline;margin-right:10px;"><ul class="answers addition"><li>&plus;</li></ul></div>
-				<div id="switchSubtraction" class="game" style="display:inline;margin-right:10px;"><ul class="answers subtraction"><li>&minus;</li></ul></div>
-				<div id="switchMultiplication" class="game" style="display:inline;margin-right:10px;"><ul class="answers multiplication"><li>&times;</li></ul></div>
-				<div id="switchDivision" class="game" style="display:inline;margin-right:10px;"><ul class="answers division"><li>&divide;</li></ul></div>
-			</div>
+			<div id="switchAddition" class="game" style="display:inline;margin-right:10px;"><ul class="answers addition"><li>&plus;</li></ul></div>
+			<div id="switchSubtraction" class="game" style="display:inline;margin-right:10px;"><ul class="answers subtraction"><li>&minus;</li></ul></div>
+
+			<p>and</p>
+
+			<div id="switchMultiplication" class="game" style="display:inline;margin-right:10px;"><ul class="answers multiplication"><li>&times;</li></ul></div>
+			<div id="switchDivision" class="game" style="display:inline;margin-right:10px;"><ul class="answers division"><li>&divide;</li></ul></div>
+
 			<script>
 			$('#switchAddition').on('click', function () {
-				localStorage.setItem('Mathionary-Add:', '{"storageKey":"Mathionary-Add:","gameInProgress":false,"answers":[{"index":0,"answer":1,"selected":false,"used":true},{"index":1,"answer":4,"selected":false,"used":true},{"index":2,"answer":2,"selected":false,"used":true},{"index":3,"answer":5,"selected":false,"used":true},{"index":4,"answer":5,"selected":false,"used":true},{"index":5,"answer":4,"selected":false,"used":true},{"index":6,"answer":2,"selected":false,"used":true},{"index":7,"answer":1,"selected":false,"used":true},{"index":8,"answer":4,"selected":false,"used":true},{"index":9,"answer":6,"selected":false,"used":true},{"index":10,"answer":5,"selected":false,"used":true},{"index":11,"answer":6,"selected":false,"used":true},{"index":12,"answer":8,"selected":false,"used":true},{"index":13,"answer":4,"selected":false,"used":true},{"index":14,"answer":8,"selected":false,"used":true},{"index":15,"answer":2,"selected":false,"used":true},{"index":16,"answer":3,"selected":false,"used":true},{"index":17,"answer":5,"selected":false,"used":true},{"index":18,"answer":5,"selected":false,"used":true},{"index":19,"answer":1,"selected":false,"used":true},{"index":20,"answer":6,"selected":false,"used":true},{"index":21,"answer":5,"selected":false,"used":true},{"index":22,"answer":4,"selected":false,"used":true},{"index":23,"answer":3,"selected":false,"used":true},{"index":24,"answer":9,"selected":false,"used":false},{"index":25,"answer":4,"selected":false,"used":true},{"index":26,"answer":4,"selected":false,"used":true},{"index":27,"answer":7,"selected":false,"used":true},{"index":28,"answer":7,"selected":false,"used":true},{"index":29,"answer":9,"selected":false,"used":true},{"index":30,"answer":8,"selected":false,"used":true},{"index":31,"answer":7,"selected":false,"used":true},{"index":32,"answer":4,"selected":false,"used":true},{"index":33,"answer":4,"selected":false,"used":true},{"index":34,"answer":9,"selected":false,"used":true},{"index":35,"answer":7,"selected":false,"used":true},{"index":36,"answer":9,"selected":false,"used":true},{"index":37,"answer":2,"selected":false,"used":true},{"index":38,"answer":9,"selected":false,"used":true},{"index":39,"answer":2,"selected":false,"used":true},{"index":40,"answer":2,"selected":false,"used":true},{"index":41,"answer":3,"selected":false,"used":true},{"index":42,"answer":8,"selected":false,"used":true},{"index":43,"answer":5,"selected":false,"used":true},{"index":44,"answer":5,"selected":false,"used":true},{"index":45,"answer":9,"selected":false,"used":true},{"index":46,"answer":9,"selected":false,"used":true},{"index":47,"answer":1,"selected":false,"used":true},{"index":48,"answer":3,"selected":false,"used":true},{"index":49,"answer":4,"selected":false,"used":true},{"index":50,"answer":9,"selected":false,"used":true},{"index":51,"answer":1,"selected":false,"used":true},{"index":52,"answer":8,"selected":false,"used":true},{"index":53,"answer":5,"selected":false,"used":true},{"index":54,"answer":8,"selected":false,"used":true},{"index":55,"answer":4,"selected":false,"used":true},{"index":56,"answer":1,"selected":false,"used":true},{"index":57,"answer":5,"selected":false,"used":false},{"index":58,"answer":8,"selected":false,"used":true},{"index":59,"answer":7,"selected":false,"used":true},{"index":60,"answer":7,"selected":false,"used":true},{"index":61,"answer":6,"selected":false,"used":true},{"index":62,"answer":4,"selected":false,"used":true},{"index":63,"answer":5,"selected":false,"used":true}],"question":{"answer":14,"text":"Which numbers add up to 14?","answersNeeded":2},"user":{"answer":0,"name":""},"level":1}');
 
 					$('div.game').find('ul').first().removeClass().addClass('answers addition');
 					$('body').attr('class','addition-operation');
 				});
 			$('#switchSubtraction').on('click', function () {
+
 					$('div.game').find('ul').first().removeClass().addClass('answers subtraction');
 					$('body').attr('class','subtraction-operation');
 				});
 			$('#switchMultiplication').on('click', function () {
+
 					$('div.game').find('ul').first().removeClass().addClass('answers multiplication');
 					$('body').attr('class','multiplication-operation');
 				});
 			$('#switchDivision').on('click', function () {
+
 					$('div.game').find('ul').first().removeClass().addClass('answers division');
 					$('body').attr('class','division-operation');
 				});

@@ -22,6 +22,7 @@
  * Game.prototype.setupAnswerElements()
  *
  * Game.prototype.displayInvalidAnswer()
+ * Game.prototype.displayCurrentLevel()
  * Game.prototype.displayQuestion()
  *
  * Game.prototype.isBrowserSupportingDOMStorage()
@@ -74,7 +75,7 @@ function Game(config) {
     this.$game = null;
 
     /**
-     * Holds the current Game state
+     * Holds the Question Statement and Text
      *
      * @property {Object}
      */
@@ -147,6 +148,8 @@ Game.prototype.initialize = function (amount) {
 
     var isGameStateLoaded = this.loadGameState(this.state.storageKey),
         createNewGame = true;
+
+    this.displayCurrentLevel();
 
     // Resume Game?
     if (isGameStateLoaded===true) {
@@ -269,13 +272,11 @@ Game.prototype.events = {
 
                 } else  {
 
-                    self.displayQuestion();
+                    self.newQuestionCycle();
                 }
-
-            } else  {
-
-                self.displayQuestion();
             }
+
+            self.displayQuestion();
 
             // Store Game State
             self.saveGameState(self.state.storageKey);
@@ -338,6 +339,7 @@ Game.prototype.newLevelCycle = function () {
 
     this.state.level++;
     this.createNewAnswers();
+    this.displayCurrentLevel();
     return this.state.level;
 };
 
@@ -575,6 +577,20 @@ Game.prototype.displayInvalidAnswer = function () {
     // This refers to the element that was clicked
     return $(this).addClass('invalid-answer').removeClass('selected');
 };
+
+
+/**
+ * Displays the current Game level
+ *
+ * @this {Game}
+ * @return {Object} level number element, wrapped in jQuery
+ */
+Game.prototype.displayCurrentLevel = function () {
+
+    var result = this.$game.find('.level .number')
+        .text(this.state.level);
+    return result;
+}
 
 
 /**
