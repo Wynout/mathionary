@@ -109,6 +109,11 @@ p {
 	margin: 10px 0 15px 0;
 }
 
+footer .valid{
+	text-align: right;
+	margin-top: -95px;
+}
+
 footer p {
 	color: #f2f2f2;
 	margin: 10px 0;
@@ -153,6 +158,13 @@ img {
 	padding: 5px;
 	position: relative;
 }
+
+footer img {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border: 0px;
+}
+
 
 pre, code {
 	background-color: #fff;
