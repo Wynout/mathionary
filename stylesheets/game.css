@@ -144,6 +144,13 @@ div.game {
 }
 /***/
 
+/*** question ***/
+.level {
+	font-size: 1.5em;
+	margin: 20px auto;
+	text-align: center;
+}
+/***/
 
 /*** question ***/
 .question {

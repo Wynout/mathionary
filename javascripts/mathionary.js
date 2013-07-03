@@ -9,6 +9,7 @@
  * Game.prototype.events()
  *
  * Game.prototype.newQuestionCycle()
+ * Game.prototype.newLevelCycle()
  * Game.prototype.createNewAnswers()
  * Game.prototype.createNewQuestion()
  * Game.prototype.deselectAllAnswers()
@@ -16,10 +17,12 @@
  * Game.prototype.isAnswerMarkedAsUsed()
  * Game.prototype.isInvalidAnswer()
  * Game.prototype.isQuestionAnswered()
+ * Game.prototype.isLevelFinished()
  * Game.prototype.markAnswersAsUsed()
  * Game.prototype.setupAnswerElements()
  *
  * Game.prototype.displayInvalidAnswer()
+ * Game.prototype.displayCurrentLevel()
  * Game.prototype.displayQuestion()
  *
  * Game.prototype.isBrowserSupportingDOMStorage()
@@ -72,7 +75,7 @@ function Game(config) {
     this.$game = null;
 
     /**
-     * Holds the current Game state
+     * Holds the Question Statement and Text
      *
      * @property {Object}
      */
@@ -96,7 +99,8 @@ function Game(config) {
         user: {
             answer: 0,
             name: ''
-        }
+        },
+        level: 1
     };
 
     // Cache DOM Elements that we need to access multiple times
@@ -140,31 +144,39 @@ Game.prototype.initialize = function (amount) {
 
     amount = amount || 64;
 
-    var isStateLoaded = this.loadGameState(this.state.storageKey),
-        createNewGame = false;
+    this.bindEvents();
 
-    if (isStateLoaded===true) {
+    var isGameStateLoaded = this.loadGameState(this.state.storageKey),
+        createNewGame = true;
 
-        // Create new game if answers cannot be set.
+    this.displayCurrentLevel();
+
+    // Resume Game?
+    if (isGameStateLoaded===true) {
+
+        // Setup answers from Game State
         if (this.setupAnswerElements(this.state.answers)===true) {
 
-            this.displayQuestion();
-        } else {
+            createNewGame = false;
 
-            createNewGame = true;
+            if (this.isLevelFinished()===true) {
+
+                this.newLevelCycle();
+                return;
+
+            } else  {
+
+                this.displayQuestion();
+                return;
+            }
         }
 
     } else  {
 
-        createNewGame = true;
-    }
-
-    if (createNewGame) {
-
+        // New Game
         this.createNewAnswers(amount);
         this.newQuestionCycle();
     }
-    this.bindEvents();
 };
 
 
@@ -251,13 +263,22 @@ Game.prototype.events = {
 
                 // Add class 'used' to elements that are selected
                 self.markAnswersAsUsed($selected);
-                // Create and display new question.
-                self.newQuestionCycle();
 
-            } else  {
+                if (self.isLevelFinished()===true) {
 
-                self.displayQuestion();
+                    // Next level
+                    self.newLevelCycle();
+                    self.newQuestionCycle();
+
+                } else  {
+
+                    self.newQuestionCycle();
+                }
             }
+
+            self.displayQuestion();
+
+            // Store Game State
             self.saveGameState(self.state.storageKey);
         });
     }
@@ -295,6 +316,35 @@ Game.prototype.newQuestionCycle = function () {
 
 
 /**
+ * Returns boolean true when level is finished
+ *
+ * Level is finished when less then 2 answers are available
+ * @return {Boolean}
+ */
+Game.prototype.isLevelFinished = function () {
+
+    var $availableAnswers = this.getAvailableAnswers();
+    return $availableAnswers.length<2 ? true : false;
+
+};
+
+
+/**
+ * Starts a new level
+ *
+ * @this {Game}
+ * @return {Number} current level
+ */
+Game.prototype.newLevelCycle = function () {
+
+    this.state.level++;
+    this.createNewAnswers();
+    this.displayCurrentLevel();
+    return this.state.level;
+};
+
+
+/**
  * Populates $answer parent <ul/> with answer elements <li/>
  * Populates this.state.answers with answer objects
  *
@@ -308,7 +358,7 @@ Game.prototype.createNewAnswers = function (amount) {
     amount = amount || 64;
 
     // Clear all answers
-    this.$answers.remove('li');
+    this.$answers.find('li').remove('li');
     this.state.answers = [];
 
     // Create {amount} answers with random value between 1-9
@@ -471,7 +521,7 @@ Game.prototype.setupAnswerElements = function (answers) {
 
     var self = this;
 
-    // Clear all answers
+    // Remove all answers from HTML
     this.$answers.remove('li');
 
     // Validate existence of answer properties
@@ -530,6 +580,20 @@ Game.prototype.displayInvalidAnswer = function () {
 
 
 /**
+ * Displays the current Game level
+ *
+ * @this {Game}
+ * @return {Object} level number element, wrapped in jQuery
+ */
+Game.prototype.displayCurrentLevel = function () {
+
+    var result = this.$game.find('.level .number')
+        .text(this.state.level);
+    return result;
+}
+
+
+/**
  * Displays the Question
  *
  * @this {Game}
@@ -542,14 +606,8 @@ Game.prototype.displayQuestion = function () {
 
     // Show Question argument
     var $selected     = this.$answers.find('li.selected'),
-        x             = $selected.eq(0).data('answer'),
-        y             = $selected.eq(1).data('answer'),
         answer        = this.state.question.answer,
         span          = '<span></span>';
-
-    // Show selected answer in statement
-    x = (x===null) ? 0 : parseInt(x, 10);
-    y = (y===null) ? 0 : parseInt(y, 10);
 
     // answers given but question not answered
     if (this.state.user.answer>0 && this.isQuestionAnswered()===false) {

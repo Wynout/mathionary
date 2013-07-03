@@ -68,6 +68,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
             '<script class="question-addition-template" type="game/template">'+
                 'Which numbers add up to: {{answer}}?.'+
             '</script>'+
+            '<div class="level">Level <span class="number">1</span></div>' +
             '<div class="question">' +
                 '<div class="statement"></div>' +
                 '<div class="question-text"><!--Question text appended here?--></div>' +
@@ -78,7 +79,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
 
         var testState = {
             storageKey: 'should-not-exists',
-            gameInProgress: false,
+            level: 42,
             answers: [],
             question: {
                 template: 'Which numbers add up to: {{answer}}?',
@@ -111,12 +112,16 @@ module('Game.prototype.initialize(): Test initialize answers', {
         localStorage.removeItem('should-not-exists');
     }
 });
-test('Test answer elements', 7, function () {
+test('Test HTML elements', 8, function () {
 
-    var gameState = this.Game.state;
-    var $answers = this.Game.$answers.find('li');
+    var gameState = this.Game.state,
+        $answers  = this.Game.$answers.find('li'),
+        $level    = this.Game.$game.find('.level .number');
 
-    // DOM elements created?
+    // Current level is 42 and must be displayed in HTML element
+    strictEqual($level.text(), '42', '.level .number contains equals to a string 42');
+
+    // Answer elements created?
     strictEqual($answers.length, 64, 'Game.$answers contains 64 answer elements.');
 
     // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
@@ -146,17 +151,17 @@ module('Game.prototype.initialize(): Test loadGameState', {
     setup: function () {
 
         jQuery(
-        '<div class="game">'+
-            '<script class="questionTemplate" type="game/template">'+
-                'Which numbers add up to: {{answer}}?.'+
-            '</script>'+
-            '<ul></ul>'+
+        '<div class="game">' +
+            '<script class="questionTemplate" type="game/template">' +
+                'Which numbers add up to: {{answer}}?.' +
+            '</script>' +
+            '<ul></ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
         var testState = {
             storageKey: 'test-load-game-state',
-            gameInProgress: true,
+            level: 42,
             answers: [
                 {index: 0, answer: 3, selected: true, used: false },
                 {index: 1, answer: 2, selected: true, used: false }
@@ -193,8 +198,9 @@ module('Game.prototype.initialize(): Test loadGameState', {
         localStorage.removeItem('test-load-game-state');
     }
 });
-test('Test loading Game State from Storage', 5, function () {
+test('Test loading Game State from Storage', 6, function () {
 
+    strictEqual(this.Game.state.level, 42, 'Game.state.level equals to number 42.');
     strictEqual(this.Game.state.answers.length, 2, 'Game.state.answers.length equals to 2.');
 
     var $answers = this.Game.$answers.find('li');
@@ -253,21 +259,22 @@ module('Game.prototype.events', {
     setup: function () {
 
         jQuery(
-        '<div class="game">'+
-            '<script id="question-addition-template" type="game/template">'+
-                'Which numbers add up to: {{answer}}?.'+
-            '</script>'+
-            '<div class="question">'+
-                '<div class="statement"></div>'+
-                '<div class="question-text"></div>'+
-            '</div>'+
-            '<ul></ul>'+
+        '<div class="game">' +
+            '<script id="question-addition-template" type="game/template">' +
+                'Which numbers add up to: {{answer}}?.' +
+            '</script>' +
+            '<div class="level">Level <span class="number">1</span></div>' +
+            '<div class="question">' +
+                '<div class="statement"></div>' +
+                '<div class="question-text"></div>' +
+            '</div>' +
+            '<ul></ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
         this.testState = {
             storageKey: 'test',
-            gameInProgress: true,
+            level: 1,
             question: {
                 answer: 5,
                 template: 'Which numbers add up to: {{answer}}?.',
@@ -344,16 +351,16 @@ test('answerClick: Test property Game.state.user.answer', 1, function () {
 
     // Test mouse click event on <li /> element
     jQuery(
-    '<li data-answer="2">2</li>'+
-    '<li data-answer="3">3</li>'+
-    '<li data-answer="5">5</li>') // trigger click
+    '<li data-answer="1">1</li>' +
+    '<li data-answer="2">2</li>' + // trigger click
+    '<li data-answer="3">3</li>' +
+    '<li data-answer="5">5</li>')
         .appendTo(this.Game.$answers);
 
-    var $answer = this.Game.$answers.find('li').last()
+    var $answer = this.Game.$answers.find('li').eq(1)
         .trigger('click');
 
-    // Test if user.answer is correct
-    strictEqual(this.Game.state.user.answer, 5, 'Game.state.user.answer equals to 5.');
+    strictEqual(this.Game.state.user.answer, 2, 'Game.state.user.answer equals to 2.');
 });
 test('answerClick: Test if used answers cannot be selected', 1, function () {
 
@@ -523,6 +530,53 @@ test('Test if Game State is saved', 1, function () {
     strictEqual(localStorage.getItem('test-save-game-state'), JSON.stringify(this.Game.state), 'localStorage.getItem("test-save-game-state") equals to JSON.stringify(this.Game.state)');
 });
 
+
+/**
+ * Game.prototype.newLevelCycle()
+ */
+module('Game.prototype.newLevelCycle()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">' +
+            '<div class="level">Level <span class="number">42</span></div>' +
+            '<ul>' +
+                '<li class="used" data-answer="1">1</li>' +
+                '<li data-answer="2">2</li>' +
+                '<li data-answer="3">3</li>' +
+            '</ul>' +
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            $statement: $('#qunit-fixture div.statement'),
+            state: {
+                level: 42,
+                answers:[]
+            }
+        }, Game.prototype);
+    }
+});
+test('Test Level Number Change', 1, function () {
+
+    var level = this.Game.newLevelCycle.call(this.Game);
+    strictEqual(level, 43, 'New level equals to 43.');
+});
+test('Test new level is displayed', 1, function () {
+
+    var $level = this.Game.newLevelCycle();
+    strictEqual($level, 43, 'New level number equals to 43.');
+});
+test('Test creation of answer elements after level cycle', 1, function () {
+
+    var level = this.Game.newLevelCycle.call(this.Game),
+        answerCount = this.Game.$answers.find('li').length;
+    strictEqual(answerCount, 64, 'New level should contain 64 answers (default).');
+});
 
 /**
  * Game.prototype.createNewAnswers()
@@ -787,6 +841,51 @@ test('Test is question answered correctly', 2, function () {
 
 
 /**
+ * Game.prototype.isLevelFinished()
+ */
+module('Game.prototype.isLevelFinished()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery('<div class="game"><ul></ul></div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $answers: $('#qunit-fixture ul').first()
+        }, Game.prototype);
+    }
+});
+test('Test if level not finished', 1, function () {
+
+    jQuery(
+    '<ul>' +
+        '<li class="used">1</li>' +
+        '<li>2</li>' + // 2 available answers (2 & 3)
+        '<li>3</li>' +
+    '</ul>')
+        .appendTo(this.Game.$answers);
+
+    var result = Game.prototype.isLevelFinished.call(this.Game);
+    strictEqual(result, false, 'Equals to false when level not finished.');
+});
+test('Test if level finished', 1, function () {
+
+    jQuery(
+    '<ul>' +
+        '<li class="used">1</li>' +
+        '<li class="used">2</li>' +
+        '<li>3</li>' + // 1 available answers
+    '</ul>')
+        .appendTo(this.Game.$answers);
+
+    var result = Game.prototype.isLevelFinished.call(this.Game);
+    strictEqual(result, true, 'Equals to true when level finished.');
+});
+
+
+
+/**
  * Game.prototype.markAnswersAsUsed()
  */
 module('Game.prototype.markAnswersAsUsed()');
@@ -883,6 +982,38 @@ test('Test display invalid answer', 2, function () {
 
     strictEqual($result.hasClass('invalid-answer'), true, 'Answer element gets class "invalid-answer".');
     strictEqual($result.hasClass('selected'), false, 'Class "selected" is removed from answer element.');
+});
+
+
+
+/**
+ * Game.prototype.displayCurrentLevel()
+ */
+module('Game.prototype.displayCurrentLevel()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        // Initialize HTML
+        jQuery(
+        '<div class="game">' +
+            '<div class="level">Level <span class="number">1</span></div>' +
+        '</div>'
+        )
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
+            state: {
+                level: 42
+            }
+        }, Game.prototype);
+    }
+});
+test('Test display current level number', 1, function () {
+
+    var $result = this.Game.displayCurrentLevel();
+    strictEqual($result.text(), '42', 'Current level should be level 42.');
 });
 
 
