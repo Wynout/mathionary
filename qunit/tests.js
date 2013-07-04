@@ -119,7 +119,7 @@ test('Test HTML elements', 8, function () {
         $level    = this.Game.$game.find('.level .number');
 
     // Current level is 42 and must be displayed in HTML element
-    strictEqual($level.text(), '42', '.level .number contains equals to a string 42');
+    strictEqual($level.text(), '42', 'Current displayed level equals to a string 42');
 
     // Answer elements created?
     strictEqual($answers.length, 64, 'Game.$answers contains 64 answer elements.');
@@ -152,7 +152,7 @@ module('Game.prototype.initialize(): Test loadGameState', {
 
         jQuery(
         '<div class="game">' +
-            '<script class="questionTemplate" type="game/template">' +
+            '<script class="question-template" type="game/template">' +
                 'Which numbers add up to: {{answer}}?.' +
             '</script>' +
             '<ul></ul>' +
@@ -472,30 +472,33 @@ module('Game.prototype.newQuestionCycle()', {
     setup: function () {
 
         jQuery(
-        '<div class="game">'+
-            '<script class="question-addition-template " type="game/template">'+
-                'Which numbers add up to: {{answer}}?'+
-            '</script>'+
-            '<ul>'+
-                '<li class="used" data-answer="1">1</li>'+
-                '<li data-answer="2">2</li>'+
-                '<li data-answer="3">3</li>'+
-            '</ul>'+
+        '<div class="game">' +
+            '<script class="question-addition-template" type="game/template">Which numbers add up to {{answer}}?</script>' +
+            '<ul>' +
+                '<li class="used" data-answer="3">3</li>' +
+                // For testing purposes, same answers are being used.
+                // The answers for x,y are randomly chosen.
+                // The results for operations subtraction and division have two possible outcomes.
+                // By using equal numbers, there will be only a single result: [-] (3-3), [/] (3/3).
+                '<li id="x" data-answer="3">3</li>' +
+                '<li id="y" data-answer="3">3</li>' +
+            '</ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
         this.testState = {
             storageKey: 'test-save-game-state',
+            operation: 'addition',
             question: {
                 answer: null
             },
             user: {
                 answer: null
-            },
-            gameInProgress: true
+            }
         };
 
         this.Game = $.extend({
+            operation: 'addition',
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('#qunit-fixture div.statement'),
@@ -513,15 +516,6 @@ module('Game.prototype.newQuestionCycle()', {
         localStorage.removeItem('test-save-game-state');
     }
 });
-test('Test if a new question is created', 4, function () {
-
-    var question = this.Game.newQuestionCycle.call(this.Game);
-
-    strictEqual(this.Game.state.user.answer, 0, 'Game.state.user.answer equals to 0.');
-    strictEqual(question.answer, 5, 'Game.state.question.answer equals to 5.');
-    strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
-    strictEqual(question.text, 'Which numbers add up to: 5?', 'Game.state.question.text equals to "Which numbers add up to: 5?.".');
-});
 test('Test if Game State is saved', 1, function () {
 
     var result = this.Game.newQuestionCycle(),
@@ -529,6 +523,16 @@ test('Test if Game State is saved', 1, function () {
 
     strictEqual(localStorage.getItem('test-save-game-state'), JSON.stringify(this.Game.state), 'localStorage.getItem("test-save-game-state") equals to JSON.stringify(this.Game.state)');
 });
+test('Test if a new addition question is created', 4, function () {
+
+    var question = this.Game.newQuestionCycle.call(this.Game);
+
+    strictEqual(this.Game.state.user.answer, 0, 'Game.state.user.answer equals to 0.');
+    strictEqual(question.answer, 6, 'Game.state.question.answer equals to 6.');
+    strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
+    strictEqual(question.text, 'Which numbers add up to 6?', 'Game.state.question.text equals to "Which numbers add up to 6?.".');
+});
+
 
 
 /**
@@ -645,22 +649,77 @@ test('Test answer objects in Game.state.answers', 1, function () {
 /**
  * Game.prototype.createNewQuestion()
  */
-module('Game.prototype.createNewQuestion()');
-test('Test new question object', 3, function () {
+module('Game.prototype.createNewQuestion()', {
 
-    // Initialize answers, sum of data answers = 3
-    jQuery('<ul><li data-answer="1">1</li><li data-answer="2">2</li></ul>')
-        .appendTo('#qunit-fixture');
-    // Initialize question template
-    jQuery('<script id="questionTemplate" type="game/template">answer = {{answer}}</script>')
-        .appendTo('#qunit-fixture');
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">' +
+            '<script id="question-template" type="game/template">answer = {{answer}}</script>' +
+            '<ul>' +
+                // For testing purposes, same answers are being used.
+                // The answers for x,y are randomly chosen.
+                // The results for operations subtraction and division have two possible outcomes.
+                // By using equal numbers, there will be only a single result: [-] (3-3), [/] (3/3).
+                '<li id="x" data-answer="3">3</li>' +
+                '<li id="y" data-answer="3">3</li>' +
+            '</ul>' +
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            operation: 'addition',
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            $statement: $('#qunit-fixture div.statement'),
+            state: {
+                level: 42,
+                answers: []
+            }
+        }, Game.prototype);
+    }
+});
+test('Test new addition question', 3, function () {
 
     var availableAnswers = $('#qunit-fixture li'),
-        result = Game.prototype.createNewQuestion(availableAnswers, '#qunit-fixture #questionTemplate');
+        template = '#qunit-fixture #question-template',
+        result   = Game.prototype.createNewQuestion('addition', availableAnswers, template);
 
-    strictEqual(result.answer, 3, 'Question.answer equals to 3.');
+    strictEqual(result.answer, 6, 'Question.answer equals to 6.');
     strictEqual(result.answersNeeded, 2, 'Question.answersNeeded equals to 2.');
-    strictEqual(result.text, 'answer = 3', 'Question.text equals to "answer = 3".');
+    strictEqual(result.text, 'answer = 6', 'Question.text equals to "answer = 6".');
+});
+test('Test new subtraction question', 3, function () {
+
+    var availableAnswers = $('#qunit-fixture li'),
+        template = '#qunit-fixture #question-template',
+        result   = Game.prototype.createNewQuestion('subtraction', availableAnswers, template);
+
+    // random numbers, so we need to use absolute value.
+    strictEqual(result.answer, 0, 'Question.answer equals to 0.');
+    strictEqual(result.answersNeeded, 2, 'Question.answersNeeded equals to 2.');
+    strictEqual(result.text, 'answer = 0', 'Question.text equals to "answer = 0".');
+});
+test('Test new multiplication question', 3, function () {
+
+    var availableAnswers = $('#qunit-fixture li'),
+        template = '#qunit-fixture #question-template',
+        result   = Game.prototype.createNewQuestion('multiplication', availableAnswers, template);
+
+    strictEqual(result.answer, 9, 'Question.answer equals to 9.');
+    strictEqual(result.answersNeeded, 2, 'Question.answersNeeded equals to 2.');
+    strictEqual(result.text, 'answer = 9', 'Question.text equals to "answer = 9".');
+});
+test('Test new division question', 3, function () {
+
+   var availableAnswers = $('#qunit-fixture li'),
+        template = '#qunit-fixture #question-template',
+        result   = Game.prototype.createNewQuestion('division', availableAnswers, template);
+
+    strictEqual(result.answer, 1, 'Question.answer equals to 1.');
+    strictEqual(result.answersNeeded, 2, 'Question.answersNeeded equals to 2.');
+    strictEqual(result.text, 'answer = 1', 'Question.text equals to "answer = 1".');
 });
 
 
@@ -1151,7 +1210,6 @@ module('Game.prototype.loadGameState()', {
         }, Game.prototype);
 
         this.testState = {
-            gameInProgress: true,
             question: {
                 answer: 3,
                 template: 'Which numbers add up to: {{answer}}?.',
@@ -1237,7 +1295,6 @@ module('Game.prototype.saveGameState()', {
 
         // Test properties of Game State
         var gameState = {
-            gameInProgress: true,
             answers: []
         };
 
@@ -1254,14 +1311,11 @@ module('Game.prototype.saveGameState()', {
         localStorage.removeItem('test-save-game-state');
     }
 });
-test('Test if Game State is saved to Storage', 9, function () {
+test('Test if Game State is saved to Storage', 8, function () {
 
     // Save Game State to Storage
     var result = this.Game.saveGameState('test-save-game-state'),
         gameState = $.parseJSON(localStorage.getItem('test-save-game-state'));
-
-    // Test gameInProgress
-    strictEqual(gameState.gameInProgress, true, 'gameState.gameInProgress equals to true');
 
     // Test first answer
     strictEqual(gameState.answers[0].index, 0, 'gameState.answers[0].index equals to 0');
@@ -1375,11 +1429,11 @@ test('Test if key can be deleted from Storage', 2, function () {
 module('Game.prototype.getTemplate()');
 test('Test retrieval question template from HTML', 1, function () {
 
-    jQuery('<script id="questionTemplate" type="game/template">test question template</script>')
+    jQuery('<script id="question-template" type="game/template">test question template</script>')
         .appendTo('#qunit-fixture');
 
     var $context = $('#qunit-fixture div.game'),
-        result = Game.prototype.getTemplate('#questionTemplate');
+        result = Game.prototype.getTemplate('#question-template');
 
     strictEqual(result, 'test question template', 'Template should be "test question template".');
 });

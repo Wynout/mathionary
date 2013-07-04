@@ -88,7 +88,7 @@ function Game(config) {
      */
     this.state = {
         storageKey: 'Mathionary-Add:',
-        gameInProgress: false,
+        operation: 'addition',  // addition, subtraction, multiplication, division
         answers: [],
         question: {
             template: 'Which numbers add up to: {{answer}}?.',
@@ -300,7 +300,8 @@ Game.prototype.newQuestionCycle = function () {
     var $availableAnswers = this.getAvailableAnswers();
 
     // Create question and answer
-    this.state.question = this.createNewQuestion($availableAnswers, '.question-addition-template');
+    var templateSelector = '.question-addition-template';
+    this.state.question = this.createNewQuestion(this.state.operation, $availableAnswers, templateSelector);
 
     // Clear user answer
     this.state.user.answer = 0;
@@ -390,29 +391,44 @@ Game.prototype.createNewAnswers = function (amount) {
  * Creates a new Question and Answer
  *
  * @this {Game}
- * @param {Object} $availableAnswers answer elements, wrapped in jQuery
- * @param {String} templateSelector selector where question template is stored
+ * @param {String} operation: 'addition', 'subtraction', 'multiplication', 'division'
+ * @param {Object} $answers for creating a question, wrapped in jQuery
+ * @param {String} selector points to HTML element containing the template
  * @return {Object} question
  */
-Game.prototype.createNewQuestion = function($availableAnswers, templateSelector) {
+Game.prototype.createNewQuestion = function(operation, $answers, selector) {
 
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
-    var $answerElements = this.getRandomArrayElements($availableAnswers, 2);
+    var $randomElements = this.getRandomArrayElements($answers, 2);
 
-    // Calculate answer from html5 data attribute
-    var answer = 0;
-    $answerElements.each( function (index) {
+    // Array containing elements for operation(s) [x, y, y, ...]
+    var elements = $.makeArray($randomElements);
 
-        answer += $(this).data('answer');
+    var x = $(elements.slice(0,1)).data('answer'), // x is first element
+        yes = elements.slice(1), // remaining y element(s)
+        answer = 0;
+
+    // Perform math operations
+    // answer = X [operation] Y [operation] Y, ...
+    $.each( yes, function () {
+
+        var y = $(this).data('answer');
+
+        switch (operation) {
+
+            case 'addition'         : x += y; break;
+            case 'subtraction'      : x -= y; break;
+            case 'multiplication'   : x *= y; break;
+            case 'division'         : x /= y; break;
+        }
     });
+    answer = x;
 
-    // Question template stored in HTML element
-    var template = this.getTemplate(templateSelector);
-
+    // Return question object
     var question = {
         answer: answer,
-        text: this.renderTemplate(template, {answer: answer}),
-        answersNeeded: $answerElements.length
+        text: this.renderTemplate(this.getTemplate(selector), {answer: answer}),
+        answersNeeded: $randomElements.length
     };
     return question;
  };
