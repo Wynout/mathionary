@@ -111,7 +111,10 @@ p {
 
 footer .valid{
 	text-align: right;
-	margin-top: -95px;
+	margin-top: -85px;
+}
+footer .valid img{
+	margin: 0px;
 }
 
 footer p {
