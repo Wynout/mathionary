@@ -225,13 +225,18 @@ module('Game.prototype.bindEvents', {
     setup: function () {
 
         jQuery(
-        '<div class="game">'+
-            '<ul></ul>'+
+        '<div class="game">' +
+            '<ul></ul>' +
+            '<button class="reset">Reset Game</button>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
         this.Game = $.extend({
-            $answers: $('#qunit-fixture ul').first()
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            state: {
+                level: 1
+            }
         }, Game.prototype);
 
         // Bind all Events
@@ -502,8 +507,8 @@ module('Game.prototype.newQuestionCycle()', {
 
         this.Game = $.extend({
             operation: 'addition',
-            $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
+            $game: $('#qunit-fixture div.game'),
             $statement: $('#qunit-fixture div.statement'),
             state: this.testState
         }, Game.prototype);
@@ -528,9 +533,9 @@ test('Test if Game State is saved', 1, function () {
 });
 test('Test if a new addition question is created', 4, function () {
 
-    var question = this.Game.newQuestionCycle.call(this.Game);
+    var question = this.Game.newQuestionCycle();
 
-    strictEqual(this.Game.state.user.answer, 0, 'Game.state.user.answer equals to 0.');
+    strictEqual(this.Game.state.user.answer, null, 'Game.state.user.answer equals to null.');
     strictEqual(question.answer, 6, 'Game.state.question.answer equals to 6.');
     strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
     strictEqual(question.text, 'Which numbers add up to 6?', 'Game.state.question.text equals to "Which numbers add up to 6?.".');
@@ -570,7 +575,7 @@ module('Game.prototype.newLevelCycle()', {
 });
 test('Test Level Number Change', 1, function () {
 
-    var level = this.Game.newLevelCycle.call(this.Game);
+    var level = this.Game.newLevelCycle();
     strictEqual(level, 43, 'New level equals to 43.');
 });
 test('Test new level is displayed', 1, function () {
@@ -596,13 +601,13 @@ module('Game.prototype.createNewAnswers()', {
         jQuery('<div class="game"><ul></ul></div>')
             .appendTo('#qunit-fixture');
 
-        var testState = {
-            answers: []
-        };
-
         this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
-            state: testState
+            state:  {
+                level: 1,
+                answers: []
+            }
         }, Game.prototype);
     }
 });
@@ -725,6 +730,53 @@ test('Test new division question', 3, function () {
     strictEqual(result.text, 'answer = 1', 'Question.text equals to "answer = 1".');
 });
 
+
+
+/**
+ * Game.prototype.reset()
+ */
+module('Game.prototype.reset()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">' +
+            '<script class="question-addition-template" type="game/template">Which numbers add up to {{answer}}?</script>' +
+            '<div class="question"><div class="statement"></div></div>' +
+            '<ul>' +
+                '<li class="used" data-answer="1">1</li>' +
+                '<li id="x" data-answer="2">2</li>' +
+                '<li id="y" data-answer="3">3</li>' +
+            '</ul>' +
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.testState = {
+            storageKey: 'test-reset',
+            operation: 'addition',
+            question: {
+                answer: null
+            },
+            user: {
+                answer: null
+            }
+        };
+
+        this.Game = $.extend({
+            operation: 'addition',
+            $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul').first(),
+            $statement: $('#qunit-fixture div.statement'),
+            state: this.testState
+        }, Game.prototype);
+    }
+});
+test('Test reset game', 1, function () {
+
+    this.Game.reset();
+    strictEqual(this.Game.$answers.find('li').length, 64, 'New Game contains 64 new answers.');
+});
 
 
 /**

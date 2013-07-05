@@ -8,6 +8,11 @@ div.game {
 	width: 430px;
 }
 
+.reset {
+	display: block;
+	margin: 20px auto;
+}
+
 
 /*** game answers ***/
 .answers {
