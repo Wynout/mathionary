@@ -12,6 +12,8 @@
  * Game.prototype.newLevelCycle()
  * Game.prototype.createNewAnswers()
  * Game.prototype.createNewQuestion()
+ * Game.prototype.reset()
+ *
  * Game.prototype.deselectAllAnswers()
  * Game.prototype.getAvailableAnswers()
  * Game.prototype.isAnswerMarkedAsUsed()
@@ -174,8 +176,7 @@ Game.prototype.initialize = function (amount) {
     } else  {
 
         // New Game
-        this.createNewAnswers(amount);
-        this.newQuestionCycle();
+        this.reset();
     }
 };
 
@@ -191,6 +192,7 @@ Game.prototype.bindEvents = function () {
     this.events.answerMouseenter.call(this);
     this.events.answerMouseleave.call(this);
     this.events.answerClick.call(this);
+    this.events.resetClick.call(this);
 };
 
 
@@ -212,6 +214,7 @@ Game.prototype.events = {
         var self = this; // Self refers to the Game object
 
         self.$answers.on('mouseenter', 'li', function () {
+
             // This refers to answer element, wrapped in jQuery
             $(this).addClass('hover');
         });
@@ -221,13 +224,14 @@ Game.prototype.events = {
         var self = this; // Self refers to the Game object
 
         self.$answers.on('mouseleave', 'li', function () {
+
             // This refers to answer element, wrapped in jQuery
             $(this).removeClass('hover invalid-answer');
         });
     },
 
     // An answer element was clicked, check given answer
-    answerClick: function() {
+    answerClick: function () {
 
         var self = this; // Self refers to the Game object
 
@@ -281,6 +285,17 @@ Game.prototype.events = {
             // Store Game State
             self.saveGameState(self.state.storageKey);
         });
+    },
+
+    // A reset element was clicked, reset game
+    resetClick: function () {
+
+        var self = this; // Self refers to the Game object
+        self.$game.find('.reset').on('click', function () {
+
+            // This refers to reset element, wrapped in jQuery
+            self.reset();
+        });
     }
 };
 
@@ -304,7 +319,7 @@ Game.prototype.newQuestionCycle = function () {
     this.state.question = this.createNewQuestion(this.state.operation, $availableAnswers, templateSelector);
 
     // Clear user answer
-    this.state.user.answer = 0;
+    this.state.user.answer = null;
 
     // Display new question
     this.displayQuestion();
@@ -432,6 +447,17 @@ Game.prototype.createNewQuestion = function(operation, $answers, selector) {
     };
     return question;
  };
+
+/**
+ * Creates new answers and question
+ *
+ * @this {Game}
+ */
+Game.prototype.reset = function () {
+
+    this.createNewAnswers();
+    this.newQuestionCycle();
+};
 
 
 /**
@@ -805,6 +831,7 @@ Game.prototype.renderTemplate = function (template, replacements) {
 
     var rendered = template;
     $.each(replacements, function (search, replace) {
+
         var regexp = new RegExp('{{'+search+'}}', 'ig');
         rendered = rendered.replace( regexp, replace );
     });
