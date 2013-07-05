@@ -27,19 +27,22 @@ test('Test throw Errors', 3, function () {
 
     // Game element not found
     raises(function () {
-        this.Game.cacheDomElements.call(this.Game);
+
+        this.Game.cacheDomElements();
     }, Error, 'Must throw error when $game <div> element not found.');
 
 
     // Answers parent element <ul> not found
     raises(function () {
-        this.Game.cacheDomElements.call(this.Game);
+
+        this.Game.cacheDomElements();
     }, Error, 'Must throw error when $answers parent <ul> element not found.');
 
 
     // Statement element <div> not found
     raises(function () {
-        this.Game.cacheDomElements.call(this.Game);
+
+        this.Game.cacheDomElements();
     }, Error, 'Must throw error when $statement element not found.');
 });
 test('Test if DOM elements are being cached', 3, function () {
@@ -1113,6 +1116,7 @@ module('Game.prototype.displayQuestion()', {
             $statement: $('#qunit-fixture div.statement'),
             $answers: $('#qunit-fixture ul'),
             state: {
+                operation: 'addition',
                 question: {
                     text: 'Which numbers adds up to 15?',
                     answer: 15
@@ -1127,10 +1131,11 @@ module('Game.prototype.displayQuestion()', {
 test('Test .displayQuestion() Test existence of statement span elements ', 4, function () {
 
     // Setup question answered
+    this.Game.state.operation       = 'addition';
     this.Game.state.question.answer = 15;
-    this.Game.state.user.answer = 13; // selected answers 1 + 7 + 5
+    this.Game.state.user.answer     = 13; // selected answers 1 + 7 + 5
 
-    this.Game.displayQuestion.call(this.Game);
+    this.Game.displayQuestion();
 
     var $context   = $('#qunit-fixture');
     var $statement = $context.find('div.statement');
@@ -1140,20 +1145,50 @@ test('Test .displayQuestion() Test existence of statement span elements ', 4, fu
     strictEqual(text, 'Which numbers adds up to 15?', 'Element with class="text" has text that equals to "Which numbers adds up to 15?".');
 
     classCount = $statement.find('span.number').length;
-    strictEqual(classCount, 2, 'Statement contain 3 span elements with class of "number"');
+    strictEqual(classCount, 2, 'Statement contains 3 span elements with class of "number"');
 
     classCount = $statement.find('span.addition').length;
-    strictEqual(classCount, 1, 'Statement contain 1 span element with class of "addition"');
+    strictEqual(classCount, 1, 'Statement contains 1 span element with class of "addition"');
 
     classCount = $statement.find('span.equal').length;
-    strictEqual(classCount, 1, 'Statement contain 1 span element with class of "equal"');
+    strictEqual(classCount, 1, 'Statement contains 1 span element with class of "equal"');
+});
+test('Test .displayQuestion() test classes for all math operations', 8, function () {
+
+    // Test class if span.addition exists
+    this.Game.state.operation = 'addition';
+    this.Game.displayQuestion();
+    var $span = this.Game.$statement.find('span.addition');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "addition".');
+    strictEqual($span.text(), '+', 'span.addition contains string "&plus;".');
+
+    // Test class if span.subtraction exists
+    this.Game.state.operation = 'subtraction';
+    this.Game.displayQuestion();
+    var $span = this.Game.$statement.find('span.subtraction');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "subtraction".');
+    strictEqual($span.text(), '−', 'span.subtraction contains string "&minus;".');
+
+    // Test class if span.multiplication exists
+    this.Game.state.operation = 'multiplication';
+    this.Game.displayQuestion();
+    var $span = this.Game.$statement.find('span.multiplication');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "multiplication".');
+    strictEqual($span.text(), '×', 'span.subtraction contains string "&times;".');
+
+    // Test class if span.division exists
+    this.Game.state.operation = 'division';
+    this.Game.displayQuestion();
+    var $span = this.Game.$statement.find('span.division');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "division".');
+    strictEqual($span.text(), '÷', 'span.subtraction contains string "&divide;".');
 });
 test('Test .displayQuestion() question not answered, Statement contains user answer', 2, function () {
 
-    // Setup test
-    // <span>13</span> <span>+<span> <span>X</span> = 15
+    // Setup test "<span>13</span> <span>+<span> <span>X</span> = 15"
+    this.Game.state.operation       = 'addition';
     this.Game.state.question.answer = 15;
-    this.Game.state.user.answer = 13; // selected answers 1 + 7 + 5
+    this.Game.state.user.answer     = 13; // selected answers 1 + 7 + 5
 
     this.Game.displayQuestion();
 
