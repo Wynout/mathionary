@@ -621,30 +621,35 @@ Game.prototype.displayQuestion = function () {
     this.$statement.find('span').remove('span');
 
     // Show Question argument
-    var $selected     = this.$answers.find('li.selected'),
-        answer        = this.state.question.answer,
-        span          = '<span></span>';
+    var $selected = this.$answers.find('li.selected'),
+        operation = this.state.operation,
+        answer    = this.state.question.answer,
+        span      = '<span></span>',
+        x         = 'X',
+        y         = 'Y';
 
-    // answers given but question not answered
+    // If user already answered, show answer in statement
     if (this.state.user.answer>0 && this.isQuestionAnswered()===false) {
 
-        // Use user answer in statement
-        x = this.state.user.answer;
+        x = this.state.user.answer.toString();
         y = 'X';
-    } else  {
-
-        x = 'X';
-        y = 'Y';
     }
 
-    // Append span elements to div.statement
+    var htmlEntities = {
+        addition: '&plus;',
+        subtraction: '&minus;',
+        multiplication: '&times;',
+        division: '&divide;',
+    };
+
+    // Append operation span elements to div.statement
     $(span, {class: 'number', text: x}).appendTo(this.$statement);
-    $(span, {class: 'addition', html: '&plus;'}).appendTo(this.$statement);
+    $(span, {class: operation, html: htmlEntities[operation]}).appendTo(this.$statement);
     $(span, {class: 'number', text: y}).appendTo(this.$statement);
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
     $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
 
-    // Show Question Text
+    // Show Question Text and return question object
     return this.$game.find('div.question .question-text')
         .text(this.state.question.text);
 };
