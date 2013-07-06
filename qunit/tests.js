@@ -243,7 +243,7 @@ module('Game.prototype.bindEvents', {
         this.Game.bindEvents.call(this.Game);
     }
 });
-test('Test bindEvents', 3, function () {
+test('Test bindEvents for answer elements', 3, function () {
 
     // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
     // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
@@ -254,6 +254,16 @@ test('Test bindEvents', 3, function () {
     strictEqual(typeof events.mouseover, 'object', 'Answer element has a mouseover event.');
     strictEqual(typeof events.mouseout, 'object', 'Answer element has a mouseout event.');
     strictEqual(typeof events.click, 'object', 'Answer element has a click event.');
+});
+test('Test bindEvents for reset element', 1, function () {
+
+    // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
+    // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
+    // via $._data(element, "events"). Note that this is not a supported public interface;
+    // the actual data structures may change incompatibly from version to version.
+    var $reset = this.Game.$game.find('.reset');
+    var events = $._data( $reset.get(0), 'events' );
+    strictEqual(typeof events.click, 'object', 'Reset element has a click event.');
 });
 
 
