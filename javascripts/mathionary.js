@@ -200,7 +200,7 @@ Game.prototype.bindEvents = function () {
  * Object events contains all event handlers.
  * Organized in one method, for maintainability
  *
- * Event Delegation:
+ * Answers Event Delegation:
  * Adds one event listener to the parent <ul> and use selector 'li' to filter delegated events on <li> elements.
  *
  * @this {Game}
