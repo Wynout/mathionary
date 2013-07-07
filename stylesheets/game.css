@@ -151,7 +151,8 @@ div.game {
 
 /*** question ***/
 .level {
-	font-size: 1.5em;
+	font-size: 36px;
+	font-weight: 700;
 	margin: 20px auto;
 	text-align: center;
 }
@@ -197,6 +198,9 @@ div.game {
 	font-size: 50px;
 	height: 50px;
 	margin: 0 5px;
+}
+.question .answer {
+
 }
 .question .question-text {
 	font-size: 18px;

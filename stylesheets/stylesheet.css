@@ -407,7 +407,7 @@ Full-Width Styles
 
 #main_content {
 	overflow: hidden;
-	padding-top: 40px;
+	padding-top: 0px;
 }
 
 #footer_wrap {
