@@ -10,8 +10,9 @@
  *
  * Game.prototype.newQuestionCycle()
  * Game.prototype.newLevelCycle()
- * Game.prototype.createNewAnswers()
- * Game.prototype.createNewQuestion()
+ * Game.prototype.newAnswers()
+ * Game.prototype.newQuestion()
+ * Game.prototype.calculateAnswer()
  * Game.prototype.reset()
  *
  * Game.prototype.deselectAllAnswers()
@@ -21,6 +22,9 @@
  * Game.prototype.isQuestionAnswered()
  * Game.prototype.isLevelFinished()
  * Game.prototype.markAnswersAsUsed()
+ * Game.prototype.addAnswerToOrder()
+ * Game.prototype.orderSelectedAnswers()
+ *
  * Game.prototype.setupAnswerElements()
  *
  * Game.prototype.displayInvalidAnswer()
@@ -39,7 +43,6 @@
  *
  * Game.prototype.getRandomArrayElements()
  * Game.prototype.shuffleArray()
- * Game.prototype.sumDataAttributes()
  *
  *
  * @param {Object} config.
@@ -89,8 +92,8 @@ function Game(config) {
      * @property {Object}
      */
     this.state = {
-        storageKey: 'Mathionary-Add:',
-        operation: 'addition',  // addition, subtraction, multiplication, division
+        storageKey: 'Mathionary',
+        operation: 'subtraction',  // addition, subtraction, multiplication, division
         answers: [],
         question: {
             template: 'Which numbers add up to: {{answer}}?.',
@@ -244,6 +247,8 @@ Game.prototype.events = {
                 return;
             }
 
+            self.addAnswerToOrder($this);
+
             // On answer click, toggle element selection
             $this.toggleClass('selected');
 
@@ -252,8 +257,8 @@ Game.prototype.events = {
 
             var $selected = self.$answers.find('.selected');
 
-            // Answer is calculated by summing all HTML5 data attribute values
-            self.state.user.answer = self.sumDataAttributes($selected);
+            // Calculate user answer from selected elements
+            self.state.user.answer = self.calculateAnswer(self.state.operation, $selected);
 
             // Selected answer invalid?
             if (self.isInvalidAnswer($selected)===true) {
@@ -304,9 +309,16 @@ Game.prototype.events = {
  * Create a new Question object
  *
  * @this {Game}
+ * @param {String} operation, math operation for question
  * @return {Object} new question object
  */
-Game.prototype.newQuestionCycle = function () {
+Game.prototype.newQuestionCycle = function (operation) {
+
+    // Change math operation
+    if (operation) {
+
+        this.state.operation = operation;
+    }
 
     // Clear all selected answer elements
     this.deselectAllAnswers();
@@ -315,8 +327,9 @@ Game.prototype.newQuestionCycle = function () {
     var $availableAnswers = this.getAvailableAnswers();
 
     // Create question and answer
-    var templateSelector = '.question-addition-template';
-    this.state.question = this.createNewQuestion(this.state.operation, $availableAnswers, templateSelector);
+    var templateSelector = '.question-' + this.state.operation + '-template';
+
+    this.state.question = this.newQuestion(this.state.operation, $availableAnswers, templateSelector);
 
     // Clear user answer
     this.state.user.answer = null;
@@ -354,7 +367,7 @@ Game.prototype.isLevelFinished = function () {
 Game.prototype.newLevelCycle = function () {
 
     this.state.level++;
-    this.createNewAnswers();
+    this.newAnswers();
     this.displayCurrentLevel();
     return this.state.level;
 };
@@ -368,7 +381,7 @@ Game.prototype.newLevelCycle = function () {
  * @param {Number} amount, optional default 64
  * @return {Object} $answers (wrapped in jQuery)
  */
-Game.prototype.createNewAnswers = function (amount) {
+Game.prototype.newAnswers = function (amount) {
 
     // Default 64 elements are created
     amount = amount || 64;
@@ -411,52 +424,68 @@ Game.prototype.createNewAnswers = function (amount) {
  * @param {String} selector points to HTML element containing the template
  * @return {Object} question
  */
-Game.prototype.createNewQuestion = function(operation, $answers, selector) {
+Game.prototype.newQuestion = function(operation, $answers, selector) {
 
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
-    var $randomElements = this.getRandomArrayElements($answers, 2);
+    var $elements = this.getRandomArrayElements($answers, 2);
 
-    // Array containing elements for operation(s) [x, y, y, ...]
-    var elements = $.makeArray($randomElements);
-
-    var x = $(elements.slice(0,1)).data('answer'), // x is first element
-        yes = elements.slice(1), // remaining y element(s)
-        answer = 0;
-
-    // Perform math operations
-    // answer = X [operation] Y [operation] Y, ...
-    $.each( yes, function () {
-
-        var y = $(this).data('answer');
-
-        switch (operation) {
-
-            case 'addition'         : x += y; break;
-            case 'subtraction'      : x -= y; break;
-            case 'multiplication'   : x *= y; break;
-            case 'division'         : x /= y; break;
-        }
-    });
-    answer = x;
+    var answer = this.calculateAnswer(operation, $elements);
 
     // Return question object
     var question = {
         answer: answer,
         text: this.renderTemplate(this.getTemplate(selector), {answer: answer}),
-        answersNeeded: $randomElements.length
+        answersNeeded: $elements.length
     };
     return question;
  };
 
+
 /**
- * Creates new answers and question
+ * Returns answer for Math operation
  *
  * @this {Game}
+ * @param {String} operation: 'addition', 'subtraction', 'multiplication', 'division'
+ * @param {Object} $elements for Math operation x,y,z,... (wrapped in jQuery)
+ * @return {Number} answer
  */
-Game.prototype.reset = function () {
+Game.prototype.calculateAnswer = function (operation, $elements)  {
 
-    this.createNewAnswers();
-    this.newQuestionCycle();
+    var ordered = this.orderSelectedAnswers($elements);
+
+    // Perform math operations
+    // answer = X [operation] Y [operation] Z, ...
+    var answer = null;
+    $.each(ordered, function () {
+
+        var variable = $(this).data('answer');
+        if (answer===null) {
+
+            answer = variable;
+        } else  {
+
+            switch (operation) {
+
+                case 'addition'         : answer += variable; break;
+                case 'subtraction'      : answer -= variable; break;
+                case 'multiplication'   : answer *= variable; break;
+                case 'division'         : answer /= variable; break;
+            }
+        }
+    });
+    return answer;
+};
+
+
+/**
+ * Creates new answers and question
+ * @param {String} operation, reset Game to operation
+ * @this {Game}
+ */
+Game.prototype.reset = function (operation) {
+
+    this.newAnswers();
+    this.newQuestionCycle(operation);
 };
 
 
@@ -506,26 +535,39 @@ Game.prototype.isAnswerMarkedAsUsed = function ($answer) {
  */
 Game.prototype.isInvalidAnswer = function ($selected) {
 
-    var self = this,
-        isInvalid = false;
+    var self      = this,
+        invalid   = false,
+        operation = this.state.operation,
+        question  = this.state.question,
+        user      = this.state.user;
 
-    // Need to select at least two answers (except for last possible answer)
-    $selected.each(function (key, element) {
+    // Question not answered with max answersNeeded reached
+    if ($selected.length>=question.answersNeeded && user.answer!==question.answer) {
 
-        var $element = $(element);
-        if ($element.length===1 && self.state.question.answersNeeded>1 &&
-            $element.data('answer')===self.state.question.answer) {
-
-            isInvalid = true;
-        }
-    });
-
-    // Invalid answer when user has answer greater then question answer
-    if (this.state.user.answer > this.state.question.answer) {
-        isInvalid = true;
+        invalid = true;
     }
 
-    return isInvalid;
+    // Cannot select answers directly (except for multiplication 1x1, division 1/1)
+    // Need to select at least two answers (except for last possible answer)
+    if ($selected.length===1 && question.answersNeeded>1 && $selected.eq(0).data('answer')===question.answer) {
+
+        if (operation!=='multiplication' && operation!=='division') {
+            invalid = true;
+        }
+
+    }
+
+    // Addition: Cannot select answer greater then question
+    if (operation==='addition' && user.answer > question.answer) {
+
+        invalid = true;
+    }
+    // Subtraction: Cannot select answer smaller then question
+    if (operation==='subtraction' && user.answer < question.answer) {
+
+        invalid = true;
+    }
+    return invalid;
 };
 
 
@@ -537,6 +579,10 @@ Game.prototype.isInvalidAnswer = function ($selected) {
  */
 Game.prototype.isQuestionAnswered = function () {
 
+    if (this.$answers.find('li.selected').length < this.state.question.answersNeeded) {
+
+        return false;
+    }
     return (this.state.user.answer===this.state.question.answer) ? true : false;
 };
 
@@ -554,8 +600,61 @@ Game.prototype.markAnswersAsUsed = function ($elements) {
 
 
 /**
+ * Add element to last in order.
+ *
+ * All selected answers elements have an order data attribute.
+ * <li data-order="0"> order is ascending, starting from 0.
+ *
+ * @param  {Object} $element wrapped in jQuery
+ * @return {Object} $element wrapped in jQuery, containing data-order attribute
+ * @chainable
+ */
+Game.prototype.addAnswerToOrder = function ($element) {
+
+    var last     = -1, // contains last in order
+        setOrder = 0;  // <li data-order="setOrder" />
+
+    // Get last in order from this.$answers <li> elements
+    this.$answers.find('li').each(function (index, answer) {
+
+        var order = parseInt($(answer).data('order'), 10);
+        if (order!=='NaN' && order>last) {
+
+            last = order;
+        }
+    });
+    // return last in order
+    setOrder = (last===-1 ? 0 : ++last);
+    return $element.data('order', setOrder);
+}
+
+
+/**
+ * Orders selected elements by data-order number ascending
+ *
+ * @this {Game}
+ * @param  {Object} $elements containing data-order attribute
+ * @return {Object} ordered answers, wrapped in jQuery
+ */
+Game.prototype.orderSelectedAnswers = function ($elements) {
+
+    // Order selected elements by data-order number ascending
+    var elements = $.makeArray($elements)
+        .sort(function (a,b) {
+
+            a = $(a).data('order'),
+            b = $(b).data('order');
+            if (a===b) {return 0;}
+            if (a>b)   {return 1;} else {return -1;}
+        });
+    return $(elements);
+};
+
+
+/**
  * Populates $answers <ul/> with answers
  *
+ * @this {Game}
  * @param  {Array} answers [{index:0, answer: 5, selected:true, used:false, ...},...]
  * @return {Boolean} true on success or false on failure
  */
@@ -569,6 +668,7 @@ Game.prototype.setupAnswerElements = function (answers) {
     // Validate existence of answer properties
     var invalid = false,
         required = ['index', 'answer', 'selected', 'used'];
+
     $.each(answers, function (i, answer) {
 
         $.each(required, function (j, property) {
@@ -646,34 +746,35 @@ Game.prototype.displayQuestion = function () {
     // Clear previous question
     this.$statement.find('span').remove('span');
 
-    // Show Question argument
-    var $selected = this.$answers.find('li.selected'),
+    var $ordered = this.orderSelectedAnswers(this.$answers.find('li.selected')),
+        selectedX = $ordered.eq(0).data('answer')!==null ? parseInt($ordered.eq(0).data('answer'), 10) : 0,
+        selectedY = $ordered.eq(1).data('answer')!==null ? parseInt($ordered.eq(1).data('answer'), 10) : 0,
         operation = this.state.operation,
         answer    = this.state.question.answer,
         span      = '<span></span>',
-        x         = 'X',
-        y         = 'Y';
+        x         = selectedX===0 ? 'X' : selectedX,
+        y         = selectedY===0 ? (selectedX>0 ? 'X' : 'Y') : selectedY;
 
-    // If user already answered, show answer in statement
-    if (this.state.user.answer>0 && this.isQuestionAnswered()===false) {
-
-        x = this.state.user.answer.toString();
-        y = 'X';
-    }
-
-    var htmlEntities = {
+    var operations = {
         addition: '&plus;',
         subtraction: '&minus;',
         multiplication: '&times;',
         division: '&divide;',
     };
 
-    // Append operation span elements to div.statement
+    // Create elements and append to div.statement
     $(span, {class: 'number', text: x}).appendTo(this.$statement);
-    $(span, {class: operation, html: htmlEntities[operation]}).appendTo(this.$statement);
+    $(span, {class: operation, html: operations[operation]}).appendTo(this.$statement);
     $(span, {class: 'number', text: y}).appendTo(this.$statement);
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
     $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
+
+    // Remove operation class from body
+    $("body[class$='-operation']").removeClass();
+
+    // Set math operation classes
+    $(document.body).addClass(operation + '-operation'); // control background
+    this.$answers.attr('class', 'answers ' + operation);
 
     // Show Question Text and return question object
     return this.$game.find('div.question .question-text')
@@ -877,23 +978,4 @@ Game.prototype.shuffleArray = function (array) {
         array[j] = temp;
     }
     return array;
-};
-
-
-/**
- * Returns Sum of all HTML5 data attributes 'answer' <element data-answer="integer" />.
- *
- * @param {Object} elements. Containing elements, wrapped in jQuery
- * @return {Number} Sum
- */
-Game.prototype.sumDataAttributes = function ($elements) {
-
-    var sum = 0;
-    $elements.each(function() {
-
-        // $(this) refers to current element
-        var value = $(this).data('answer');
-        sum += (value!==undefined) ? value : 0;
-    });
-    return sum;
 };
