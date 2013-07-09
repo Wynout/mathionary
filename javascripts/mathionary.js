@@ -49,6 +49,7 @@
  * @constructor
  *
  * Requires jQuery 2.0.0 or higher
+ * Requires jRumble 1.3, https://github.com/jackrugile/jrumble
  *
  * Code Conventions
  * @link http://javascript.crockford.com/code.html
@@ -113,6 +114,9 @@ function Game(config) {
 
     // Initializes & Start Game
     this.initialize();
+
+    // Initialize jRumble on Selector
+    $('div.game ul').jrumble();
 }
 
 
@@ -263,7 +267,7 @@ Game.prototype.events = {
             // Selected answer invalid?
             if (self.isInvalidAnswer($selected)===true) {
 
-                self.displayInvalidAnswer.call(this);
+                self.displayInvalidAnswer.call(this, self); // this element, self Game
                 return;
             }
 
@@ -301,6 +305,37 @@ Game.prototype.events = {
             // This refers to reset element, wrapped in jQuery
             self.reset();
         });
+    }
+};
+
+
+/**
+ * Object effects contains all effects
+ * Organized in one method, for maintainability
+ */
+Game.prototype.effects = {
+
+    /**
+     * Shakes <ul> (not tested)
+     *
+     * @this {Object} element, wrapped in jQuery
+     * @chainable
+     */
+    onInvalidAnswer: function () {
+
+        var $this = $(this);
+
+        // Shake answers
+        $this.trigger('startRumble'); // setTimeOut blocks code execution
+        setTimeout( function () { $this.trigger('stopRumble'); }, 250);
+
+        // Animate background color
+        return $this.animate({backgroundColor: '#990000'}, 250)
+            .animate({backgroundColor: 'transparent'}, 250, 'swing', function ()  {
+
+                // after animation, return to default style
+                $this.removeAttr('style').removeClass('selected');
+            });
     }
 };
 
@@ -711,13 +746,15 @@ Game.prototype.setupAnswerElements = function (answers) {
 /**
  * Display an invalid answer
  *
- * @this {Game}
+ * @this {Object} element, wrapped in jQuery
+ * @self {Game}
  * @return {Object} element, wrapped in jQuery
+ * @chainable
  */
-Game.prototype.displayInvalidAnswer = function () {
+Game.prototype.displayInvalidAnswer = function (self) {
 
-    // This refers to the element that was clicked
-    return $(this).addClass('invalid-answer').removeClass('selected');
+    return self.effects.onInvalidAnswer.call(this);
+
 };
 
 
@@ -732,7 +769,7 @@ Game.prototype.displayCurrentLevel = function () {
     var result = this.$game.find('.level .number')
         .text(this.state.level);
     return result;
-}
+};
 
 
 /**
