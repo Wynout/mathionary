@@ -394,35 +394,6 @@ test('answerClick: Test if used answers cannot be selected', 1, function () {
     // Cannot select used answers. Used answers must be ignored.
     strictEqual($answer.hasClass('selected'), false, 'Answer elements with class "used" cannot get class "selected" on click.');
 });
-test('answerClick: Test invalid answers for addition operation', 2, function () {
-
-    // Test mouse click event on <li /> element
-    jQuery(
-    '<li data-answer="6">6</li>'+
-    '<li data-answer="7">6</li>')
-        .appendTo(this.Game.$answers);
-
-    this.Game.state = {
-        storageKey: 'test',
-        operation: 'addition',
-        question: {
-            answer: 0
-        },
-        user: {
-            answer: 0
-        }
-    };
-
-    // Test invalid answer: cannot select answer directly
-    $answer = this.Game.$answers.find('li').first()
-        .trigger('click');
-    strictEqual($answer.hasClass('invalid-answer'), true, 'Invalid move: Cannot select answer directly. Answer element gets class "invalid-answer".');
-
-    // Test invalid answer: cannot select answer higher question.answer
-    var $answer = this.Game.$answers.find('li').last()
-        .trigger('click');
-    strictEqual($answer.hasClass('invalid-answer'), true, 'Invalid move: Cannot select answer higher question.answer. Answer element gets class "invalid-answer".');
-});
 test('answerClick: Test if answer is correct', 1, function () {
 
     // Test mouse click event on <li /> element
@@ -1277,14 +1248,39 @@ test('Test when answers could not be setup', 2, function () {
 /**
  * Game.prototype.displayInvalidAnswer()
  */
-module('Game.prototype.displayInvalidAnswer()');
-test('Test display invalid answer', 2, function () {
+module('Game.prototype.displayInvalidAnswer()', {
 
-    var answer = jQuery('<li class="selected" data-answer="1">1</li>')
-        .appendTo('#qunit-fixture');
-    var $result = $(Game.prototype.displayInvalidAnswer.call(answer)[0]);
+    // Setup callback runs before each test
+    setup: function () {
 
-    strictEqual($result.hasClass('invalid-answer'), true, 'Answer element gets class "invalid-answer".');
+        jQuery(
+        '<div class="game">'+
+            '<ul>' +
+                '<li class="selected" data-answer="1" data-order="0">1</li>' +
+                '<li class="selected" data-answer="5" data-order="1">5</li>' +
+            '</ul>'+
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $answers: $('#qunit-fixture ul'),
+            state: {
+                operation: 'addition',
+                question: {
+                    text: 'Which numbers adds up to 5?',
+                    answer: 5
+                },
+                user: {
+                    answer: null
+                }
+            }
+        }, Game.prototype);
+    }
+});
+test('Test display invalid answer', 1, function () {
+
+    var $answer = this.Game.$answers.last(),
+        $result = this.Game.displayInvalidAnswer.call($answer, this.Game);
     strictEqual($result.hasClass('selected'), false, 'Class "selected" is removed from answer element.');
 });
 

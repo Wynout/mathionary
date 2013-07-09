@@ -47,12 +47,6 @@ div.game {
 	font-size: 35px;
 	line-height: 48px;
 }
-.answers .invalid-answer:hover{
-	background-color: #990000;
-	color: #fff;
-	cursor: pointer;
-	font-size: 35px;
-}
 .answers .used {
 	color: transparent;
 	cursor: default;
