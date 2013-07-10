@@ -251,6 +251,9 @@ Game.prototype.events = {
             // On answer click, toggle element selection
             $this.toggleClass('selected');
 
+            // Save selected order of answers in data-order attribute
+            self.addAnswerToOrder($this);
+
             // Toggle answer selection
             var index = $this.data('index');
 
@@ -262,13 +265,9 @@ Game.prototype.events = {
             // Selected answer invalid?
             if (self.isInvalidAnswer($selected)===true) {
 
-                // $this.removeData('order');
                 self.displayInvalidAnswer.call(this, self); // this element, self Game
                 return;
             }
-
-            // Save selected order of answers in data-order attribute
-            self.addAnswerToOrder($this);
 
             // Create new question when answered correctly
             if (self.isQuestionAnswered()) {
@@ -336,10 +335,6 @@ Game.prototype.effects = {
         // Shake Statement element
         var length = self.$answers.find('li.selected').length,
             index = length>0 ? --length : 0;
-
-        // console.log(index);
-        // $this.removeData('order');
-        console.log($this.data('order'));
 
         $spans.eq(index).trigger('startRumble');
 
@@ -512,12 +507,12 @@ Game.prototype.newQuestion = function(operation, $answers, selector) {
  */
 Game.prototype.calculateAnswer = function (operation, $elements)  {
 
-    var ordered = this.orderSelectedAnswers($elements);
+    var $ordered = this.orderSelectedAnswers($elements);
 
     // Perform math operations
     // answer = X [operation] Y [operation] Z, ...
     var answer = null;
-    $.each(ordered, function () {
+    $ordered.each(function () {
 
         var variable = $(this).data('answer');
         if (answer===null) {
@@ -906,10 +901,11 @@ Game.prototype.saveGameState = function (prefix) {
 
         var $item = $(item);
         return {
-            'index': $item.data('index'),
-            'answer': $item.data('answer'),
+            'index'   : $item.data('index'),
+            'answer'  : $item.data('answer'),
             'selected': $item.hasClass('selected'),
-            'used': $item.hasClass('used')
+            'order'   : $item.data('order'),
+            'used'    : $item.hasClass('used')
         };
     });
     // Store answers in Game state
