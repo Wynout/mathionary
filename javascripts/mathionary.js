@@ -15,7 +15,7 @@
  * Game.prototype.calculateAnswer()
  * Game.prototype.reset()
  *
- * Game.prototype.deselectAllAnswers()
+ * Game.prototype.resetAnswers()
  * Game.prototype.getAvailableAnswers()
  * Game.prototype.isAnswerMarkedAsUsed()
  * Game.prototype.isInvalidAnswer()
@@ -114,9 +114,6 @@ function Game(config) {
 
     // Initializes & Start Game
     this.initialize();
-
-    // Initialize jRumble on Selector
-    $('div.game ul').jrumble();
 }
 
 
@@ -251,8 +248,6 @@ Game.prototype.events = {
                 return;
             }
 
-            self.addAnswerToOrder($this);
-
             // On answer click, toggle element selection
             $this.toggleClass('selected');
 
@@ -267,9 +262,13 @@ Game.prototype.events = {
             // Selected answer invalid?
             if (self.isInvalidAnswer($selected)===true) {
 
+                // $this.removeData('order');
                 self.displayInvalidAnswer.call(this, self); // this element, self Game
                 return;
             }
+
+            // Save selected order of answers in data-order attribute
+            self.addAnswerToOrder($this);
 
             // Create new question when answered correctly
             if (self.isQuestionAnswered()) {
@@ -318,23 +317,50 @@ Game.prototype.effects = {
     /**
      * Shakes <ul> (not tested)
      *
-     * @this {Object} element, wrapped in jQuery
+     * @this {Object} <li> element, wrapped in jQuery
+     * @self {Game}
      * @chainable
      */
-    onInvalidAnswer: function () {
+    onInvalidAnswer: function (self) {
 
-        var $this = $(this);
+        var $this  = $(this), // <li> invalid answer
+            $spans = self.$statement.find('span.number');
 
-        // Shake answers
-        $this.trigger('startRumble'); // setTimeOut blocks code execution
-        setTimeout( function () { $this.trigger('stopRumble'); }, 250);
+        // Initialize jRumble on <ul> and statement <spans>
+        self.$answers.jrumble({x:1, y:1, rotation:0});
+        $spans.jrumble({x:2, y:2, rotation:1});
 
-        // Animate background color
+        // Shake answers element <ul>
+        self.$answers.trigger('startRumble'); // setTimeOut blocks code execution
+
+        // Shake Statement element
+        var length = self.$answers.find('li.selected').length,
+            index = length>0 ? --length : 0;
+
+        // console.log(index);
+        // $this.removeData('order');
+        console.log($this.data('order'));
+
+        $spans.eq(index).trigger('startRumble');
+
+        setTimeout( function () {
+
+            $this.trigger('stopRumble');
+            $spans.trigger('stopRumble');
+        }, 250);
+
+        $spans.eq(index).animate({backgroundColor: '#990000'}, 325, 'swing', function ()  {
+
+                // After animation, return element to default style
+                $spans.eq(index).removeAttr('style');
+            });
+
+        // Animate answer element <li> background color
         return $this.animate({backgroundColor: '#990000'}, 250)
-            .animate({backgroundColor: 'transparent'}, 250, 'swing', function ()  {
+            .animate({backgroundColor: 'transparent'}, 150, 'swing', function ()  {
 
-                // after animation, return to default style
-                $this.removeAttr('style').removeClass('selected');
+                // After animation, return element to default style
+                self.resetAnswers($this);
             });
     }
 };
@@ -356,7 +382,7 @@ Game.prototype.newQuestionCycle = function (operation) {
     }
 
     // Clear all selected answer elements
-    this.deselectAllAnswers();
+    this.resetAnswers(this.$answers.find('li'));
 
     // Find answers not used already.
     var $availableAnswers = this.getAvailableAnswers();
@@ -525,14 +551,17 @@ Game.prototype.reset = function (operation) {
 
 
 /**
- * Remove all 'selected' class from $answers
+ * Returns answer element <li> to default state
  *
+ * @param {Object} elements wrapped in jquery
  * @this {Game}
  * @return {Object} $answers, answer elements, wrapped in jQuery
  */
-Game.prototype.deselectAllAnswers = function () {
+Game.prototype.resetAnswers = function ($answers) {
 
-    return this.$answers.find('li')
+    return $answers
+        .removeAttr('style')
+        .removeAttr('data-order')
         .removeClass('selected');
 };
 
@@ -661,7 +690,7 @@ Game.prototype.addAnswerToOrder = function ($element) {
     // return last in order
     setOrder = (last===-1 ? 0 : ++last);
     return $element.data('order', setOrder);
-}
+};
 
 
 /**
@@ -753,7 +782,7 @@ Game.prototype.setupAnswerElements = function (answers) {
  */
 Game.prototype.displayInvalidAnswer = function (self) {
 
-    return self.effects.onInvalidAnswer.call(this);
+    return self.effects.onInvalidAnswer.call(this, self);
 
 };
 
@@ -766,9 +795,8 @@ Game.prototype.displayInvalidAnswer = function (self) {
  */
 Game.prototype.displayCurrentLevel = function () {
 
-    var result = this.$game.find('.level .number')
+    return this.$game.find('.level .number')
         .text(this.state.level);
-    return result;
 };
 
 
@@ -796,7 +824,7 @@ Game.prototype.displayQuestion = function () {
         addition: '&plus;',
         subtraction: '&minus;',
         multiplication: '&times;',
-        division: '&divide;',
+        division: '&divide;'
     };
 
     // Create elements and append to div.statement
