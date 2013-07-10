@@ -801,21 +801,21 @@ test('Test reset game', 3, function () {
 
 
 /**
- * Game.prototype.deselectAllAnswers()
+ * Game.prototype.resetAnswers()
  */
-module('Game.prototype.deselectAllAnswers()', {
+module('Game.prototype.resetAnswers()', {
 
     // Setup callback runs before each test
     setup: function () {
 
         // Initialize answers, two answers are selected
         jQuery(
-        '<div class="game">'+
-            '<ul>'+
-                '<li data-answer="1">1</li>'+
-                '<li class="selected" data-answer="2">2</li>'+
-                '<li class="selected" data-answer="3">3</li>'+
-            '</ul>'+
+        '<div class="game">' +
+            '<ul>' +
+                // Remove class "selected", remove data-order attribute
+                '<li style="background-color:red;" class="selected" data-order="0" data-answer="1">1</li>' +
+                '<li style="background-color:green;" class="selected" data-order="1" data-answer="2">2</li>' +
+            '</ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
@@ -824,11 +824,14 @@ module('Game.prototype.deselectAllAnswers()', {
         }, Game.prototype);
     }
 });
-test('Test if all answers have class "selected" removed', 1, function () {
+test('Test deselection of answers', 3, function () {
 
-    var $answers = this.Game.deselectAllAnswers.call(this.Game);
+    var $answers = this.Game.$answers.find('li');
+    this.Game.resetAnswers.call(this.Game, $answers);
 
     strictEqual($answers.find('li.selected').length, 0, 'Class "selected" removed from all answers ($answers.length equals to 0).');
+    strictEqual($answers.data('order'), undefined, 'data-order attribute is removed.');
+    strictEqual($answers.attr('style'), undefined, 'style attribute is cleared.');
 });
 
 
@@ -1263,7 +1266,8 @@ module('Game.prototype.displayInvalidAnswer()', {
             .appendTo('#qunit-fixture');
 
         this.Game = $.extend({
-            $answers: $('#qunit-fixture ul'),
+            $answers: $('#qunit-fixture ul').first(),
+            $statement: $('#qunit-fixture div.statement'),
             state: {
                 operation: 'addition',
                 question: {
