@@ -1553,8 +1553,8 @@ module('Game.prototype.loadGameState()', {
                 answerNeeded: 2
             },
             answers: [
-                {index: 0, answer: 1, selected: false, used: true},
-                {index: 1, answer: 2, selected: true, used: false}
+                {index: 0, order:1, answer: 1, selected: false, used: true},
+                {index: 1, order:0, answer: 2, selected: true, used: false}
                 ],
             user: {
                 answer: 2
@@ -1624,7 +1624,7 @@ module('Game.prototype.saveGameState()', {
         '<div class="game">'+
             '<ul>'+
                 '<li data-index="0" data-answer="1" class="used">1</li>'+
-                '<li data-index="1" data-answer="2" class="selected">2</li>'+
+                '<li data-index="1" data-answer="2" class="selected" data-order="0">2</li>'+
             '</ul>'+
         '</div>')
             .appendTo('#qunit-fixture');
@@ -1647,7 +1647,7 @@ module('Game.prototype.saveGameState()', {
         localStorage.removeItem('test-save-game-state');
     }
 });
-test('Test if Game State is saved to Storage', 8, function () {
+test('Test if Game State is saved to Storage', 9, function () {
 
     // Save Game State to Storage
     var result = this.Game.saveGameState('test-save-game-state'),
@@ -1663,6 +1663,7 @@ test('Test if Game State is saved to Storage', 8, function () {
     strictEqual(gameState.answers[1].index, 1, 'gameState.answers[1].index equals to 1');
     strictEqual(gameState.answers[1].answer, 2, 'gameState.answers[1].answer equals to 2');
     strictEqual(gameState.answers[1].selected, true, 'gameState.answers[1].selected equals to true');
+    strictEqual(gameState.answers[1].order, 0, 'gameState.answers[1].order equals to 0');
     strictEqual(gameState.answers[1].used, false, 'gameState.answers[1].used equals to false');
 });
 
