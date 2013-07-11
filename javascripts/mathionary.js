@@ -15,6 +15,7 @@
  * Game.prototype.calculateAnswer()
  * Game.prototype.reset()
  *
+ * Game.prototype.toggleSelected()
  * Game.prototype.resetAnswers()
  * Game.prototype.getAvailableAnswers()
  * Game.prototype.isAnswerMarkedAsUsed()
@@ -245,17 +246,11 @@ Game.prototype.events = {
 
             // Ignoring clicked used elements
             if (self.isAnswerMarkedAsUsed.call(self, $this)) {
+
                 return;
             }
 
-            // On answer click, toggle element selection
-            $this.toggleClass('selected');
-
-            // Save selected order of answers in data-order attribute
-            self.addAnswerToOrder($this);
-
-            // Toggle answer selection
-            var index = $this.data('index');
+            self.toggleSelected($this); // Select/Deselect
 
             var $selected = self.$answers.find('.selected');
 
@@ -462,8 +457,8 @@ Game.prototype.newAnswers = function (amount) {
         // Append a new answer element to the DOM
         $('<li></li>', {text: randomNumber})
             // Attach HTML5 data attributes
-            .data('index', index)
-            .data('answer', randomNumber)
+            .attr('data-index', index)
+            .attr('data-answer', randomNumber)
             // Append to parent element <ul/>
             .appendTo(this.$answers);
     }
@@ -514,7 +509,7 @@ Game.prototype.calculateAnswer = function (operation, $elements)  {
     var answer = null;
     $ordered.each(function () {
 
-        var variable = $(this).data('answer');
+        var variable = parseInt($(this).attr('data-answer'), 10);
         if (answer===null) {
 
             answer = variable;
@@ -542,6 +537,22 @@ Game.prototype.reset = function (operation) {
 
     this.newAnswers();
     this.newQuestionCycle(operation);
+};
+
+
+Game.prototype.toggleSelected = function ($answer) {
+
+    if ($answer.toggleClass('selected').hasClass('selected')) {
+
+        // Answer is selected. Add answer to last in order.
+        this.addAnswerToOrder($answer);
+
+    } else  {
+
+        // Answer is not selected. Remove data-order attribute.
+        $answer.removeAttr('data-order');
+    }
+    return $answer;
 };
 
 
@@ -598,7 +609,8 @@ Game.prototype.isInvalidAnswer = function ($selected) {
         invalid   = false,
         operation = this.state.operation,
         question  = this.state.question,
-        user      = this.state.user;
+        user      = this.state.user,
+        first     = parseInt($selected.eq(0).attr('data-answer'), 10);
 
     // Question not answered with max answersNeeded reached
     if ($selected.length>=question.answersNeeded && user.answer!==question.answer) {
@@ -608,7 +620,7 @@ Game.prototype.isInvalidAnswer = function ($selected) {
 
     // Cannot select answers directly (except for multiplication 1x1, division 1/1)
     // Need to select at least two answers (except for last possible answer)
-    if ($selected.length===1 && question.answersNeeded>1 && $selected.eq(0).data('answer')===question.answer) {
+    if ($selected.length===1 && question.answersNeeded>1 && first===question.answer) {
 
         if (operation!=='multiplication' && operation!=='division') {
             invalid = true;
@@ -659,7 +671,7 @@ Game.prototype.markAnswersAsUsed = function ($elements) {
 
 
 /**
- * Add element to last in order.
+ * Record sequence of answers entered
  *
  * All selected answers elements have an order data attribute.
  * <li data-order="0"> order is ascending, starting from 0.
@@ -676,7 +688,7 @@ Game.prototype.addAnswerToOrder = function ($element) {
     // Get last in order from this.$answers <li> elements
     this.$answers.find('li').each(function (index, answer) {
 
-        var order = parseInt($(answer).data('order'), 10);
+        var order = parseInt($(answer).attr('data-order'), 10);
         if (order!=='NaN' && order>last) {
 
             last = order;
@@ -684,7 +696,7 @@ Game.prototype.addAnswerToOrder = function ($element) {
     });
     // return last in order
     setOrder = (last===-1 ? 0 : ++last);
-    return $element.data('order', setOrder);
+    return $element.attr('data-order', setOrder);
 };
 
 
@@ -701,8 +713,8 @@ Game.prototype.orderSelectedAnswers = function ($elements) {
     var elements = $.makeArray($elements)
         .sort(function (a,b) {
 
-            a = $(a).data('order'),
-            b = $(b).data('order');
+            a = parseInt($(a).attr('data-order'), 10),
+            b = parseInt($(b).attr('data-order'), 10);
             if (a===b) {return 0;}
             if (a>b)   {return 1;} else {return -1;}
         });
@@ -749,8 +761,8 @@ Game.prototype.setupAnswerElements = function (answers) {
 
         var $element = $('<li></li>', {text: this.answer})
             // Attach HTML5 data attributes
-            .data('index', this.index)
-            .data('answer', this.answer);
+            .attr('data-index', this.index)
+            .attr('data-answer', this.answer);
 
         if (this.selected===true) {
 
@@ -807,8 +819,8 @@ Game.prototype.displayQuestion = function () {
     this.$statement.find('span').remove('span');
 
     var $ordered = this.orderSelectedAnswers(this.$answers.find('li.selected')),
-        selectedX = $ordered.eq(0).data('answer')!==null ? parseInt($ordered.eq(0).data('answer'), 10) : 0,
-        selectedY = $ordered.eq(1).data('answer')!==null ? parseInt($ordered.eq(1).data('answer'), 10) : 0,
+        selectedX = $ordered.eq(0).attr('data-answer')!==undefined ? parseInt($ordered.eq(0).attr('data-answer'), 10) : 0,
+        selectedY = $ordered.eq(1).attr('data-answer')!==undefined ? parseInt($ordered.eq(1).attr('data-answer'), 10) : 0,
         operation = this.state.operation,
         answer    = this.state.question.answer,
         span      = '<span></span>',
@@ -897,19 +909,17 @@ Game.prototype.saveGameState = function (prefix) {
     // Create answes array containing all answers, used for converting to JSON
     var listItems = this.$answers.find('li');
 
-    var answers = $.map(listItems, function (item, index) {
+    this.state.answers = $.map(listItems, function (item, index) {
 
         var $item = $(item);
         return {
-            'index'   : $item.data('index'),
-            'answer'  : $item.data('answer'),
+            'index'   : $item.attr('data-index'),
+            'answer'  : $item.attr('data-answer'),
             'selected': $item.hasClass('selected'),
-            'order'   : $item.data('order'),
+            'order'   : $item.attr('data-order'),
             'used'    : $item.hasClass('used')
         };
     });
-    // Store answers in Game state
-    this.state.answers = answers;
     return this.saveToStorage(prefix, this.state);
 };
 
