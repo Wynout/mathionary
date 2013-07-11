@@ -140,7 +140,7 @@ test('Test HTML elements', 8, function () {
     strictEqual(count, 3, 'Answer element has 3 events.');
 
     // Test if question is created (question is random)
-    strictEqual(typeof gameState.question.answer, 'number', 'typeof Game.state.question.answer equals to "number".');
+    strictEqual(typeof gameState.question.answer, 'number', 'typeof Game.state.question.answer equals to "string".');
     strictEqual(typeof gameState.question.text, 'string', 'typeof Game.state.question.text equals to "string".');
     strictEqual(gameState.question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
     strictEqual(gameState.question.text==='', false, 'Game.state.question.text is not an empty string.');
@@ -208,8 +208,8 @@ test('Test loading Game State from Storage', 6, function () {
     strictEqual(this.Game.state.answers.length, 2, 'Game.state.answers.length equals to 2.');
 
     var $answers = this.Game.$answers.find('li');
-    strictEqual($answers.eq(0).data('index'), 0, 'First answer attribute data-index equals to 0');
-    strictEqual($answers.eq(0).data('answer'), 3, 'First answer attribute data-answer equals to 3.');
+    strictEqual($answers.eq(0).attr('data-index'), "0", 'First answer attribute data-index equals to "0"');
+    strictEqual($answers.eq(0).attr('data-answer'), "3", 'First answer attribute data-answer equals to "3".');
     strictEqual($answers.eq(0).hasClass('selected'), true, 'First answer has class "selected."');
     strictEqual($answers.eq(0).hasClass('used'), false, 'First answer does not have class "selected."');
 });
@@ -336,7 +336,7 @@ test('answerMouseenter', 1, function () {
     var $answer = this.Game.$answers.find('li').first()
         .trigger('mouseenter');
 
-    strictEqual($answer.hasClass('hover'), true, 'Answer element gets class "hover" on mouseenter.');
+    strictEqual($answer.hasClass('hover'), true, 'Answer element receives class "hover" on mouseenter.');
 });
 test('answerMouseleave', 2, function () {
 
@@ -349,23 +349,28 @@ test('answerMouseleave', 2, function () {
     strictEqual($answer.hasClass('hover'), false, 'Class "hover" is removed from answer element on mouseleave.');
     strictEqual($answer.hasClass('invalid-answer'), false, 'Class "invalid-answer" is removed from answer element on mouseleave.');
 });
-test('answerClick: Test toggle answer selection', 2, function () {
+test('answerClick: Test toggle answer selection/deselection', 3, function () {
 
     // Test mouse click event on <li /> element
-    jQuery('<li data-answer="1">1</li>')
-        .appendTo(this.Game.$answers);
+    jQuery(
+    '<li class="selected" data-order="1" data-answer="1">1</li>' +
+    '<li data-answer="2">2</li>'
+    ).appendTo(this.Game.$answers);
 
-    var $answer = this.Game.$answers.find('li').first()
+    var $answer = this.Game.$answers.find('li').eq(1)
         .trigger('click');
 
     // Test if answer can be selected
-    strictEqual($answer.hasClass('selected'), true, 'Answer element gets class "selected" on click.');
+    strictEqual($answer.hasClass('selected'), true, 'Answer element receives class "selected" when selected.');
 
-    $answer = this.Game.$answers.find('li').first()
+    $answer = this.Game.$answers.find('li').eq()
         .trigger('click');
 
     // Test if answer can be deselected
-    strictEqual($answer.hasClass('selected'), false, 'Class "selected" is removed from answer element on click.');
+    strictEqual($answer.hasClass('selected'), false, 'Class "selected" is removed from answer element when deselected.');
+
+    // Test if answer can be deselected
+    strictEqual($answer.attr('data-order'), undefined, 'Data attribute data-order is removed from answer element when deselected.');
 });
 test('answerClick: Test property Game.state.user.answer', 1, function () {
 
@@ -400,14 +405,14 @@ test('answerClick: Test if answer is correct', 1, function () {
     jQuery(
     '<li data-answer="1">1</li>'+
     '<li class="selected" data-answer="2" data-order="0">2</li>'+
-    '<li data-answer="3">3</li>'+ // trigger click, 5 is the answer
+    '<li data-answer="3">3</li>'+ // trigger click on eq(2), 5 is the answer
     '<li data-answer="4">4</li>')
         .appendTo(this.Game.$answers);
 
     // Test if correct answer receives class "used"
     var $answer = this.Game.$answers.find('li').eq(2) // contains the answer 3
         .trigger('click');
-    strictEqual($answer.hasClass('used'), true, 'Correct answer gets class "used" on click.');
+    strictEqual($answer.hasClass('used'), true, 'Correct answer receives class "used" on click.');
 });
 test('answerClick: Test if Game state is saved', 1, function () {
 
@@ -452,7 +457,7 @@ test('answerClick: Test if selected answer has a data attribute data-order=""', 
         .trigger('click');
 
     // Selected element receives data-order="2"
-    strictEqual($element.data('order'), 2, 'Clicked answer has data-order attribute equal to "2".');
+    strictEqual($element.attr('data-order'), "2", 'Clicked answer has data-order attribute equal to "2".');
 });
 
 
@@ -613,11 +618,10 @@ test('Test if all answer elements have HTML5 data-index attribute', 1, function 
     var result = true;
     $answers.find('li').each(function() {
 
-        if (typeof $(this).data('index')!=='number') {
+        if (typeof $(this).attr('data-index')===undefined) {
             result = false;
         }
     });
-
     strictEqual(result, true, 'All answer elements have a HTML5 data attribute with a number.');
 });
 test('Test if all answer elements have HTML5 data-answer attribute', 1, function () {
@@ -627,7 +631,7 @@ test('Test if all answer elements have HTML5 data-answer attribute', 1, function
     var result = true;
     $answers.find('li').each(function() {
 
-        if (typeof $(this).data('answer')!=='number') {
+        if (typeof $(this).attr('data-answer')==='undefined') {
             result = false;
         }
     });
@@ -742,6 +746,52 @@ test('Test calculate answer', 4, function () {
 
 
 /**
+ * Game.prototype.toggleSelected()
+ */
+module('Game.prototype.toggleSelected()', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div class="game">' +
+            '<ul></ul>' +
+        '</div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $answers: $('#qunit-fixture ul').first()
+        }, Game.prototype);
+    }
+});
+test('Test selection of answer', 2, function () {
+
+    var $answers = jQuery(
+    '<li class="selected" data-order="0" data-answer="1" >1</li>' +
+    '<li data-answer="2">2</li>' +
+    '<li data-answer="3">3</li>'
+    ).appendTo(this.Game.$answers);
+    var $selected = this.Game.toggleSelected($answers.eq(1));
+
+    strictEqual($selected.hasClass('selected'), true, 'Answer has class "selected".');
+    strictEqual($selected.attr('data-order'), "1", 'Answer data-order attribute equals to number "1".');
+});
+test('Test deselection of answer', 2, function () {
+
+    var $answers = jQuery(
+    '<li data-answer="1" data-order="0">1</li>' +
+    '<li class="selected" data-answer="2" data-order="10">2</li>' +
+    '<li data-answer="3" data-order="2">3</li>'
+    ).appendTo(this.Game.$answers);
+    var $selected = this.Game.toggleSelected($answers.eq(1));
+
+    strictEqual($selected.hasClass('selected'), false, 'Answer has no class "selected".');
+    strictEqual($selected.attr('data-order'), undefined, 'Answer does not have a data-order attribute.');
+});
+
+
+
+/**
  * Game.prototype.reset()
  */
 module('Game.prototype.reset()', {
@@ -830,7 +880,7 @@ test('Test deselection of answers', 3, function () {
     this.Game.resetAnswers.call(this.Game, $answers);
 
     strictEqual($answers.find('li.selected').length, 0, 'Class "selected" removed from all answers ($answers.length equals to 0).');
-    strictEqual($answers.data('order'), undefined, 'data-order attribute is removed.');
+    strictEqual($answers.attr('data-order'), undefined, 'data-order attribute is removed.');
     strictEqual($answers.attr('style'), undefined, 'style attribute is cleared.');
 });
 
@@ -913,7 +963,7 @@ test('Test order data attribute on first selected answers', 1, function () {
 
     var $selected = this.Game.$answers.find('li.selected');
     var $result = this.Game.addAnswerToOrder($selected);
-    strictEqual($result.data('order'), 0, 'First element data-order attribute equals to 0.');
+    strictEqual($result.attr('data-order'), "0", 'First element data-order attribute equals to "0".');
 });
 test('Test order data attribute on selected answers', 1, function () {
 
@@ -925,7 +975,7 @@ test('Test order data attribute on selected answers', 1, function () {
 
     var $selected = this.Game.$answers.find('li.selected');
     var $result = this.Game.addAnswerToOrder($selected);
-    strictEqual($result.data('order'), 2, 'Element data-order attribute equals to 2.');
+    strictEqual($result.attr('data-order'), "2", 'Element data-order attribute equals to "2".');
 });
 
 
@@ -958,8 +1008,8 @@ test('Test order elements by data-order attribute', 2, function () {
 
     var ordered = this.Game.orderSelectedAnswers($elements); // array is returned
     var $ordered = $(ordered);
-    strictEqual($ordered.eq(0).data('order'), 0, 'data-order equals to 0.');
-    strictEqual($ordered.eq(1).data('order'), 1, 'data-order equals to 1.');
+    strictEqual($ordered.eq(0).attr('data-order'), "0", 'data-order equals to "0".');
+    strictEqual($ordered.eq(1).attr('data-order'), "1", 'data-order equals to "1".');
 });
 
 
@@ -1222,13 +1272,13 @@ test('Test if answers are setup', 10, function () {
     var $answers = this.Game.$answers.find('li');
     strictEqual($answers.length, 2, '<ul/> element contains 2 answers');
 
-    strictEqual($answers.eq(0).data('index'), 0, 'First <li/> element has data-index attribute equal to 0.');
-    strictEqual($answers.eq(0).data('answer'), 1, 'First <li/> element has data-answer attribute equal to 1.');
+    strictEqual($answers.eq(0).attr('data-index'), "0", 'First <li/> element has data-index attribute equal to "0".');
+    strictEqual($answers.eq(0).attr('data-answer'), "1", 'First <li/> element has data-answer attribute equal to "1".');
     strictEqual($answers.eq(0).hasClass('selected'), false, 'First <li/> element does not has class="selected".');
     strictEqual($answers.eq(0).hasClass('used'), true, 'First <li/> element has class="used".');
 
-    strictEqual($answers.eq(1).data('index'), 1, 'Second <li/> element has data-index attribute equal to 1');
-    strictEqual($answers.eq(1).data('answer'), 2, 'Second <li/> element has data-answer attribute equal to 2.');
+    strictEqual($answers.eq(1).attr('data-index'), "1", 'Second <li/> element has data-index attribute equal to "1"');
+    strictEqual($answers.eq(1).attr('data-answer'), "2", 'Second <li/> element has data-answer attribute equal to "2".');
     strictEqual($answers.eq(1).hasClass('selected'), true, 'Second <li/> element has class="selected".');
     strictEqual($answers.eq(1).hasClass('used'), false, 'Second <li/> element does not have class="used".');
 });
@@ -1654,16 +1704,16 @@ test('Test if Game State is saved to Storage', 9, function () {
         gameState = $.parseJSON(localStorage.getItem('test-save-game-state'));
 
     // Test first answer
-    strictEqual(gameState.answers[0].index, 0, 'gameState.answers[0].index equals to 0');
-    strictEqual(gameState.answers[0].answer, 1, 'gameState.answers[0].answer equals to 1');
+    strictEqual(gameState.answers[0].index, "0", 'gameState.answers[0].index equals to "0"');
+    strictEqual(gameState.answers[0].answer, "1", 'gameState.answers[0].answer equals to "1"');
     strictEqual(gameState.answers[0].selected, false, 'gameState.answers[0].selected equals to false');
     strictEqual(gameState.answers[0].used, true, 'gameState.answers[0].used equals to true');
 
     // Test second answer
-    strictEqual(gameState.answers[1].index, 1, 'gameState.answers[1].index equals to 1');
-    strictEqual(gameState.answers[1].answer, 2, 'gameState.answers[1].answer equals to 2');
+    strictEqual(gameState.answers[1].index, "1", 'gameState.answers[1].index equals to "1"');
+    strictEqual(gameState.answers[1].answer, "2", 'gameState.answers[1].answer equals to "2"');
     strictEqual(gameState.answers[1].selected, true, 'gameState.answers[1].selected equals to true');
-    strictEqual(gameState.answers[1].order, 0, 'gameState.answers[1].order equals to 0');
+    strictEqual(gameState.answers[1].order, "0", 'gameState.answers[1].order equals to "0"');
     strictEqual(gameState.answers[1].used, false, 'gameState.answers[1].used equals to false');
 });
 
