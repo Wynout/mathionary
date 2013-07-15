@@ -54,6 +54,12 @@ div.game {
 .answers li:nth-child(8n+1) {
 	clear: left;
 }
+.answers li.solution {
+	border-radius: 25px;
+	color: #fff;
+	font-size: 35px;
+	line-height: 48px;
+}
 
 
 /*** navigation ***/
@@ -68,7 +74,8 @@ div.game {
 	border: 15px solid rgba(245,245,245,.3);
 	color: rgba(245,245,245,.9);
 }
-.addition li.hover {
+.addition li.hover,
+.addition li.solution {
 	background-color: #0b0;
 	color: #fff;
 }
@@ -88,7 +95,8 @@ div.game {
 	border: 15px solid rgba(245,245,245,.3);
 	color: silver;
 }
-.subtraction li.hover {
+.subtraction li.hover,
+.subtraction li.solution {
 	background-color: #e64433;
 	color: #fff;
 }
@@ -108,7 +116,8 @@ div.game {
 	border: 15px solid rgba(245,245,245,.3);
 	color: silver;
 }
-.multiplication li.hover {
+.multiplication li.hover,
+.multiplication li.solution {
 	background-color: rgb(86, 163, 241);
 	color: #fff;
 }

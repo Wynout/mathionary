@@ -167,8 +167,8 @@ module('Game.prototype.initialize(): Test loadGameState', {
             storageKey: 'test-load-game-state',
             level: 42,
             answers: [
-                {index: 0, answer: 3, selected: true, used: false },
-                {index: 1, answer: 2, selected: true, used: false }
+                {index: 0, answer: 3, selected: true, order:0, used: false, completes: false },
+                {index: 1, answer: 2, selected: true, order:1, used: false, completes: false }
             ],
             question: {
                 template: 'Which numbers add up to: {{answer}}?.',
@@ -448,9 +448,9 @@ test('answerClick: Test if selected answer has a data attribute data-order=""', 
 
     // Test mouse click event on <li /> element
     jQuery(
-    '<li data-order="0" data-answer="1">1</li>' +
-    '<li data-order="1" data-answer="2">3</li>' +
-    '<li data-answer="3">3</li>')
+    '<li class="selected" data-order="0" data-answer="1">1</li>' +
+    '<li class="selected" data-order="1" data-answer="2">3</li>' +
+    '<li data-answer="3">3</li>') // trigger click, data-order="2"
         .appendTo(this.Game.$answers);
 
     var $element = this.Game.$answers.find('li').last()
@@ -790,7 +790,6 @@ test('Test deselection of answer', 2, function () {
 });
 
 
-
 /**
  * Game.prototype.reset()
  */
@@ -863,8 +862,8 @@ module('Game.prototype.resetAnswers()', {
         '<div class="game">' +
             '<ul>' +
                 // Remove class "selected", remove data-order attribute
-                '<li style="background-color:red;" class="selected" data-order="0" data-answer="1">1</li>' +
-                '<li style="background-color:green;" class="selected" data-order="1" data-answer="2">2</li>' +
+                '<li style="background-color:red;" class="selected" class="solution" data-order="0" data-answer="1">1</li>' +
+                '<li style="background-color:green;" class="selected" class="solution" data-order="1" data-answer="2">2</li>' +
             '</ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
@@ -874,11 +873,12 @@ module('Game.prototype.resetAnswers()', {
         }, Game.prototype);
     }
 });
-test('Test deselection of answers', 3, function () {
+test('Test deselection of answers', 4, function () {
 
     var $answers = this.Game.$answers.find('li');
     this.Game.resetAnswers.call(this.Game, $answers);
 
+    strictEqual($answers.find('li.solution').length, 0, 'Class "solution" removed from all answers ($answers.length equals to 0).');
     strictEqual($answers.find('li.selected').length, 0, 'Class "selected" removed from all answers ($answers.length equals to 0).');
     strictEqual($answers.attr('data-order'), undefined, 'data-order attribute is removed.');
     strictEqual($answers.attr('style'), undefined, 'style attribute is cleared.');
@@ -887,34 +887,61 @@ test('Test deselection of answers', 3, function () {
 
 
 /**
- * Game.prototype.getAvailableAnswers()
+ * Game.prototype.getSolutionsCompletingQuestion()
  */
-module('Game.prototype.getAvailableAnswers()', {
+module('Game.prototype.getSolutionsCompletingQuestion()', {
 
     // Setup callback runs before each test
     setup: function () {
 
         // Initialize answers, available answers = 1
         jQuery(
-        '<div class="game">'+
-            '<ul>'+
-                '<li data-answer="1">1</li>'+
-                '<li class="used" data-answer="2">2</li>'+
-                '<li class="used" data-answer="3">3</li>'+
-            '</ul>'+
+        '<div class="game">' +
+            '<ul>' +
+            '</ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
+        var testState = {
+            operation: 'multiplication',
+            question: {
+                answer: 12
+            }
+        };
+
         this.Game = $.extend({
-            $answers: $('#qunit-fixture ul').first()
+            $answers: $('#qunit-fixture ul').first(),
+            state: testState
         }, Game.prototype);
     }
 });
-test('Test get all answers, not used already', 1, function () {
+test('Test get elements that solve the question', 3, function () {
 
-    var $answers = Game.prototype.getAvailableAnswers.call(this.Game);
+    jQuery(
+        '<li data-answer="4">4</li>' +
+        '<li data-answer="6">6</li>' +
+        '<li class="used" data-answer="7">7</li>' +
+        '<li class="used" data-answer="9">9</li>' +
+        '<li data-answer="4">4</li>' +
+        '<li class="selected" order="0" data-answer="3">3</li>' // answer number 3 selected
+    ).appendTo(this.Game.$answers);
 
-    strictEqual($answers.length, 1, 'Amount of available answer equals to 1 ($answers.length equals to 1).');
+    var elements = this.Game.getSolutionsCompletingQuestion();
+    strictEqual(elements.length, 2, 'elements.length equals to 2.');
+    strictEqual($(elements[0]).attr('data-answer'), '4', 'First element data-answer equals to string "4".');
+    strictEqual($(elements[1]).attr('data-answer'), '4', 'Second element data-answer equals to string "4".');
+});
+test('Test cannot solve the question', 1, function () {
+
+    jQuery(
+        '<li data-answer="6">6</li>' +
+        '<li class="used" data-answer="7">7</li>' +
+        '<li class="used" data-answer="9">9</li>' +
+        '<li class="selected" order="0" data-answer="3">3</li>' // answer number 3 selected
+    ).appendTo(this.Game.$answers);
+
+    var elements = this.Game.getSolutionsCompletingQuestion();
+    strictEqual(elements.length, 0, 'elements.length equals to 0.');
 });
 
 
@@ -968,9 +995,9 @@ test('Test order data attribute on first selected answers', 1, function () {
 test('Test order data attribute on selected answers', 1, function () {
 
     jQuery(
-    '<li data-order="0" data-answer="1">1</li>' +
-    '<li data-order="1" data-answer="2">2</li>' +
-    '<li class="selected" data-answer="3">3</li>') // set order on this element)
+    '<li class="selected" data-order="0" data-answer="1">1</li>' +
+    '<li class="selected" data-order="1" data-answer="2">2</li>' +
+    '<li class="selected" data-answer="3">3</li>') // set order on this element
         .appendTo(this.Game.$answers);
 
     var $selected = this.Game.$answers.find('li.selected');
@@ -1033,7 +1060,56 @@ module('Game.prototype.isInvalidAnswer()', {
         }, Game.prototype);
     }
 });
-test('Test invalid answer when question not answered with max answersNeeded reached', 1, function () {
+test('Test selected answer can complete the question', 1, function () {
+
+    jQuery(
+    '<li class="solution" data-answer="2">2</li>'+
+    '<li class="solution" data-answer="2">2</li>'+
+    '<li class="selected" data-answer="3">3</li>')
+        .appendTo(this.Game.$answers);
+
+    this.Game.state = {
+        operation: 'addition',
+        question: {
+            answer: 5,
+            answersNeeded: 2
+        },
+        user: {
+            answer: 3
+        }
+    };
+
+    var $selected  = this.Game.$answers.find('li.selected'),
+        $solutions = this.Game.$answers.find('li.solution'),
+        result     = this.Game.isInvalidAnswer($selected, $solutions);
+    strictEqual(result.length, 0, 'Result.length equals to 0. Selected answer can complete the question.');
+});
+test('Test selected answer cannot complete the question', 1, function () {
+
+    jQuery(
+    '<li data-answer="21">21</li>'+
+    '<li data-answer="22">22</li>'+
+    '<li class="selected" data-answer="3">3</li>')
+        .appendTo(this.Game.$answers);
+
+    this.Game.state = {
+        operation: 'addition',
+        question: {
+            answer: 5,
+            answersNeeded: 2
+        },
+        user: {
+            answer: 3
+        }
+    };
+
+    var $selected     = this.Game.$answers.find('li.selected'),
+        $solutions    = this.Game.$answers.find('li.solution'), // no solution exist
+        result        = this.Game.isInvalidAnswer($selected, $solutions),
+        isContaining  = $.inArray(1, result)!==-1 ? true : false;
+    strictEqual(isContaining, true, 'Result contains number 1: Selected answer cannot complete the question.');
+});
+test('Test required selected answers does not answer question', 1, function () {
 
     jQuery(
     '<li class="selected" data-order="0" data-answer="1">1</li>'+
@@ -1052,11 +1128,12 @@ test('Test invalid answer when question not answered with max answersNeeded reac
         }
     };
 
-    var $selected = this.Game.$answers.find('.selected');
-    var result = this.Game.isInvalidAnswer($selected);
-    strictEqual(result, true, 'Test invalid answer when question not answered with max answersNeeded reached.');
+    var $selected     = this.Game.$answers.find('.selected'),
+        result        = this.Game.isInvalidAnswer($selected),
+        isContaining  = $.inArray(10, result)!==-1 ? true : false;
+    strictEqual(isContaining, true, 'Result contains number 10: all required answers were selected, but question not answered.');
 });
-test('Test cannot select answer directly', 2, function () {
+test('Test cannot select answer directly for addition and subtraction', 2, function () {
 
     jQuery(
     '<li data-answer="1">1</li>'+
@@ -1076,15 +1153,20 @@ test('Test cannot select answer directly', 2, function () {
     };
 
     var $selected = this.Game.$answers.find('.selected'),
-        result;
-    result = this.Game.isInvalidAnswer($selected);
-    strictEqual(result, true, 'For operation "addition": Equals to true when answer is selected directly.');
+        result,
+        isContaining;
+
+    this.Game.state.operation = 'addition';
+    result                    = this.Game.isInvalidAnswer($selected);
+    isContaining              = $.inArray(20, result)!==-1 ? true : false;
+    strictEqual(isContaining, true, 'Result contains number 20: Cannot choose answer directly for addition operation.');
 
     this.Game.state.operation = 'subtraction';
-    result = this.Game.isInvalidAnswer($selected);
-    strictEqual(result, true, 'For operation "subtraction": Equals to true when answer is selected directly.');
+    result                    = this.Game.isInvalidAnswer($selected);
+    isContaining              = $.inArray(30, result)!==-1 ? true : false;
+    strictEqual(isContaining, true, 'Result contains number 30: Cannot choose answer directly for subtraction operation.');
 });
-test('Test invalid answer for addition: selected answer is higher then Question answer', 1, function () {
+test('Test invalid addition', 1, function () {
 
      this.Game.state = {
         operation: 'addition',
@@ -1097,10 +1179,10 @@ test('Test invalid answer for addition: selected answer is higher then Question 
         }
     };
 
-    var $selected = $('#qunit-fixture').find('.selected'),
-        result = this.Game.isInvalidAnswer($selected);
-
-    strictEqual(result, true, 'Equals to true when user answer is higher then question answer.');
+    var $selected     = $('#qunit-fixture').find('.selected'),
+        result        = this.Game.isInvalidAnswer($selected),
+        isContaining  = $.inArray(40, result)!==-1 ? true : false;
+    strictEqual(isContaining, true, 'Result contains number 40: User answer is higher then question answer.');
 });
 test('Test invalid subtraction', 1, function () {
 
@@ -1115,10 +1197,11 @@ test('Test invalid subtraction', 1, function () {
         }
     };
 
-    var selected = $('#qunit-fixture').find('.selected'),
-        result = this.Game.isInvalidAnswer(selected);
+    var selected     = $('#qunit-fixture').find('.selected'),
+        result       = this.Game.isInvalidAnswer(selected);
+        isContaining = $.inArray(50, result)!==-1 ? true : false;
 
-    strictEqual(result, true, 'Equals to true when user answer is lower then question answer.');
+    strictEqual(isContaining, true, 'Result contains number 50: User answer is lower then question answer.');
 });
 
 
@@ -1219,7 +1302,7 @@ test('Test if level finished', 1, function () {
 module('Game.prototype.markAnswersAsUsed()');
 test('Test mark answer as used', 2, function () {
 
-    jQuery('<li class="selected" data-answer="1">1</li><li class="selected" data-answer="2">2</li>')
+    jQuery('<li class="selected answer-co" data-answer="1">1</li><li class="selected" data-answer="2">2</li>')
         .appendTo('#qunit-fixture');
 
     var $fixture = $('#qunit-fixture');
@@ -1228,7 +1311,7 @@ test('Test mark answer as used', 2, function () {
     Game.prototype.markAnswersAsUsed($answers); // all answers get class "used"
 
     strictEqual($fixture.find('li.used').length, 2, 'All answers elements have class="used".');
-    strictEqual($fixture.find('li.selected').length, 0, 'Class="selected" is removed from all answers.');
+    strictEqual($fixture.find('li.solution').length, 0, 'Class="solution" is removed from all answers.');
 });
 
 
@@ -1262,8 +1345,8 @@ module('Game.prototype.setupAnswerElements()', {
 test('Test if answers are setup', 10, function () {
 
     var answers = [
-        {index: 0, answer: 1, selected: false, used: true},
-        {index: 1, answer: 2, selected: true, used: false}
+        {index: 0, answer: 1, selected: false, order: 1, used: true, completes: false},
+        {index: 1, answer: 2, selected: true, order: 0, used: false, completes: false}
     ];
 
     var result = this.Game.setupAnswerElements(answers);
@@ -1316,6 +1399,7 @@ module('Game.prototype.displayInvalidAnswer()', {
             .appendTo('#qunit-fixture');
 
         this.Game = $.extend({
+            $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('#qunit-fixture div.statement'),
             state: {
@@ -1331,10 +1415,10 @@ module('Game.prototype.displayInvalidAnswer()', {
         }, Game.prototype);
     }
 });
-test('Test display invalid answer', 1, function () {
+test('Test display invalid answer', 1 , function () {
 
     var $answer = this.Game.$answers.last(),
-        $result = this.Game.displayInvalidAnswer.call($answer, this.Game);
+        $result = this.Game.displayInvalidAnswer.call(this.Game, $answer);
     strictEqual($result.hasClass('selected'), false, 'Class "selected" is removed from answer element.');
 });
 
@@ -1530,9 +1614,9 @@ test('Test .displayQuestion() Statement contains 1 answer for x', 2, function ()
     var first = this.Game.$statement.find('span.number').eq(0);
     strictEqual(first.text(), '5', 'First span.number contains the string "5".');
 
-    // Second span.number contains the string 'X'.
+    // Second span.number contains the string '?'.
     var second = this.Game.$statement.find('span.number').eq(1);
-    strictEqual(second.text(), 'X', 'Second span.number contains the string "X".');
+    strictEqual(second.text(), '?', 'Second span.number contains the string "?".');
 });
 test('Test .displayQuestion() Statement contains 2 answers for x and y', 2, function () {
 
