@@ -1198,7 +1198,7 @@ test('Test invalid subtraction', 1, function () {
     };
 
     var selected     = $('#qunit-fixture').find('.selected'),
-        result       = this.Game.isInvalidAnswer(selected);
+        result       = this.Game.isInvalidAnswer(selected),
         isContaining = $.inArray(50, result)!==-1 ? true : false;
 
     strictEqual(isContaining, true, 'Result contains number 50: User answer is lower then question answer.');
