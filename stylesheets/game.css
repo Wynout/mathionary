@@ -138,7 +138,8 @@ div.game {
 .division {
 	border: 15px solid rgba(245,245,245,.3);
 }
-.division .hover {
+.division .hover,
+.division .solution {
 	background-color: rgb(236, 170, 51);
 	color: #fff;
 }

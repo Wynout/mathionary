@@ -21,7 +21,7 @@
  * Game.prototype.newLevelCycle()
  * Game.prototype.newAnswers()
  * Game.prototype.newQuestion()
- * Game.prototype.calculateAnswer()
+ * Game.prototype.calculate()
  * Game.prototype.reset()
  *
  * Game.prototype.toggleSelected()
@@ -34,11 +34,11 @@
  * Game.prototype.isLevelFinished()
  * Game.prototype.markAnswersAsUsed()
  * Game.prototype.addAnswerToOrder()
- * Game.prototype.orderSelectedAnswers()
  *
  * Game.prototype.setupAnswerElements()
  *
  * Game.prototype.displayInvalidAnswer()
+ * Game.prototype.displaySolution()
  * Game.prototype.displayCurrentLevel()
  * Game.prototype.displayQuestion()
  *
@@ -259,22 +259,27 @@ Game.prototype.events = {
                 return;
             }
 
-            self.toggleSelected($this); // Select/Deselect
+            self.toggleSelected($this);
+            var $selected = self.$answers.find('li.selected'),
+                x = parseInt(self.$answers.find('[data-order="0"]').attr('data-answer'), 10),
+                y = parseInt(self.$answers.find('[data-order="1"]').attr('data-answer'), 10);
 
-            var $selected = self.$answers.find('li.selected');
+            self.state.user.answer = null;
+            if (!isNaN(x) && !isNaN(y)) {
 
-            // Calculate user answer from selected elements
-            self.state.user.answer = self.calculateAnswer(self.state.operation, $selected);
+                self.state.user.answer = self.calculate(self.state.operation, x ,y);
+            } else if(!isNaN(x)) {
+
+                self.state.user.answer = x;
+            }
 
             // Create new question when answered correctly
             if (self.isQuestionAnswered()) {
 
-                // Add class 'used' to elements that are selected
                 self.markAnswersAsUsed($selected);
 
                 if (self.isLevelFinished()===true) {
 
-                    // Next level
                     self.newLevelCycle();
                     self.newQuestionCycle();
 
@@ -287,13 +292,15 @@ Game.prototype.events = {
             // Validate selected answer
             } else if($selected.length>0) {
 
-                var $solutions = self.getSolutionsCompletingQuestion(),
-                    invalid    = self.isInvalidAnswer($selected, $solutions); // array containing numbers
+                var $solutions = self.getSolutionsCompletingQuestion($selected),
+                    invalid    = self.isInvalidAnswer($selected, $solutions); //invalid is array containing numbers
+
                 self.displayQuestion();
 
                 if (invalid.length!==0) {
 
                     self.displayInvalidAnswer.call(self, $this); // self Game, $this element
+                    self.displaySolution.call(self, $solutions); // self Game
                 }
             // No answer selected.
             } else  {
@@ -362,13 +369,14 @@ Game.prototype.effects = {
             $spans.eq(index).removeAttr('style');
         });
 
-        // Animate answer element <li> background color
+        // Animate answer element <li> background color to red then to transparent
         return $answer.animate({backgroundColor: '#990000'}, 250)
             .animate({backgroundColor: 'transparent'}, 150, 'swing', function ()  {
 
                 // After animation, return answer and statement to default
                 self.resetAnswers($answer);
                 self.displayQuestion();
+                self.$answers.find('li.solution').removeClass('solution');
             });
     }
 };
@@ -393,7 +401,7 @@ Game.prototype.newQuestionCycle = function (operation) {
     this.resetAnswers(this.$answers.find('li'));
 
     // Find answers not used already.
-    var $availableAnswers = this.getAvailableAnswers(this.$answers);
+    var $availableAnswers = this.getAvailableAnswers();
 
     // Create question and answer
     var templateSelector = '.question-' + this.state.operation + '-template';
@@ -496,18 +504,19 @@ Game.prototype.newAnswers = function (amount) {
 Game.prototype.newQuestion = function(operation, $answers, selector) {
 
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
-    var elements = this.getRandomArrayElements($answers, 2);
-
-    var answer = this.calculateAnswer(operation, elements);
+    var $elements = this.getRandomArrayElements($answers, 2),
+        x         = parseInt($elements.eq(0).attr('data-answer'), 10),
+        y         = parseInt($elements.eq(1).attr('data-answer'), 10),
+        answer    = this.calculate(operation, x, y);
 
     // Return question object
     var question = {
         answer: answer,
         text: this.renderTemplate(this.getTemplate(selector), {answer: answer}),
-        answersNeeded: elements.length
+        answersNeeded: $elements.length
     };
     return question;
- };
+};
 
 
 /**
@@ -515,34 +524,23 @@ Game.prototype.newQuestion = function(operation, $answers, selector) {
  *
  * @this   {Game}
  * @param  {String} operation: 'addition', 'subtraction', 'multiplication', 'division'
- * @param  {Object} Array $elements for Math operation x,y,z,...
+ * @param  {Number} x
+ * @param  {Number} y
  * @return {Number} answer
  */
-Game.prototype.calculateAnswer = function (operation, $elements)  {
+Game.prototype.calculate = function (operation, x, y)  {
 
-    var $ordered = this.orderSelectedAnswers($elements);
+    x = x || NaN;
+    y = y || NaN;
 
-    // Perform math operations
-    // answer = X [operation] Y [operation] Z, ...
-    var answer = null;
-    $ordered.each(function () {
+    switch (operation) {
 
-        var variable = parseInt($(this).attr('data-answer'), 10);
-        if (answer===null) {
-
-            answer = variable;
-        } else  {
-
-            switch (operation) {
-
-                case 'addition'         : answer += variable; break;
-                case 'subtraction'      : answer -= variable; break;
-                case 'multiplication'   : answer *= variable; break;
-                case 'division'         : answer /= variable; break;
-            }
-        }
-    });
-    return answer;
+        case 'addition'         : return x += y;
+        case 'subtraction'      : return x -= y;
+        case 'multiplication'   : return x *= y;
+        case 'division'         : return x /= y;
+    }
+    return x;
 };
 
 
@@ -618,24 +616,22 @@ Game.prototype.getAvailableAnswers = function () {
  * @param  {Object} $answers parent element <ul> wrapped in jQuery
  * @return {Object} $solutions containing <li> elements answering question
  */
-Game.prototype.getSolutionsCompletingQuestion = function () {
+Game.prototype.getSolutionsCompletingQuestion = function ($selected) {
 
     var self       = this,
-        operation  = this.state.operation,
-        question   = self.state.question.answer,
+        x          = parseInt(this.$answers.find('li[data-order="0"]').attr('data-answer'), 10),
         $available = this.getAvailableAnswers(),
-        $selected  = this.$answers.find('li.selected'),
         $solutions = $([]);
 
      $solutions = $available.map(function () {
 
         var $this     = $(this), // refers to answer element <li>
-            $elements = [$this,$selected],
-            answer    = self.calculateAnswer(operation, $elements);
+            y         = parseInt($this.attr('data-answer'), 10),
+            answer    = self.calculate(self.state.operation, x, y);
 
-        if ($this.hasClass('selected')===false && answer===self.state.question.answer) {
+        if (answer===self.state.question.answer) {
 
-            return this;
+            return this; // solution found.
         }
     });
     return $solutions;
@@ -665,37 +661,26 @@ Game.prototype.isAnswerMarkedAsUsed = function ($answer) {
  */
 Game.prototype.isInvalidAnswer = function ($selected, $solutions) {
 
-    $solutions = $solutions || $([]);
+    $solutions    = $solutions || $([]);
 
     var self      = this,
         invalid   = [],
         operation = this.state.operation,
         question  = this.state.question,
         user      = this.state.user,
-        first     = parseInt($selected.eq(0).attr('data-answer'), 10);
+        x         = parseInt(this.$answers.find('li[data-order="0"]').attr('data-answer'), 10),
+        y         = parseInt(this.$answers.find('li[data-order="1"]').attr('data-answer'), 10);
 
     // Current answer cannot complete question
     if ($selected.length>0 && $solutions.length===0) {
 
         invalid.push(1);
     }
-
     // Wrong answer. Required amount answers selected
     if ($selected.length>=question.answersNeeded && user.answer!==question.answer) {
 
         invalid.push(10);
     }
-
-    // Cannot select answers directly (except for multiplication 1x1, division 1/1)
-    // Need to select at least two answers (except for last possible answer)
-    if ($selected.length===1 && question.answersNeeded>1 && first===question.answer) {
-
-        switch (operation) {
-            case 'addition': invalid.push(20); break;
-            case 'subtraction': invalid.push(30); break;
-        }
-    }
-
     // Addition: Cannot select answer greater then question
     if (operation==='addition' && user.answer > question.answer) {
 
@@ -732,16 +717,16 @@ Game.prototype.isQuestionAnswered = function () {
  * @param  {Object} $elements, wrapped in jQuery
  * @return {Object} elements, wrapped in jQuery
  */
-Game.prototype.markAnswersAsUsed = function ($elements) {
+    Game.prototype.markAnswersAsUsed = function ($elements) {
 
-    return $elements.removeClass('selected')
-        .removeClass('solution')
-        .addClass('used');
+        return $elements.removeClass('selected')
+            .removeClass('solution')
+            .addClass('used');
 };
 
 
 /**
- * Record sequence of answers entered
+ * Record sequence of answers selected
  *
  * All selected answers elements have an order data attribute.
  * <li data-order="0"> order is ascending, starting from 0.
@@ -769,27 +754,6 @@ Game.prototype.addAnswerToOrder = function ($element) {
     return $element.attr('data-order', setOrder);
 };
 
-
-/**
- * Orders selected elements by data-order number ascending
- *
- * @this   {Game}
- * @param  {Object} $elements containing data-order attribute
- * @return {Object} ordered answers, wrapped in jQuery
- */
-Game.prototype.orderSelectedAnswers = function ($elements) {
-
-    // Order selected elements by data-order number ascending
-    var elements = $.makeArray($elements)
-        .sort(function (a,b) {
-
-            a = parseInt($(a).attr('data-order'), 10),
-            b = parseInt($(b).attr('data-order'), 10);
-            if (a===b) {return 0;}
-            if (a>b)   {return 1;} else {return -1;}
-        });
-    return $(elements);
-};
 
 
 /**
@@ -864,13 +828,27 @@ Game.prototype.setupAnswerElements = function (answers) {
  * Display an invalid answer
  *
  * @this   {Game}
- * @param  {Object} element, wrapped in jQuery
- * @return {Object} element, wrapped in jQuery
+ * @param  {Object} $answer element, wrapped in jQuery
+ * @return {Object} $answer element, wrapped in jQuery
  * @chainable
  */
 Game.prototype.displayInvalidAnswer = function ($answer) {
 
     return this.effects.onInvalidAnswer.call(this, $answer);
+};
+
+
+/**
+ * Display solution to question
+ *
+ * @this   {Game}
+ * @param  {Object} $solutions elements, wrapped in jQuery
+ * @return {Object} $solutions elements, wrapped in jQuery
+ * @chainable
+ */
+Game.prototype.displaySolution = function ($solutions) {
+
+    return $solutions.addClass('solution');
 };
 
 
@@ -899,26 +877,31 @@ Game.prototype.displayQuestion = function () {
     // Clear previous question
     this.$statement.find('span').remove('span');
 
-    var $ordered  = this.orderSelectedAnswers(this.$answers.find('li.selected')),
-        selectedX = $ordered.eq(0).attr('data-answer')!==undefined ? parseInt($ordered.eq(0).attr('data-answer'), 10) : 0,
-        selectedY = $ordered.eq(1).attr('data-answer')!==undefined ? parseInt($ordered.eq(1).attr('data-answer'), 10) : 0,
-        operation = this.state.operation,
-        answer    = this.state.question.answer,
-        span      = '<span></span>',
-        x         = selectedX===0 ? '?' : selectedX,
-        y         = selectedY===0 ? (selectedX>0 ? '?' : '?') : selectedY;
+    var $answers   = this.$answers,
+        operation  = this.state.operation,
+        span       = '<span></span>',
+        x, xString = '?',
+        y, yString = '?',
+        answer     = !isNaN(this.state.question.answer) ? this.state.question.answer : '?',
+        operations = {
+            addition       : '&plus;',
+            subtraction    : '&minus;',
+            multiplication : '&times;',
+            division       : '&divide;'
+        };
 
-    var operations = {
-        addition       : '&plus;',
-        subtraction    : '&minus;',
-        multiplication : '&times;',
-        division       : '&divide;'
-    };
+    if ($answers.find('li.selected')) {
+
+        x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10),
+        y = parseInt($answers.find('li[data-order="1"]').attr('data-answer'), 10);
+        xString = isNaN(x) ? '?' : x.toString(),
+        yString = isNaN(y) ? '?' : y.toString()
+    }
 
     // Create elements and append to div.statement
-    $(span, {class: 'number', text: x}).appendTo(this.$statement);
+    $(span, {class: 'number', text: xString}).appendTo(this.$statement);
     $(span, {class: operation, html: operations[operation]}).appendTo(this.$statement);
-    $(span, {class: 'number', text: y}).appendTo(this.$statement);
+    $(span, {class: 'number', text: yString}).appendTo(this.$statement);
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
     $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
 
@@ -926,7 +909,7 @@ Game.prototype.displayQuestion = function () {
     $("body[class$='-operation']").removeClass();
 
     // Set math operation classes
-    $(document.body).addClass(operation + '-operation'); // control background
+    $(document.body).addClass(operation + '-operation');
     this.$answers.attr('class', 'answers ' + operation);
 
     // Show Question Text and return question object
@@ -972,7 +955,6 @@ Game.prototype.loadGameState = function (prefix) {
     if (savedState===null) {
         return false;
     }
-
     $.extend(this.state, savedState);
     return true;
 };
