@@ -293,7 +293,7 @@ Full-Width Styles
 	-webkit-box-shadow: 0 0 10px rgba(0,0,0,.5);
 	box-shadow: 0 0 10px rgba(0,0,0,.5);
 
-	display: block;
+	display: none;
 	position: absolute;
 	top:20px;
 	right: 0px;
@@ -348,6 +348,16 @@ Full-Width Styles
 	text-shadow: #111 0px 0px 5px;
 }
 
+#progress {
+  	width:170px;
+  	height:136px;
+    display: block;
+    margin: 0 auto;
+	position: absolute;
+	bottom:10px;
+	right:0;
+  }
+
 /* disabled */
 #downloads {
 	background: url('../images/icon_download.png') no-repeat 0% 90%;
@@ -357,12 +367,11 @@ Full-Width Styles
 	position: absolute;
 	right: 0;
 	width: 210px;
-	z-index: 10;
 }
 .zip_download_link,
 .tar_download_link {
 	-webkit-transition: background .3s;
-	 -moz-transition: background .3s;
+	 -moz-transition:   background .3s;
 		-ms-transition: background .3s;
 		 -o-transition: background .3s;
 			transition: background .3s;

@@ -2,18 +2,22 @@
 <html>
 <head>
 	<title>Mathionary</title>
-	<meta charset='utf-8' />
+	<meta charset="utf-8" />
 	<!-- Keep markup HTML5 valid. Show only to IE -->
 	<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
 	<meta name="description" content="Mathionary : Math Exercise Game in jQuery" />
 	<meta name="viewport" content="initial-scale=1.0, width=device-width, height=device-height, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="shortcut icon" href="http://wynout.github.io/mathionary/images/favicon.ico">
-	<link href='https://fonts.googleapis.com/css?family=Wendy+One|Roboto' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Wendy+One|Roboto">
 	<link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-	<link rel="stylesheet" href="stylesheets/game.css">
-	<script src="javascripts/jquery.1.9.1.min.js"></script>
+	<link rel="stylesheet" type="text/css"href="stylesheets/game.css">
+	<link rel="stylesheet" type="text/css" href="stylesheets/jquery-ui-1.10.3.custom.css">
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 	<script src="javascripts/jquery.jrumble.1.3.min.js"></script>
 	<script src="javascripts/jquery.plugin.color.js"></script>
+	<script src="javascripts/raphael.2.1.0.min.js"></script>
+	<script src="javascripts/justgage.1.0.1-customized.js"></script>
 </head>
 
 <body class="addition-operation">
@@ -24,7 +28,7 @@
 			<a id="forkme_banner" href="https://github.com/Wynout/mathionary">View on GitHub</a>
 			<h1 id="project_title">Mathionary</h1>
 			<h2 id="project_tagline">Math Exercise Game</h2>
-
+				<div id="progress"><div id="gauge"></div></div>
 				<section id="downloads">
 					<a class="zip_download_link" href="https://github.com/Wynout/mathionary/zipball/master">Download this project as a .zip file</a>
 					<a class="tar_download_link" href="https://github.com/Wynout/mathionary/tarball/master">Download this project as a tar.gz file</a>
@@ -37,34 +41,40 @@
 		<section id="main_content" class="inner">
 
 			<div class="game">
-				<div class="level">Level <span class="number">1</span></div>
 				<div class="question">
 	                <div class="statement"></div>
 	                <div class="question-text">Question here, please</div>
 	            </div>
 
-				<script class="question-addition-template" type="game/template">
+				<script class="question-addition-template" type="text/template">
 					Which numbers add up to {{answer}}?
 				</script>
-				<script class="question-subtraction-template" type="game/template">
+				<script class="question-subtraction-template" type="text/template">
 					Which numbers subtract to {{answer}}?
 				</script>
-				<script class="question-multiplication-template" type="game/template">
+				<script class="question-multiplication-template" type="text/template">
 					Which numbers multiply to {{answer}}?
 				</script>
-				<script class="question-division-template" type="game/template">
+				<script class="question-division-template" type="text/template">
 					Which numbers divide to {{answer}}?
 				</script>
 				<ul class="answers addition"></ul>
 
-				<div style="text-align:center;margin:20px auto;">
-					<div id="switchAddition" class="game" style="display:inline;margin-right:10px;"><ul class="answers addition"><li>&plus;</li></ul></div>
-					<div id="switchSubtraction" class="game" style="display:inline;margin-right:10px;"><ul class="answers subtraction"><li>&minus;</li></ul></div>
-					<div id="switchMultiplication" class="game" style="display:inline;margin-right:10px;"><ul class="answers multiplication"><li>&times;</li></ul></div>
-					<div id="switchDivision" class="game" style="display:inline;margin-right:10px;"><ul class="answers division"><li>&divide;</li></ul></div>
+				<div class="switch-operation">
+					<div class="switch game" data-operation="addition"><ul class="answers addition"><li>&plus;</li></ul></div>
+					<div class="switch game" data-operation="subtraction"><ul class="answers subtraction inactive"><li>&minus;</li></ul></div>
+					<div class="switch game" data-operation="multiplication"><ul class="answers multiplication inactive"><li>&times;</li></ul></div>
+					<div class="switch game" data-operation="division"><ul class="answers division inactive"><li>&divide;</li></ul></div>
 				</div>
 
-				<button class="reset">Reset Game</button>
+				<!-- Demo, basic ui style for changing difficulty -->
+				<form style="display:none;text-align:center">
+					<div class="switch-difficulty">
+						<input type="radio" id="switch-difficulty1" name="difficulty" /><label for="switch-difficulty1">Easy</label>
+						<input type="radio" id="switch-difficulty2" name="difficulty" checked="checked" /><label for="switch-difficulty2">Medium</label>
+						<input type="radio" id="switch-difficulty3" name="difficulty" /><label for="switch-difficulty3">Hard</label>
+					</div>
+				</form>
 			</div>
 
 		</section>
@@ -106,31 +116,11 @@
 	<script src="javascripts/mathionary.js"></script>
 	<script type="text/javascript">
 	(function(){
-		// Self Invoking Anonymous Function
+
 		var config =  {
 			container: 'div.game'
 		};
-
 		var game = new Game(config);
-
-
-		$('#switchAddition').on('click', function () {
-
-			game.reset('addition');
-		});
-		$('#switchSubtraction').on('click', function () {
-
-			game.reset('subtraction');
-		});
-		$('#switchMultiplication').on('click', function () {
-
-			game.reset('multiplication');
-		});
-		$('#switchDivision').on('click', function () {
-
-			game.reset('division');
-		});
-
 	})();
 	</script>
 

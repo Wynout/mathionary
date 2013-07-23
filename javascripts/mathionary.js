@@ -5,6 +5,7 @@
  *
  * Game.prototype.cacheDomElements()
  * Game.prototype.initialize()
+ * Game.prototype.initGauge()
  * Game.prototype.bindEvents()
  *
  * Game.prototype.events = {
@@ -39,7 +40,7 @@
  *
  * Game.prototype.displayInvalidAnswer()
  * Game.prototype.displaySolution()
- * Game.prototype.displayCurrentLevel()
+ * Game.prototype.displayLevelProgress()
  * Game.prototype.displayQuestion()
  *
  * Game.prototype.isBrowserSupportingDOMStorage()
@@ -73,7 +74,25 @@ function Game(config) {
      * @property {Object}
      */
     this.config = {
-        container: 'div.game'
+        container: 'div.game',
+        gauge: {
+            id: 'gauge',
+            value: 0,
+            min: 0,
+            max: 0,
+            showMinMax: true,
+            title: 'Level Progress',
+            titleFontColor: '#fff',
+            label: 'level',
+            levelColors: ['rgba(255,255,255,.8)'],
+            levelColorsGradient: true,
+            valueFontColor: '#fff',
+            gaugeColor: 'rgba(255,255,255,.1)',
+            gaugeWidthScale: 1,
+            shadowOpacity: 0.8,
+            shadowSize: 5,
+            shadowVerticalOffset: 0
+        }
     };
     $.extend(this.config, config);
 
@@ -83,6 +102,13 @@ function Game(config) {
      * @type {Object}
      */
     this.$answers = null;
+
+    /**
+     * Level progress gauge
+     *
+     * @type {Object}
+     */
+    this.gauge = null;
 
     /**
      * Cached game container element, wrapped in jQuery
@@ -138,14 +164,17 @@ Game.prototype.cacheDomElements = function ()  {
 
     this.$game = $(this.config.container);
     if (!this.$game.length) {
+
         throw new Error("Game CacheDomElements: no html game element found, 'div.game'");
     }
     this.$answers = this.$game.find('ul').first();
     if (!this.$answers.length) {
-        throw new Error("Game CacheDomElements: no html unordered list element found, 'ul'");
+
+        throw new Error("Game CacheDomElements: no html unorde'red' list element found, 'ul'");
     }
     this.$statement = this.$game.find('div.statement');
     if (!this.$statement.length) {
+
         throw new Error("Game CacheDomElements: no statement element found, 'div.statement'");
     }
 };
@@ -163,36 +192,58 @@ Game.prototype.initialize = function (amount) {
 
     this.bindEvents();
 
-    var isGameStateLoaded = this.loadGameState(this.state.storageKey),
-        createNewGame = true;
-
-    this.displayCurrentLevel();
-
-    // Resume Game?
-    if (isGameStateLoaded===true) {
-
-        // Setup answers from Game State
-        if (this.setupAnswerElements(this.state.answers)===true) {
-
-            createNewGame = false;
-
-            if (this.isLevelFinished()===true) {
-
-                this.newLevelCycle();
-                return;
-
-            } else  {
-
-                this.displayQuestion();
-                return;
-            }
-
-        }
-    }
+    var isGameStateLoaded = this.loadGameState(this.state.storageKey)
 
     // New Game
-    this.reset();
+    if (isGameStateLoaded===false) {
+
+        this.reset();
+        return;
+    }
+
+    // Resume Game. Setup answers
+    if (this.setupAnswerElements(this.state.answers)===true) {
+
+        if (this.isLevelFinished()===true) {
+
+            this.newLevelCycle();
+
+        } else  {
+
+            this.displayQuestion();
+        }
+        this.initGauge({max: amount});
+        this.displayLevelProgress();
+    }
 };
+
+
+/**
+ * Initialize Gauge
+ *
+ * @this   {Game}
+ * @param  {Object} config custom gauge configuration
+ */
+Game.prototype.initGauge = function (config) {
+
+    config = config || {};
+    $.extend(this.config.gauge, config);
+
+    var $progress = $('#progress'),
+        $gauge    = $('#' + this.config.gauge.id);
+
+    // Garbage collection: remove reference to canvas element
+    if ((typeof this.gauge==='Object') && ('canvas' in this.gauge)) {
+
+        this.gauge.refresh(0, null, showValueAsMin)
+        this.gauge.canvas = null;
+    }
+    $progress.find('div#gauge').remove();
+
+    // Init new gauge
+    $('<div></div>', {id: 'gauge'}).appendTo($progress);
+    this.gauge = new JustGage(this.config.gauge);
+}
 
 
 /**
@@ -206,7 +257,7 @@ Game.prototype.bindEvents = function () {
     this.events.answerMouseenter.call(this);
     this.events.answerMouseleave.call(this);
     this.events.answerClick.call(this);
-    this.events.resetClick.call(this);
+    this.events.switchOperationClick.call(this);
 };
 
 
@@ -308,19 +359,23 @@ Game.prototype.events = {
                 self.displayQuestion(); // Return Question statement to default style
             }
 
-            // Store Game State
+            self.displayLevelProgress();
             self.saveGameState(self.state.storageKey);
         });
     },
 
-    // A reset element was clicked, reset game
-    resetClick: function () {
+    // Switch math operation
+    switchOperationClick: function () {
 
         var self = this; // Self refers to the Game object
-        self.$game.find('.reset').on('click', function () {
+        $('div.switch-operation').on('click', 'div', function () {
 
-            // This refers to reset element, wrapped in jQuery
-            self.reset();
+            var operation = $(this).attr('data-operation');
+            if (typeof operation!=='string') {
+
+                return false;
+            }
+            self.reset(operation);
         });
     }
 };
@@ -383,10 +438,10 @@ Game.prototype.effects = {
 
 
 /**
- * Create a new Question object
+ * Create a new Question Object
  *
  * @this   {Game}
- * @param  {String} operation, math operation for question
+ * @param  {String} operation, set math operation for question
  * @return {Object} new question object
  */
 Game.prototype.newQuestionCycle = function (operation) {
@@ -445,7 +500,6 @@ Game.prototype.newLevelCycle = function () {
 
     this.state.level++;
     this.newAnswers();
-    this.displayCurrentLevel();
     return this.state.level;
 };
 
@@ -546,13 +600,20 @@ Game.prototype.calculate = function (operation, x, y)  {
 
 /**
  * Creates new answers and question
+ *
+ * @this  {Game}
  * @param {String} operation, reset Game to operation
- * @this {Game}
  */
 Game.prototype.reset = function (operation) {
 
     this.newAnswers();
     this.newQuestionCycle(operation);
+    this.initGauge({
+        min: 0,
+        value: 0,
+        max: this.$answers.find('li').length
+    });
+    this.displayLevelProgress();
 };
 
 
@@ -776,11 +837,10 @@ Game.prototype.setupAnswerElements = function (answers) {
             'answer',
             'completes',
             'index',
-            'order',
+            // 'order', // not required
             'selected',
             'used'
         ];
-
     $.each(answers, function (i, answer) {
 
         $.each(required, function (j, property) {
@@ -853,16 +913,16 @@ Game.prototype.displaySolution = function ($solutions) {
 
 
 /**
- * Displays the current Game level
+ * Shows current level progress
  *
- * @this   {Game}
- * @return {Object} level number element, wrapped in jQuery
- * @chainable
+ * @this {Game}
  */
-Game.prototype.displayCurrentLevel = function () {
+Game.prototype.displayLevelProgress = function () {
 
-    return this.$game.find('.level .number')
-        .text(this.state.level);
+    var used  = this.$answers.find('li.used').length,
+        total = this.$answers.find('li').length;
+
+    this.gauge.refresh(used, this.state.level, true);
 };
 
 
@@ -894,13 +954,13 @@ Game.prototype.displayQuestion = function () {
 
         x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10),
         y = parseInt($answers.find('li[data-order="1"]').attr('data-answer'), 10);
-        xString = isNaN(x) ? '?' : x.toString(),
-        yString = isNaN(y) ? '?' : y.toString()
+        xString = isNaN(x) ? '?' : x.toString();
+        yString = isNaN(y) ? '?' : y.toString();
     }
 
     // Create elements and append to div.statement
     $(span, {class: 'number', text: xString}).appendTo(this.$statement);
-    $(span, {class: operation, html: operations[operation]}).appendTo(this.$statement);
+    $(span, {class: 'operation '+operation, html: operations[operation]}).appendTo(this.$statement);
     $(span, {class: 'number', text: yString}).appendTo(this.$statement);
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
     $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
