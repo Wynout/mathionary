@@ -67,6 +67,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
     setup: function () {
 
         jQuery(
+        '<div id="progress"><div id="gauge"></div></div>' +
         '<div class="game">'+
             '<script class="question-addition-template" type="game/template">'+
                 'Which numbers add up to: {{answer}}?.'+
@@ -97,6 +98,11 @@ module('Game.prototype.initialize(): Test initialize answers', {
         };
 
         this.Game = $.extend({
+            config: {
+                gauge: {
+                    id: 'gauge'
+                }
+            },
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('#qunit-fixture div.statement'),
@@ -116,14 +122,11 @@ module('Game.prototype.initialize(): Test initialize answers', {
         localStorage.removeItem('should-not-exists');
     }
 });
-test('Test HTML elements', 8, function () {
+test('Test HTML elements', 7, function () {
 
     var gameState = this.Game.state,
         $answers  = this.Game.$answers.find('li'),
         $level    = this.Game.$game.find('.level .number');
-
-    // Current level is 42 and must be displayed in HTML element
-    strictEqual($level.text(), '42', 'Current displayed level equals to a string 42');
 
     // Answer elements created?
     strictEqual($answers.length, 64, 'Game.$answers contains 64 answer elements.');
@@ -155,6 +158,7 @@ module('Game.prototype.initialize(): Test loadGameState', {
     setup: function () {
 
         jQuery(
+        '<div id="progress"><div id="gauge"></div></div>' +
         '<div class="game">' +
             '<script class="question-template" type="game/template">' +
                 'Which numbers add up to: {{answer}}?.' +
@@ -182,6 +186,12 @@ module('Game.prototype.initialize(): Test loadGameState', {
         };
 
         this.Game = $.extend({
+            config: {
+                gauge: {
+                    id: 'gauge',
+                    max: 0
+                }
+            },
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('#qunit-fixture div.statement'),
@@ -214,6 +224,43 @@ test('Test loading Game State from Storage', 6, function () {
     strictEqual($answers.eq(0).hasClass('used'), false, 'First answer does not have class "selected."');
 });
 
+/**
+ * Game.prototype.initGauge
+ */
+module('Game.prototype.initGauge(): Test initGauge', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery('<div id="progress"><div id="gauge"></div></div>')
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            config: {
+                gauge: {
+                    id: 'override',
+                    min: 10,
+                    max: 20
+                }
+            }
+        }, Game.prototype);
+    }
+});
+test('Test initialize Gauge', 3, function () {
+
+    this.Game.initGauge({
+        id:'progress',
+        min: 30,
+        max: 50,
+        value: 42 // Level
+    });
+
+    strictEqual($('#progress tspan:contains("42")').length, 1, 'Level value equals to 42".');
+    strictEqual($('#progress tspan:contains("30")').length, 1, 'Minimal value equals to "30".');
+    strictEqual($('#progress tspan:contains("50")').length, 1, 'Maximum value equals to "50".');
+});
+
+
 
 /**
  * Game.prototype.bindEvents
@@ -226,9 +273,11 @@ module('Game.prototype.bindEvents', {
     setup: function () {
 
         jQuery(
+        '<div class="switch-operation">' +
+            '<div data-operation="multiplication"></div>' +
+        '</div>' +
         '<div class="game">' +
             '<ul></ul>' +
-            '<button class="reset">Reset Game</button>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
@@ -256,15 +305,15 @@ test('Test bindEvents for answer elements', 3, function () {
     strictEqual(typeof events.mouseout, 'object', 'Answer element has a mouseout event.');
     strictEqual(typeof events.click, 'object', 'Answer element has a click event.');
 });
-test('Test bindEvents for reset element', 1, function () {
+test('Test bindEvents for switch operation element', 1, function () {
 
     // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
     // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
     // via $._data(element, "events"). Note that this is not a supported public interface;
     // the actual data structures may change incompatibly from version to version.
-    var $reset = this.Game.$game.find('.reset');
-    var events = $._data( $reset.get(0), 'events' );
-    strictEqual(typeof events.click, 'object', 'Reset element has a click event.');
+    var $element = $('#qunit-fixture').find('div.switch-operation');
+    var events = $._data( $element.get(0), 'events' );
+    strictEqual(typeof events.click, 'object', 'Switch operation element has a click event.');
 });
 
 
@@ -278,6 +327,7 @@ module('Game.prototype.events', {
     setup: function () {
 
         jQuery(
+        '<div id="progress"><div id="gauge"></div><div id="gauge"></div></div>' +
         '<div class="game">' +
             '<script id="question-addition-template" type="game/template">' +
                 'Which numbers add up to: {{answer}}?.' +
@@ -311,11 +361,18 @@ module('Game.prototype.events', {
         };
 
         this.Game = $.extend({
+            config: {
+                gauge: {
+                    id: 'gauge'
+                }
+            },
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('div.statement'),
             state: this.testState
         }, Game.prototype);
+
+        this.Game.initGauge();
 
         // Bind all Events
         this.Game.bindEvents.call(this.Game);
@@ -571,12 +628,7 @@ module('Game.prototype.newLevelCycle()', {
 test('Test Level Number Change', 1, function () {
 
     var level = this.Game.newLevelCycle();
-    strictEqual(level, 43, 'New level equals to 43.');
-});
-test('Test new level is displayed', 1, function () {
-
-    var $level = this.Game.newLevelCycle();
-    strictEqual($level, 43, 'New level number equals to 43.');
+    strictEqual(level, 43, 'New level equals to number 43.');
 });
 test('Test creation of answer elements after level cycle', 1, function () {
 
@@ -782,8 +834,8 @@ module('Game.prototype.reset()', {
 
     // Setup callback runs before each test
     setup: function () {
-
         jQuery(
+        '<div id="progress"><div id="gauge"></div></div>' +
         '<div class="game">' +
             '<script class="question-addition-template" type="game/template">Which numbers add up to {{answer}}?</script>' +
             '<div class="question"><div class="statement"></div></div>' +
@@ -807,7 +859,11 @@ module('Game.prototype.reset()', {
         };
 
         this.Game = $.extend({
-            operation: 'addition',
+            config: {
+                gauge: {
+                    id: 'gauge'
+                }
+            },
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('#qunit-fixture div.statement'),
@@ -829,10 +885,13 @@ test('Test reset game', 3, function () {
     var string = localStorage.getItem('test-reset');
     var state = $.parseJSON(string);
     strictEqual(state.operation, 'subtraction', 'Game.state.operation equals to "subtraction".');
-    strictEqual(state.answers.length, 64, 'New State contains 64 new answers.');
+        strictEqual(state.answers.length, 64, 'New State contains 64 new answers.');
 });
+test('Test reset game level progress', 1, function () {
 
-
+    this.Game.reset('subtraction');
+    strictEqual($('#gauge').is(':empty'), false, 'Gauge container is not empty.');
+});
 
 /**
  * Game.prototype.resetAnswers()
@@ -861,7 +920,7 @@ module('Game.prototype.resetAnswers()', {
 test('Test deselection of answers', 4, function () {
 
     var $answers = this.Game.$answers.find('li');
-    this.Game.resetAnswers.call(this.Game, $answers);
+    this.Game.resetAnswers($answers);
 
     strictEqual($answers.find('li.solution').length, 0, 'Class "solution" removed from all answers ($answers.length equals to 0).');
     strictEqual($answers.find('li.selected').length, 0, 'Class "selected" removed from all answers ($answers.length equals to 0).');
@@ -1063,64 +1122,6 @@ var $selected     = this.Game.$answers.find('li.selected'),
     isContaining  = $.inArray(1, result)!==-1 ? true : false;
 strictEqual(isContaining, true, 'Result contains number 1: Selected answer cannot complete the question.');
 });
-// test('Test required answers neededselected answers does not answer question', 1, function () {
-
-//     jQuery(
-//     '<li class="selected" data-order="0" data-answer="1">1</li>'+
-//     '<li class="selected" data-order="1" data-answer="2">2</li>'+
-//     '<li data-answer="3">3</li>')
-//         .appendTo(this.Game.$answers);
-
-//     this.Game.state = {
-//         operation: 'addition',
-//         question: {
-//             answer: 6,
-//             answersNeeded: 2
-//         },
-//         user: {
-//             answer: 3
-//         }
-//     };
-
-//     var $selected     = this.Game.$answers.find('.selected'),
-//         result        = this.Game.isInvalidAnswer($selected),
-//         isContaining  = $.inArray(10, result)!==-1 ? true : false;
-//     strictEqual(isContaining, true, 'Result contains number 10: all required answers were selected, but question not answered.');
-// });
-// test('Test cannot select answer directly for addition and subtraction', 2, function () {
-
-//     jQuery(
-//     '<li data-answer="1">1</li>'+
-//     '<li data-answer="2">2</li>'+
-//     '<li class="selected" data-answer="3">3</li>')
-//         .appendTo(this.Game.$answers);
-
-//     this.Game.state = {
-//         operation: 'addition',
-//         question: {
-//             answer: 3,
-//             answersNeeded: 2
-//         },
-//         user: {
-//             answer: 3
-//         }
-//     };
-
-//     var $selected = this.Game.$answers.find('li.selected'),
-//         result,
-//         isContaining;
-
-//     this.Game.state.operation = 'addition';
-//     result                    = this.Game.isInvalidAnswer($selected);
-//     console.log(result);
-//     isContaining              = $.inArray(20, result)!==-1 ? true : false;
-//     strictEqual(isContaining, true, 'Result contains number 20: Cannot choose answer directly for addition operation.');
-
-//     this.Game.state.operation = 'subtraction';
-//     result                    = this.Game.isInvalidAnswer($selected);
-//     isContaining              = $.inArray(30, result)!==-1 ? true : false;
-//     strictEqual(isContaining, true, 'Result contains number 30: Cannot choose answer directly for subtraction operation.');
-// });
 test('Test invalid addition', 1, function () {
 
      this.Game.state = {
@@ -1425,33 +1426,56 @@ test('Test display solutions', 2 , function () {
 
 
 /**
- * Game.prototype.displayCurrentLevel()
+ * Game.prototype.displayLevelProgress()
  */
-module('Game.prototype.displayCurrentLevel()', {
+module('Game.prototype.displayLevelProgress()', {
 
     // Setup callback runs before each test
     setup: function () {
 
         // Initialize HTML
         jQuery(
+        '<div id="progress"><div id="gauge"></div></div>' +
         '<div class="game">' +
-            '<div class="level">Level <span class="number">1</span></div>' +
+            '<ul>' +
+                '<li class="used">1</li>' +
+                '<li class="used">2</li>' +
+                '<li>3</li>' +
+            '</ul>' +
         '</div>'
-        )
-            .appendTo('#qunit-fixture');
+        ).appendTo('#qunit-fixture');
 
         this.Game = $.extend({
+            config: {
+                gauge: {
+                    id: 'gauge',
+                    min: 0,
+                    max: 100,
+                    value: 50
+                }
+            },
             $game: $('#qunit-fixture div.game'),
+            $answers: $('#qunit-fixture ul'),
             state: {
+                operation: 'multiplication',
                 level: 42
             }
         }, Game.prototype);
+        this.Game.initGauge({
+            id: 'gauge',
+            min: 36,
+            max: 64,
+            value: 52
+        });
     }
 });
-test('Test display current level number', 1, function () {
+test('Test if level progress is being displayed', 3, function () {
 
-    var $result = this.Game.displayCurrentLevel();
-    strictEqual($result.text(), '42', 'Current level should be level 42.');
+    var result = this.Game.displayLevelProgress();
+
+    strictEqual($('#gauge tspan:contains("42")').length, 1, 'Level value equals to "42".');
+    strictEqual($('#gauge tspan:contains("36")').length, 1, 'Minimal value equals to "36".');
+    strictEqual($('#gauge tspan:contains("64")').length, 1, 'Maximum value equals to "64".');
 });
 
 
@@ -1472,7 +1496,7 @@ module('Game.prototype.displayQuestion()', {
             '<div class="question">' +
                 '<div class="statement">' +
                     // '<span class="number">1</span>' +
-                    // '<span class="addition">&plus;</span>' +
+                    // '<span class="operation">&plus;</span>' +
                     // '<span class="number">5</span>' +
                     // '<span class="equal">=</span>' +
                     // '<span class="number">6</span>' +
@@ -1538,8 +1562,6 @@ test('Test .displayQuestion() anwers parent element <ul> receives operation clas
     this.Game.state.operation = 'division';
     this.Game.displayQuestion();
     strictEqual(this.Game.$answers.hasClass('division'), true, '<ul> has class="division" when math operation is division.');
-
-
 });
 test('Test .displayQuestion() Test existence of statement span elements ', 4, function () {
 
@@ -1560,43 +1582,47 @@ test('Test .displayQuestion() Test existence of statement span elements ', 4, fu
     classCount = $statement.find('span.number').length;
     strictEqual(classCount, 2, 'Statement contains 3 span elements with class of "number"');
 
-    classCount = $statement.find('span.addition').length;
-    strictEqual(classCount, 1, 'Statement contains 1 span element with class of "addition"');
+    classCount = $statement.find('span.operation').length;
+    strictEqual(classCount, 1, 'Statement contains 1 span element with class of "operation"');
 
     classCount = $statement.find('span.equal').length;
     strictEqual(classCount, 1, 'Statement contains 1 span element with class of "equal"');
 });
-test('Test .displayQuestion() test classes for all math operations', 8, function () {
+test('Test .displayQuestion() test classes for all math operations', 12, function () {
 
     var $span;
 
-    // Test class if span.addition exists
+    // Test class if span.operation exists
     this.Game.state.operation = 'addition';
     this.Game.displayQuestion();
-    $span = this.Game.$statement.find('span.addition');
-    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "addition".');
-    strictEqual($span.text(), '+', 'span.addition contains string "&plus;".');
+    $span = this.Game.$statement.find('span.operation');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "operation".');
+    strictEqual($span.hasClass('addition'), true, 'div.statement contains one <span> element with class "addition".');
+    strictEqual($span.text(), '+', 'span.operation contains string "&plus;".');
 
-    // Test class if span.subtraction exists
+    // Test class if span.operation exists
     this.Game.state.operation = 'subtraction';
     this.Game.displayQuestion();
-    $span = this.Game.$statement.find('span.subtraction');
-    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "subtraction".');
-    strictEqual($span.text(), '−', 'span.subtraction contains string "&minus;".');
+    $span = this.Game.$statement.find('span.operation');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "operation".');
+    strictEqual($span.hasClass('subtraction'), true, 'div.statement contains one <span> element with class "subtraction".');
+    strictEqual($span.text(), '−', 'span.operation contains string "&minus;".');
 
-    // Test class if span.multiplication exists
+    // Test class if span.operation exists
     this.Game.state.operation = 'multiplication';
     this.Game.displayQuestion();
-    $span = this.Game.$statement.find('span.multiplication');
-    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "multiplication".');
-    strictEqual($span.text(), '×', 'span.subtraction contains string "&times;".');
+    $span = this.Game.$statement.find('span.operation');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "operation".');
+    strictEqual($span.hasClass('multiplication'), true, 'div.statement contains one <span> element with class "multiplication".');
+    strictEqual($span.text(), '×', 'span.operation contains string "&times;".');
 
-    // Test class if span.division exists
+    // Test class if span.operation exists
     this.Game.state.operation = 'division';
     this.Game.displayQuestion();
-    $span = this.Game.$statement.find('span.division');
-    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "division".');
-    strictEqual($span.text(), '÷', 'span.subtraction contains string "&divide;".');
+    $span = this.Game.$statement.find('span.operation');
+    strictEqual($span.length, 1, 'div.statement contains one <span> element with class "operation".');
+    strictEqual($span.hasClass('division'), true, 'div.statement contains one <span> element with class "division".');
+    strictEqual($span.text(), '÷', 'span.operation contains string "&divide;".');
 });
 test('Test .displayQuestion() Statement shows given answer for x', 2, function () {
 
