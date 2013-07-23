@@ -352,11 +352,15 @@ Full-Width Styles
   	width:170px;
   	height:136px;
     display: block;
-    margin: 0 auto;
 	position: absolute;
 	bottom:10px;
 	right:0;
-  }
+}
+#gauge {
+	width:inherit;
+	height:inherit;
+}
+
 
 /* disabled */
 #downloads {
