@@ -224,6 +224,88 @@ test('Test loading Game State from Storage', 6, function () {
     strictEqual($answers.eq(0).hasClass('used'), false, 'First answer does not have class "selected."');
 });
 
+
+
+/**
+ * Game.prototype.initOperation
+ */
+module('Game.prototype.initOperation(): Test initOperation', {
+
+    // Setup callback runs before each test
+    setup: function () {
+
+        jQuery(
+        '<div id="switch-operation">' +
+            '<div class="switch game" data-operation="addition"><ul class="answers addition inactive"><li>&plus;</li></ul></div>' +
+            '<div class="switch game" data-operation="subtraction"><ul class="answers subtraction inactive"><li>&minus;</li></ul></div>' +
+            '<div class="switch game" data-operation="multiplication"><ul class="answers multiplication inactive"><li>&times;</li></ul></div>' +
+            '<div class="switch game" data-operation="division"><ul class="answers division inactive"><li>&divide;</li></ul></div>' +
+        '</div>' +
+        '<div class="game">' +
+            '<div class="statement"></div>' +
+            '<ul></ul>' +
+        '</div>'
+        )
+            .appendTo('#qunit-fixture');
+
+        this.Game = $.extend({
+            $game: $('#qunit-fixture div.statement'),
+            $answers: $('#qunit-fixture div.game').find('ul').first(),
+            state: {
+                operation: null
+            }
+        }, Game.prototype);
+    }
+});
+test('Test body background class for current math operation', 5, function () {
+
+    var $result = this.Game.initOperation('addition');
+    strictEqual($(document.body).hasClass('addition-operation'), true, 'Body has class "addition-operation".');
+
+    $result = this.Game.initOperation('subtraction');
+    strictEqual($(document.body).hasClass('subtraction-operation'), true, 'Body has class "subtraction-operation".');
+
+    $result = this.Game.initOperation('multiplication');
+    strictEqual($(document.body).hasClass('multiplication-operation'), true, 'Body has class "multiplication-operation".');
+
+    $result = this.Game.initOperation('division');
+    strictEqual($(document.body).hasClass('division-operation'), true, 'Body has class "division-operation".');
+
+    this.Game.state.operation = 'addition';
+    $result = this.Game.initOperation();
+    strictEqual($(document.body).hasClass('addition-operation'), true, 'Body get class "addition-operation" from Game.state.operation .');
+});
+test('Test operation classes on statement.', 6, function () {
+
+    var $operations = $('div#switch-operation'),
+        $result     = this.Game.initOperation('addition'),
+        $addition   = $operations.find('ul.addition');
+
+    strictEqual($result.hasClass('active'), true, 'Result has has class "active".');
+    strictEqual($result.hasClass('inactive'), false, 'Result does not have class "inactive".');
+
+    strictEqual($addition.hasClass('active'), true, 'Switch operation element has class "active".');
+    strictEqual($addition.hasClass('inactive'), false, 'Switch operation element does not have class "inactive".');
+    strictEqual($operations.find('ul.active').length, 1, 'One switch operation element has class "active".');
+    strictEqual($operations.find('ul.inactive').length, 3, 'Three switch operation elements have class "inactive".');
+});
+test('Test active/inactive classes on switch math operation buttons.', 6, function () {
+
+    var $operations = $('#qunit-fixture').find('div#switch-operation'),
+        $result     = this.Game.initOperation('addition'),
+        $addition   = $operations.find('ul.addition');
+
+    strictEqual($result.hasClass('active'), true, 'Result has has class "active".');
+    strictEqual($result.hasClass('inactive'), false, 'Result does not have class "inactive".');
+
+    strictEqual($addition.hasClass('active'), true, 'Switch operation element has class "active".');
+    strictEqual($addition.hasClass('inactive'), false, 'Switch operation element does not have class "inactive".');
+    strictEqual($operations.find('ul.active').length, 1, 'One switch operation element has class "active".');
+    strictEqual($operations.find('ul.inactive').length, 3, 'Three switch operation elements have class "inactive".');
+});
+
+
+
 /**
  * Game.prototype.initGauge
  */
@@ -232,17 +314,22 @@ module('Game.prototype.initGauge(): Test initGauge', {
     // Setup callback runs before each test
     setup: function () {
 
-        jQuery('<div id="progress"><div id="gauge"></div></div>')
+        jQuery('<div class="game"><ul></ul></div><div id="progress"><div id="gauge"></div></div>')
             .appendTo('#qunit-fixture');
 
         this.Game = $.extend({
+            $answers: $('qunit-fixture').find('ul').first(),
             config: {
                 gauge: {
                     id: 'override',
                     min: 10,
                     max: 20
                 }
+            },
+            state: {
+                level:42
             }
+
         }, Game.prototype);
     }
 });
@@ -273,8 +360,8 @@ module('Game.prototype.bindEvents', {
     setup: function () {
 
         jQuery(
-        '<div class="switch-operation">' +
-            '<div data-operation="multiplication"></div>' +
+        '<div id="switch-operation">' +
+            '<div data-operation="multiplication"><ul></ul></div>' +
         '</div>' +
         '<div class="game">' +
             '<ul></ul>' +
@@ -311,8 +398,8 @@ test('Test bindEvents for switch operation element', 1, function () {
     // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
     // via $._data(element, "events"). Note that this is not a supported public interface;
     // the actual data structures may change incompatibly from version to version.
-    var $element = $('#qunit-fixture').find('div.switch-operation');
-    var events = $._data( $element.get(0), 'events' );
+    var $element = $('#qunit-fixture').find('div#switch-operation ul'),
+        events   = $._data( $element.get(0), 'events' );
     strictEqual(typeof events.click, 'object', 'Switch operation element has a click event.');
 });
 
@@ -1526,42 +1613,6 @@ module('Game.prototype.displayQuestion()', {
             }
         }, Game.prototype);
     }
-});
-test('Test .displayQuestion() HTML body receives math operation classes', 4, function () {
-
-    this.Game.state.operation = 'addition';
-    this.Game.displayQuestion();
-    strictEqual($(document.body).hasClass('addition-operation'), true, 'Body has class="addition-operation" when math operation is addition.');
-
-    this.Game.state.operation = 'subtraction';
-    this.Game.displayQuestion();
-    strictEqual($(document.body).hasClass('subtraction-operation'), true, 'Body has class="subtraction-operation" when math operation is subtraction.');
-
-    this.Game.state.operation = 'multiplication';
-    this.Game.displayQuestion();
-    strictEqual($(document.body).hasClass('multiplication-operation'), true, 'Body has class="multiplication-operation" when math operation is multiplication.');
-
-    this.Game.state.operation = 'division';
-    this.Game.displayQuestion();
-    strictEqual($(document.body).hasClass('division-operation'), true, 'Body has class="division-operation" when math operation is division.');
-});
-test('Test .displayQuestion() anwers parent element <ul> receives operation classes', 4, function () {
-
-    this.Game.state.operation = 'addition';
-    this.Game.displayQuestion();
-    strictEqual(this.Game.$answers.hasClass('addition'), true, '<ul> has class="addition" when math operation is addition.');
-
-    this.Game.state.operation = 'subtraction';
-    this.Game.displayQuestion();
-    strictEqual(this.Game.$answers.hasClass('subtraction'), true, '<ul> has class="subtraction" when math operation is subtraction.');
-
-    this.Game.state.operation = 'multiplication';
-    this.Game.displayQuestion();
-    strictEqual(this.Game.$answers.hasClass('multiplication'), true, '<ul> has class="multiplication" when math operation is multiplication.');
-
-    this.Game.state.operation = 'division';
-    this.Game.displayQuestion();
-    strictEqual(this.Game.$answers.hasClass('division'), true, '<ul> has class="division" when math operation is division.');
 });
 test('Test .displayQuestion() Test existence of statement span elements ', 4, function () {
 

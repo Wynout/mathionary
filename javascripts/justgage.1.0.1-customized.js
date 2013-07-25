@@ -307,7 +307,7 @@ JustGage.prototype.refresh = function (value, title, showValueAsMin) {
   showValueAsMin = showValueAsMin || false;
 
   // overflow values
-  originalVal = value;
+  var originalVal = value;
   if (value > this.config.max) {value = this.config.max;}
   if (value < this.config.min) {value = this.config.min;}
 
