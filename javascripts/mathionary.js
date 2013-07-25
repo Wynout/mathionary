@@ -3,7 +3,7 @@
  *
  * Methods:
  *
- * Game.prototype.cacheDomElements()
+ * Game.protod type.cacheDomElements()
  * Game.prototype.initialize()
  * Game.prototype.initGauge()
  * Game.prototype.bindEvents()
@@ -85,13 +85,32 @@ function Game(config) {
             titleFontColor: '#fff',
             label: 'level',
             levelColors: ['rgba(255,255,255,.8)'],
+            gaugeColor: 'rgba(255,255,255,.1)',
             levelColorsGradient: true,
             valueFontColor: '#fff',
-            gaugeColor: 'rgba(255,255,255,.1)',
             gaugeWidthScale: 1,
-            shadowOpacity: 0.8,
+            shadowOpacity: 0.5,
             shadowSize: 5,
-            shadowVerticalOffset: 0
+            shadowVerticalOffset: 5,
+            // Math operation override config
+            operations: {
+                addition: {
+                    levelColors: ['#1DC91D'],
+                    gaugeColor: '#115f11'
+                },
+                subtraction: {
+                    levelColors: ['#c43'],
+                    gaugeColor: '#622018'
+                },
+                multiplication: {
+                    levelColors: ['#4D97E0'],
+                    gaugeColor: '#073b72'
+                },
+                division: {
+                    levelColors: ['#E99B0F'],
+                    gaugeColor: '#694405'
+                },
+            }
         }
     };
     $.extend(this.config, config);
@@ -226,8 +245,19 @@ Game.prototype.initialize = function (amount) {
  */
 Game.prototype.initGauge = function (config) {
 
+    // Override default config
     config = config || {};
     $.extend(this.config.gauge, config);
+
+    // Override config with math operation specific config
+    if ('gauge' in this.config && 'operations' in this.config.gauge) {
+
+        var operations = this.config.gauge.operations;
+        if (operations[this.state.operation]!==undefined) {
+
+            $.extend(this.config.gauge, operations[this.state.operation]);
+        }
+    }
 
     var $progress = $('#progress'),
         $gauge    = $('#' + this.config.gauge.id);
