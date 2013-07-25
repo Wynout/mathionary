@@ -63,7 +63,7 @@
 }
 
 /*** switch math operation ***/
-.switch-operation {
+#switch-operation {
 	clear: both;
 	height: 90px;
 	font-size: 1.5em;
@@ -72,19 +72,19 @@
 	margin: 20px auto;
 	width: 390px;
 }
-.switch-operation div {
+#switch-operation div {
 	display: inline;
 }
-.switch-operation .active{
+#switch-operation .active{
 	cursor: default;
 }
-.switch-operation .inactive:hover {
+#switch-operation .inactive:hover {
 	cursor: pointer;
 	-webkit-opacity: .75;
 	-moz-opacity: .75;
 	opacity: .75;
 }
-.switch-operation .inactive {
+#switch-operation .inactive {
 	-webkit-opacity: .25;
 	-moz-opacity: .25;
 	opacity: .25;

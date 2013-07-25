@@ -5,6 +5,7 @@
  *
  * Game.protod type.cacheDomElements()
  * Game.prototype.initialize()
+ * Game.prototype.initOperation()
  * Game.prototype.initGauge()
  * Game.prototype.bindEvents()
  *
@@ -231,10 +232,49 @@ Game.prototype.initialize = function (amount) {
 
             this.displayQuestion();
         }
+        this.initOperation();
         this.initGauge({max: amount});
         this.displayLevelProgress();
+    } else  {
+
+        this.reset();
+        return;
     }
+
 };
+
+
+/**
+ * Initializes a Math operation
+ *
+ * @this   {Game}
+ * @param  {String} operation, switches to operation
+ * @return {Object} switch operation element, wrapped in jQuery
+ * @chainable
+ */
+Game.prototype.initOperation = function (operation) {
+
+    if (operation) {
+        this.state.operation = operation;
+    }
+
+    // Remove all operation classes from body
+    $("body[class$='-operation']").removeClass();
+    $(document.body).addClass(this.state.operation + '-operation');
+
+    // Set classes on answers parent element <ul>
+    this.$answers.attr('class', 'answers ' + this.state.operation);
+
+    // Toggle active/inactive classes on <ul>
+    var $operations = $('div#switch-operation');
+    $operations.find('ul:not(.' + this.state.operation + ')')
+        .removeClass('active')
+        .addClass('inactive');
+
+    return $operations.find('ul.' + this.state.operation)
+        .addClass('active')
+        .removeClass('inactive');
+}
 
 
 /**
@@ -265,15 +305,15 @@ Game.prototype.initGauge = function (config) {
     // Garbage collection: remove reference to canvas element
     if ((typeof this.gauge==='Object') && ('canvas' in this.gauge)) {
 
-        this.gauge.refresh(0, null, showValueAsMin)
         this.gauge.canvas = null;
     }
     $progress.find('div#gauge').remove();
 
-    // Init new gauge
+    // Init & display new gauge
     $('<div></div>', {id: 'gauge'}).appendTo($progress);
     this.gauge = new JustGage(this.config.gauge);
-}
+    this.displayLevelProgress();
+};
 
 
 /**
@@ -398,14 +438,18 @@ Game.prototype.events = {
     switchOperationClick: function () {
 
         var self = this; // Self refers to the Game object
-        $('div.switch-operation').on('click', 'div', function () {
+        $('div#switch-operation').on('click', 'div.switch', function () {
 
-            var operation = $(this).attr('data-operation');
+            var $this     = $(this),
+                operation = $this.attr('data-operation');
             if (typeof operation!=='string') {
 
                 return false;
             }
-            self.reset(operation);
+            self.newQuestionCycle(operation);
+            // self.initOperation(operation);
+            self.initGauge();
+            // self.displayQuestion();
         });
     }
 };
@@ -482,24 +526,16 @@ Game.prototype.newQuestionCycle = function (operation) {
         this.state.operation = operation;
     }
 
-    // Clear all selected answer elements
+    this.initOperation();
     this.resetAnswers(this.$answers.find('li'));
 
-    // Find answers not used already.
     var $availableAnswers = this.getAvailableAnswers();
 
-    // Create question and answer
-    var templateSelector = '.question-' + this.state.operation + '-template';
-
-    this.state.question = this.newQuestion(this.state.operation, $availableAnswers, templateSelector);
-
-    // Clear user answer
+    // Create new question
+    var templateSelector   = '.question-' + this.state.operation + '-template';
+    this.state.question    = this.newQuestion(this.state.operation, $availableAnswers, templateSelector);
     this.state.user.answer = null;
-
-    // Display new question
     this.displayQuestion();
-
-    // Save Game State
     this.saveGameState(this.state.storageKey);
 
     return this.state.question;
@@ -994,13 +1030,6 @@ Game.prototype.displayQuestion = function () {
     $(span, {class: 'number', text: yString}).appendTo(this.$statement);
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
     $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
-
-    // Remove operation class from body
-    $("body[class$='-operation']").removeClass();
-
-    // Set math operation classes
-    $(document.body).addClass(operation + '-operation');
-    this.$answers.attr('class', 'answers ' + operation);
 
     // Show Question Text and return question object
     return this.$game.find('div.question .question-text')
