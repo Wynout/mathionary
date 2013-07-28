@@ -263,6 +263,9 @@ div.percentage span {
 	margin: 20px auto;
 	text-align: center;
 }
+.question .statement {
+	text-align: center;
+}
 .question span {
 	cursor: default;
 	display: inline-block;
@@ -286,16 +289,20 @@ div.percentage span {
 	width: 40px;
 }
 .question .number,
-.question .answer {
+.question .answer{
 	-webkit-box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
 	box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
+
 	background-color: #494949;
 	border-radius: 25px;
 	color: #fff;
 	font-size: 35px;
 	height: 50px;
 	line-height: 48px;
-	width: 50px;
+	min-width: 50px;
+}
+.number span {
+	margin: 0 10px;
 }
 .question .equal {
 	font-size: 50px;

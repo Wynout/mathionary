@@ -190,7 +190,7 @@ Game.prototype.cacheDomElements = function ()  {
     this.$answers = this.$game.find('ul').first();
     if (!this.$answers.length) {
 
-        throw new Error("Game CacheDomElements: no html unorde'red' list element found, 'ul'");
+        throw new Error("Game CacheDomElements: no html unordered' list element found, 'ul'");
     }
     this.$statement = this.$game.find('div.statement');
     if (!this.$statement.length) {
@@ -1005,10 +1005,12 @@ Game.prototype.displayQuestion = function () {
 
     var $answers   = this.$answers,
         operation  = this.state.operation,
+        $span      = null,
         span       = '<span></span>',
         x, xString = '?',
         y, yString = '?',
         answer     = !isNaN(this.state.question.answer) ? this.state.question.answer : '?',
+        $answer    = null,
         operations = {
             addition       : '&plus;',
             subtraction    : '&minus;',
@@ -1024,12 +1026,23 @@ Game.prototype.displayQuestion = function () {
         yString = isNaN(y) ? '?' : y.toString();
     }
 
-    // Create elements and append to div.statement
-    $(span, {class: 'number', text: xString}).appendTo(this.$statement);
+    // X
+    $span = $(span, {class: 'number'}).appendTo(this.$statement);
+    $(span, {text: xString}).appendTo($span);
+
+    // Operation
     $(span, {class: 'operation '+operation, html: operations[operation]}).appendTo(this.$statement);
-    $(span, {class: 'number', text: yString}).appendTo(this.$statement);
+
+    // Y
+    $span = $(span, {class: 'number'}).appendTo(this.$statement);
+    $(span, {text: yString}).appendTo($span);
+
+    // =
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
-    $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
+
+    // Answer
+    $span = $(span, {class: 'number answer'}).appendTo(this.$statement);
+    $(span, {text: answer}).appendTo($span);
 
     // Show Question Text and return question object
     return this.$game.find('div.question .question-text')

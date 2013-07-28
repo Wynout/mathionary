@@ -1631,7 +1631,7 @@ test('Test .displayQuestion() Test existence of statement span elements ', 4, fu
     strictEqual(text, 'Which numbers adds up to 6?', 'Element with class="text" has text that equals to "Which numbers adds up to 6?".');
 
     classCount = $statement.find('span.number').length;
-    strictEqual(classCount, 2, 'Statement contains 3 span elements with class of "number"');
+    strictEqual(classCount, 3, 'Statement contains 3 span elements with class of "number"');
 
     classCount = $statement.find('span.operation').length;
     strictEqual(classCount, 1, 'Statement contains 1 span element with class of "operation"');
@@ -1716,9 +1716,6 @@ test('Test .displayQuestion() Statement contains 2 answers for x and y', 2, func
     var second = this.Game.$statement.find('span.number').eq(1);
     strictEqual(second.text(), '5', 'Second span.number contains the string "5".');
 });
-
-
-
 /**
  * Game.prototype.isBrowserSupportingDOMStorage()
  */
