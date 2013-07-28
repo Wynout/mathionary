@@ -2002,6 +2002,54 @@ test('Test rendering template', 1, function () {
 
 
 /**
+ * Game.prototype.getRepeatingDecimalProperties()
+ */
+module('Game.prototype.getRepeatingDecimalProperties()');
+test('test with invalid input', function () {
+
+    var fn = Game.prototype.getRepeatingDecimalProperties;
+    deepEqual(fn(''), [], 'fn("") equals to empty array.');
+    deepEqual(fn([]), [], 'fn([]) equals to empty array.');
+    deepEqual(fn({}), [], 'fn({}) equals to empty array.');
+    deepEqual(fn(Math.PI), [], 'fn(Math.PI) equals to empty array.');
+    deepEqual(fn(null), [], 'fn(null) equals to empty array.');
+    deepEqual(fn(true), [], 'fn(true) equals to empty array.');
+    deepEqual(fn(Infinity), [], 'fn(Infinity) equals to empty array.');
+    deepEqual(fn(NaN), [], 'fn(NaN) equals to empty array.');
+    deepEqual(fn(1 / 5), [], 'fn(1 / 5) equals to empty array.');
+    deepEqual(fn(1 / 100), [], 'fn(1 / 100) equals to empty array.');
+    deepEqual(fn('1.2.3'), [], 'fn(1.2.3) equals to empty array.');
+    deepEqual(fn('1.333333'), [], 'fn(1.333333) equals to empty array.');
+});
+test('test with decimal numbers as string', function () {
+
+    var fn = Game.prototype.getRepeatingDecimalProperties;
+    deepEqual(fn('1.1111111111'), ['1', '', '1'], "fn('1.1111111111') equals to array ['1', '', '1'].");
+    deepEqual(fn('1234.11111111111'), ['1234', '', '1'], "fn('1234.11111111111') equals to array ['1234', '', '1'].");
+    deepEqual(fn('1.12312311111111'), ['1', '123123', '1'], "fn('1.12312311111111') equals to array ['1', '123123', '1'].");
+
+    deepEqual(fn('12.12121212121212'), ['12', '', '12'], "fn('12.12121212121212') equals to array ['12', '', '12'].");
+    deepEqual(fn('1234.1111212121212'), ['1234', '111', '12'], "fn('1234.1111212121212') equals to array ['1234', '111', '12'].");
+    deepEqual(fn('2.123412341234'), ['2', '', '1234'], "fn('2.123412341234') equals to array ['2', '', '1234'].");
+
+    deepEqual(fn('3534.3344512341234'), ['3534', '33445', '1234'], "fn('3534.3344512341234') equals to array ['3534', '33445', '1234'].");
+});
+test('test with computed decimal numbers', function () {
+
+    var fn = Game.prototype.getRepeatingDecimalProperties;
+    deepEqual(fn(1 / 333), ['0', '', '003'], "fn(1 / 333) equals to array ['0', '', '003'].");
+    deepEqual(fn(7 / 13), ['0', '5384', '615384'], "fn(7 / 13) equals to array ['0', '5384', '615384'].");
+    deepEqual(fn(1 / 111), ['0', '', '009'], "fn(1 / 111) equals to array ['0', '', '009'].");
+    deepEqual(fn(11 / 111), ['0', '', '099'], "fn(11 / 111) equals to array ['0', '', '099'].");
+    deepEqual(fn(100 / 11), ['9', '', '09'], "fn(100 / 11) equals to array ['9', '', '09'].");
+    deepEqual(fn(100 / 13), ['7', '692', '307692'], "fn(100 / 13) equals to array ['7', '692', '307692'].");
+    deepEqual(fn(1 / 3), ['0', '', '3'], "fn(1 / 3) equals to array ['0', '', '3'].");
+    deepEqual(fn(4 / 3), ['1', '', '3'], "fn(4 / 3) equals to array ['1', '', '3'].");
+});
+
+
+
+/**
  * Game.prototype.getRandomArrayElements()
  */
 module('Game.prototype.getRandomArrayElements()');
