@@ -54,6 +54,7 @@
  * Game.prototype.getTemplate()
  * Game.prototype.renderTemplate()
  *
+ * Game.prototype.getRepeatingDecimalProperties()
  * Game.prototype.getRandomArrayElements()
  * Game.prototype.shuffleArray()
  *
@@ -190,7 +191,7 @@ Game.prototype.cacheDomElements = function ()  {
     this.$answers = this.$game.find('ul').first();
     if (!this.$answers.length) {
 
-        throw new Error("Game CacheDomElements: no html unorde'red' list element found, 'ul'");
+        throw new Error("Game CacheDomElements: no html unordered' list element found, 'ul'");
     }
     this.$statement = this.$game.find('div.statement');
     if (!this.$statement.length) {
@@ -1005,10 +1006,12 @@ Game.prototype.displayQuestion = function () {
 
     var $answers   = this.$answers,
         operation  = this.state.operation,
+        $span      = null,
         span       = '<span></span>',
         x, xString = '?',
         y, yString = '?',
         answer     = !isNaN(this.state.question.answer) ? this.state.question.answer : '?',
+        $answer    = null,
         operations = {
             addition       : '&plus;',
             subtraction    : '&minus;',
@@ -1024,12 +1027,23 @@ Game.prototype.displayQuestion = function () {
         yString = isNaN(y) ? '?' : y.toString();
     }
 
-    // Create elements and append to div.statement
-    $(span, {class: 'number', text: xString}).appendTo(this.$statement);
+    // X
+    $span = $(span, {class: 'number'}).appendTo(this.$statement);
+    $(span, {text: xString}).appendTo($span);
+
+    // Operation
     $(span, {class: 'operation '+operation, html: operations[operation]}).appendTo(this.$statement);
-    $(span, {class: 'number', text: yString}).appendTo(this.$statement);
+
+    // Y
+    $span = $(span, {class: 'number'}).appendTo(this.$statement);
+    $(span, {text: yString}).appendTo($span);
+
+    // =
     $(span, {class: 'equal', text: '='}).appendTo(this.$statement);
-    $(span, {class: 'answer', text: answer}).appendTo(this.$statement);
+
+    // Answer
+    $span = $(span, {class: 'number answer'}).appendTo(this.$statement);
+    $(span, {text: answer}).appendTo($span);
 
     // Show Question Text and return question object
     return this.$game.find('div.question .question-text')
@@ -1191,6 +1205,51 @@ Game.prototype.renderTemplate = function (template, replacements) {
         rendered = rendered.replace( regexp, replace );
     });
     return rendered;
+};
+
+
+/**
+ * This function divides a repeating decimal into 3 parts. If the value passed is not a repeating decimal then an empty array is returned.
+ * For repeating decimals, the return value is an array which contains the numeric value split into 3 parts like,
+ * [ "numbers before decimal", "numbers before repeating pattern", "repeating pattern." ].
+ * Here's another explanation.
+ * The return value is [i, x, r] for the repeating decimal value.
+ * where i are the values to the left of the decimal point.
+ * x are the decimals to the right of the decimal point and to the left of the repeating pattern.
+ * r is the unique repeating patterns for the repeating decimal.
+ * Example. 22/7 = 3.142857142857143 = 3.14-285714-285714-3, i = 3, x = 14, r = 285714
+ * It should be noted that the last digit might be removed to avoid rounding errors.
+ *
+ * @method Game.prototype.getRepeatProps
+ * @param  {Number} val
+ * @return {Array[String, String, String]} - Must return strings because of zeros in pattern.
+ * @example Game.prototype.getRepeatProps( 22/7 ) // returns ["3", "14", "285714"]
+ * @link https://github.com/LarryBattle/Ratio.js
+ **/
+Game.prototype.getRepeatingDecimalProperties = function (val) {
+
+    val = String(val || "");
+
+    var repeatingDecimals = /[^\.]+\.\d*(\d{2,})+(?:\1)$/,
+        repeatingNumbers  = /^(\d+)(?:\1)$/,
+        arr               = [],
+        match             = repeatingDecimals.exec(val),
+        RE2_RE1AtEnd,
+        RE3_RepeatingNums = repeatingNumbers;
+
+    if (!match) {
+
+        val = val.replace(/\d$/, "");
+        match = repeatingDecimals.exec(val);
+    }
+    if (match && 1 < match.length && /\.\d{10}/.test(match[0])) {
+
+        match[1]     = RE3_RepeatingNums.test(match[1]) ? RE3_RepeatingNums.exec(match[1])[1] : match[1];
+        RE2_RE1AtEnd = new RegExp("(" + match[1] + ")+$");
+        arr          = val.split(/\./).concat(match[1]);
+        arr[1]       = arr[1].replace(RE2_RE1AtEnd, "");
+    }
+    return arr;
 };
 
 
