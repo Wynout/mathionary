@@ -155,8 +155,6 @@ function Game(config) {
         operation: 'subtraction',  // addition, subtraction, multiplication, division
         answers: [],
         question: {
-            template: 'Which numbers add up to: {{answer}}?.',
-            text: '',
             answer: 0,
             answersNeeded: 0
         },
@@ -633,7 +631,6 @@ Game.prototype.newQuestion = function(operation, $answers, selector) {
     // Return question object
     var question = {
         answer: answer,
-        text: this.renderTemplate(this.getTemplate(selector), {answer: answer}),
         answersNeeded: $elements.length
     };
     return question;
@@ -1004,15 +1001,18 @@ Game.prototype.displayQuestion = function () {
     // Clear previous question
     this.$statement.find('span').remove('span');
 
-    var $answers   = this.$answers,
-        operation  = this.state.operation,
-        $span      = null,
-        span       = '<span></span>',
-        x, xString = '?',
-        y, yString = '?',
-        answer     = !isNaN(this.state.question.answer) ? this.state.question.answer : '?',
-        $answer    = null,
-        operations = {
+    var $answers     = this.$answers,
+        operation    = this.state.operation,
+        $span        = null,
+        span         = '<span></span>',
+        x, xString   = '?',
+        y, yString   = '?',
+        answer       = !isNaN(this.state.question.answer) ? this.state.question.answer : '?',
+        $answer      = null,
+        $question    = this.$game.find('div.question'),
+        questionText = '',
+        selector     = '.question-' + operation + '-template',
+        operations   = {
             addition       : '&plus;',
             subtraction    : '&minus;',
             multiplication : '&times;',
@@ -1043,11 +1043,34 @@ Game.prototype.displayQuestion = function () {
 
     // Answer
     $span = $(span, {class: 'number answer'}).appendTo(this.$statement);
-    $(span, {text: answer}).appendTo($span);
 
-    // Show Question Text and return question object
-    return this.$game.find('div.question .question-text')
-        .text(this.state.question.text);
+    // Answer: group repeating decimals with a Vinculus overbar.
+    var setClass  = '',
+        setAnswer = this.state.question.answer;
+    if (this.state.question.answer%1!==0
+        &&(props = this.getRepeatingDecimalProperties(this.state.question.answer)).length>0) {
+
+        setAnswer = props[0] + '.' + props[1];
+        $(span, {text: setAnswer}).appendTo($span);
+
+        // Repeating decimal found, set vinculus class: <span class="number answer"><span>0.<span class="vinculus">18</span></span></span>
+        if (props[2]!=='') {
+
+            // 1/3 = 0.33... show double repeating decimal for making question clear to user, No test written.
+            answer    = props[1]!=='' ? (setAnswer + props[2]) : (setAnswer + props[2] + props[2])
+            answer    += '...'
+            setAnswer = props[2]; // show repeating decimal
+            setClass  = 'vinculus';
+        }
+    }
+
+    $(span, {class: setClass, text: setAnswer}).appendTo($span);
+
+    // Question template
+    questionText = this.renderTemplate(this.getTemplate(selector), {answer: answer}),
+    $question.find('.question-text').text(questionText);
+
+    return $question;
 };
 
 
@@ -1209,23 +1232,18 @@ Game.prototype.renderTemplate = function (template, replacements) {
 
 
 /**
- * This function divides a repeating decimal into 3 parts. If the value passed is not a repeating decimal then an empty array is returned.
- * For repeating decimals, the return value is an array which contains the numeric value split into 3 parts like,
- * [ "numbers before decimal", "numbers before repeating pattern", "repeating pattern." ].
- * Here's another explanation.
- * The return value is [i, x, r] for the repeating decimal value.
- * where i are the values to the left of the decimal point.
- * x are the decimals to the right of the decimal point and to the left of the repeating pattern.
- * r is the unique repeating patterns for the repeating decimal.
- * Example. 22/7 = 3.142857142857143 = 3.14-285714-285714-3, i = 3, x = 14, r = 285714
- * It should be noted that the last digit might be removed to avoid rounding errors.
+ * Returns array containing properties of decimal fraction.
+ *
+ * @example Game.prototype.getRepeatProps(0 . 5384 615384 615384 ) equals to array ['0', '5384', '615384'].
+ *          Where ['Integer digits', 'Terminating fractional digits', 'Repeating fractional digit']
+ *
+ * Note: The last digit might be removed to avoid rounding errors.
  *
  * @method Game.prototype.getRepeatProps
  * @param  {Number} val
- * @return {Array[String, String, String]} - Must return strings because of zeros in pattern.
- * @example Game.prototype.getRepeatProps( 22/7 ) // returns ["3", "14", "285714"]
+ * @return {Array} [String, String, String] (must return strings because of zeros in pattern)
  * @link https://github.com/LarryBattle/Ratio.js
- **/
+ */
 Game.prototype.getRepeatingDecimalProperties = function (val) {
 
     val = String(val || "");

@@ -6,7 +6,7 @@
 	user-select: none;
 	display: block;
 	margin: 30px auto 0;
-	width: 430px;
+	text-align: center;
 }
 
 /*** controls ***/
@@ -302,7 +302,13 @@ div.percentage span {
 	min-width: 50px;
 }
 .number span {
-	margin: 0 10px;
+	margin: 0 15px;
+}
+.answer .vinculus {
+	border-top: 2px solid white;
+	height: 35px;
+	line-height: 30px;
+	margin: 0 15px 0 -15px;
 }
 .question .equal {
 	font-size: 50px;
