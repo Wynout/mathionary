@@ -87,8 +87,6 @@ module('Game.prototype.initialize(): Test initialize answers', {
             answers: [],
             operation: 'addition',
             question: {
-                template: 'Which numbers add up to: {{answer}}?',
-                text: 'Which numbers add up to: answer?',
                 answer: 0,
                 answersNeeded: 0
             },
@@ -122,7 +120,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
         localStorage.removeItem('should-not-exists');
     }
 });
-test('Test HTML elements', 7, function () {
+test('Test HTML elements', 5, function () {
 
     var gameState = this.Game.state,
         $answers  = this.Game.$answers.find('li'),
@@ -144,9 +142,7 @@ test('Test HTML elements', 7, function () {
 
     // Test if question is created (question is random)
     strictEqual(typeof gameState.question.answer, 'number', 'typeof Game.state.question.answer equals to "number".');
-    strictEqual(typeof gameState.question.text, 'string', 'typeof Game.state.question.text equals to "string".');
     strictEqual(gameState.question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
-    strictEqual(gameState.question.text==='', false, 'Game.state.question.text is not an empty string.');
 
     // Test if array gameState.answers contains answer objects
     strictEqual(gameState.answers.length, 64, 'Game.state.answers.length equals to 64.');
@@ -670,14 +666,13 @@ test('Test if Game State is saved', 1, function () {
         testString = JSON.stringify(this.Game.state);
     strictEqual(localStorage.getItem('test-save-game-state'), JSON.stringify(this.Game.state), 'localStorage.getItem("test-save-game-state") equals to JSON.stringify(this.Game.state)');
 });
-test('Test if a new addition question is created', 4, function () {
+test('Test if a new addition question is created', 3, function () {
 
     var question = this.Game.newQuestionCycle();
 
     strictEqual(this.Game.state.user.answer, null, 'Game.state.user.answer equals to null.');
     strictEqual(question.answer, 6, 'Game.state.question.answer equals to 6.');
     strictEqual(question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
-    strictEqual(question.text, 'Which numbers add up to 6?', 'Game.state.question.text equals to "Which numbers add up to 6?.".');
 });
 
 
@@ -821,7 +816,7 @@ module('Game.prototype.newQuestion()', {
         }, Game.prototype);
     }
 });
-test('Test new question', 3, function () {
+test('Test new question', 2, function () {
 
     var availableAnswers = $('#qunit-fixture li'),
         template = '#qunit-fixture #question-template',
@@ -829,7 +824,6 @@ test('Test new question', 3, function () {
 
     strictEqual(question.answer, 6, 'Question.answer equals to 6.');
     strictEqual(question.answersNeeded, 2, 'Question.answersNeeded equals to 2.');
-    strictEqual(question.text, 'answer = 6', 'Question.text equals to "answer = 6".');
 });
 
 
@@ -1577,16 +1571,17 @@ module('Game.prototype.displayQuestion()', {
 
         jQuery(
         '<div class="game">'+
-            '<script class="question-subtraction-template" type="game/template">' +
+            '<script class="question-addition-template" type="game/template">' +
                 'Which numbers add up to {{answer}}?' +
             '</script>' +
             '<div class="question">' +
                 '<div class="statement">' +
-                    // '<span class="number">1</span>' +
-                    // '<span class="operation">&plus;</span>' +
-                    // '<span class="number">5</span>' +
-                    // '<span class="equal">=</span>' +
-                    // '<span class="number">6</span>' +
+                    // <span class="number"><span>2</span></span>
+                    // <span class="operation">&divide;</span>
+                    // <span class="number"><span>11</span></span>
+                    // <span class="equal">=</span>
+                    // <!-- note: shows vinculus class on repeating decimal -->
+                    // <span class="number answer"><span>0.<span class="vinculus">18</span></span></span>
                 '</div>' +
                 '<div class="question-text"><!--Question text appended here?--></div>' +
             '</div>' +
@@ -1604,7 +1599,6 @@ module('Game.prototype.displayQuestion()', {
             state: {
                 operation: 'addition',
                 question: {
-                    text: 'Which numbers adds up to 6?',
                     answer: 6
                 },
                 user: {
@@ -1628,7 +1622,7 @@ test('Test .displayQuestion() Test existence of statement span elements ', 4, fu
     var text       = $context.find('div.question-text').text();
     var classCount = 0;
 
-    strictEqual(text, 'Which numbers adds up to 6?', 'Element with class="text" has text that equals to "Which numbers adds up to 6?".');
+    strictEqual(text, 'Which numbers add up to 6?', 'Element with class="text" has text that equals to "Which numbers add up to 6?".');
 
     classCount = $statement.find('span.number').length;
     strictEqual(classCount, 3, 'Statement contains 3 span elements with class of "number"');
@@ -1639,7 +1633,7 @@ test('Test .displayQuestion() Test existence of statement span elements ', 4, fu
     classCount = $statement.find('span.equal').length;
     strictEqual(classCount, 1, 'Statement contains 1 span element with class of "equal"');
 });
-test('Test .displayQuestion() test classes for all math operations', 12, function () {
+test('Test .displayQuestion() Test classes for all math operations', 12, function () {
 
     var $span;
 
@@ -1716,6 +1710,45 @@ test('Test .displayQuestion() Statement contains 2 answers for x and y', 2, func
     var second = this.Game.$statement.find('span.number').eq(1);
     strictEqual(second.text(), '5', 'Second span.number contains the string "5".');
 });
+test('Test .displayQuestion() Test if repeating decimals are grouped by vinculus', 2, function () {
+
+    // Setup test
+    this.Game.$answers.remove('li');
+    jQuery(
+    '<li class="selected" data-answer="2" data-order="0">2</li>' +
+    '<li class="selected" data-answer="11" data-order="1">11</li>')
+        .appendTo(this.Game.$answers); // 2 / 11
+
+    this.Game.state.operation       = 'division';
+    this.Game.state.question.answer = 2/11;
+    this.Game.state.user.answer     = 2/11;
+
+    this.Game.displayQuestion();
+
+    // Answer has a vinculus class on repeating decimals
+    // <span class="number answer"><span>0.<span class="vinculus">18</span></span></span>
+    var $repeatingDecimal = this.Game.$statement.find('span.answer span.vinculus');
+    strictEqual($repeatingDecimal.length>0, true, 'Repeating decimal 18 has class "vinculus".');
+    strictEqual($repeatingDecimal.text(), '18', 'Span contains repeating decimal 18.');
+});
+test('Test .displayQuestion() Test terminating decimal', 2, function () {
+
+    // Setup test
+    this.Game.state.operation       = 'addition';
+    this.Game.state.question.answer = 0.375;
+    this.Game.state.user.answer     = 6; // selected answers 1 & 5
+
+    this.Game.displayQuestion();
+
+    // Answer contains a terminating decimal. Class "vinculus" should not be present
+    // <span class="number answer"><span>0.375</span></span>
+    var $repeatingDecimal = this.Game.$statement.find('span.answer');
+    strictEqual($repeatingDecimal.hasClass('vinculus'), false, 'Terminating decimal 0.375 does not have a class "vinculus".');
+    strictEqual($repeatingDecimal.text(), '0.375', 'Span contains terminating decimal 0.375.');
+});
+
+
+
 /**
  * Game.prototype.isBrowserSupportingDOMStorage()
  */
