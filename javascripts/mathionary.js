@@ -446,9 +446,9 @@ Game.prototype.events = {
                 return false;
             }
             self.newQuestionCycle(operation);
-            // self.initOperation(operation);
+            self.initOperation(operation);
             self.initGauge();
-            // self.displayQuestion();
+            self.displayQuestion();
         });
     }
 };
