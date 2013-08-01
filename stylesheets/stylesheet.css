@@ -530,7 +530,7 @@ Full-Width Styles
 /*******************************************************************************
 Small Device Styles
 *******************************************************************************/
-@media only screen and (max-width: 600px) {
+@media only screen and (orientation: portrait) {
 
 	body {
 		padding: 0;
@@ -545,7 +545,7 @@ Small Device Styles
 		opacity: .8;
 	}
 	#header_wrap .inner {
-		padding: 0 20px 0 10px;
+		/*padding: 0 20px 0 10px;*/
 	}
 	.outer {
 		width: auto;
