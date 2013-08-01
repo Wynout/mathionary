@@ -927,7 +927,8 @@ Game.prototype.setupAnswerElements = function (answers) {
         var $element = $('<li></li>', {text: this.answer})
             // Attach HTML5 data attributes
             .attr('data-index', this.index)
-            .attr('data-answer', this.answer);
+            .attr('data-answer', this.answer)
+            .attr('data-order', this.order);
 
         if (this.selected===true) {
 

@@ -1379,7 +1379,7 @@ module('Game.prototype.setupAnswerElements()', {
         }, Game.prototype);
     }
 });
-test('Test if answers are setup', 10, function () {
+test('Test if answers are setup', 12, function () {
 
     var answers = [
         {index: 0, answer: 1, selected: false, order: 1, used: true, completes: false},
@@ -1392,14 +1392,16 @@ test('Test if answers are setup', 10, function () {
     var $answers = this.Game.$answers.find('li');
     strictEqual($answers.length, 2, '<ul/> element contains 2 answers');
 
-    strictEqual($answers.eq(0).attr('data-index'), "0", 'First <li/> element has data-index attribute equal to "0".');
-    strictEqual($answers.eq(0).attr('data-answer'), "1", 'First <li/> element has data-answer attribute equal to "1".');
+    strictEqual($answers.eq(0).attr('data-index'), '0', 'First <li/> element has data-index attribute equal to "0".');
+    strictEqual($answers.eq(0).attr('data-answer'), '1', 'First <li/> element has data-answer attribute equal to "1".');
     strictEqual($answers.eq(0).hasClass('selected'), false, 'First <li/> element does not has class="selected".');
+    strictEqual($answers.eq(0).attr('data-order'), '1', 'First <li/> element has data-order attribute equal to "1".');
     strictEqual($answers.eq(0).hasClass('used'), true, 'First <li/> element has class="used".');
 
-    strictEqual($answers.eq(1).attr('data-index'), "1", 'Second <li/> element has data-index attribute equal to "1"');
-    strictEqual($answers.eq(1).attr('data-answer'), "2", 'Second <li/> element has data-answer attribute equal to "2".');
+    strictEqual($answers.eq(1).attr('data-index'), '1', 'Second <li/> element has data-index attribute equal to "1".');
+    strictEqual($answers.eq(1).attr('data-answer'), '2', 'Second <li/> element has data-answer attribute equal to "2".');
     strictEqual($answers.eq(1).hasClass('selected'), true, 'Second <li/> element has class="selected".');
+    strictEqual($answers.eq(1).attr('data-order'), '0', 'First <li/> element has data-order attribute equal to "0".');
     strictEqual($answers.eq(1).hasClass('used'), false, 'Second <li/> element does not have class="used".');
 });
 test('Test when answers could not be setup', 2, function () {
