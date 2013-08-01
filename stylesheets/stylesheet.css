@@ -269,6 +269,10 @@ img {
 	width: 100%;
 }
 
+
+
+
+
 /*******************************************************************************
 Full-Width Styles
 *******************************************************************************/
@@ -526,53 +530,121 @@ Full-Width Styles
 /*******************************************************************************
 Small Device Styles
 *******************************************************************************/
+@media only screen and (max-width: 600px) {
 
-@media screen and (max-width: 480px) {
 	body {
-	font-size:14px;
+		padding: 0;
+		min-width: 500px;
 	}
+	#header_wrap {
 
-	#downloads {
-	display: none;
+		border-radius: 0;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+		opacity: .8;
 	}
-
+	#header_wrap .inner {
+		padding: 0 20px 0 10px;
+	}
+	.outer {
+		width: auto;
+	}
+	#main_content_wrap {
+		-webkit-box-shadow: none;
+		box-shadow: none;
+		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+		opacity: .8;
+		background-color: #212121;
+		border-bottom: none;
+		border-radius: 0;
+		border-top: none;
+	}
 	.inner {
-	min-width: 320px;
-	max-width: 480px;
+		max-width: none;
+		padding: 20px;
 	}
-
 	#project_title {
-	font-size: 32px;
+		clear: both;
+		font-size: 4.5em;
+		line-height: 1em;
+		padding-top: 50px;
+		text-align: center;
+	}
+	#project_tagline {
+		font-size: 1.5em;
+		margin: 10px 0 40px 0;
+		text-align: center;
+	}
+	.game {
+		margin: -25px auto 0;
+	}
+	#progress {
+		margin: 0 auto;
+		position: relative;
+	}
+	.question-text {
+		color: #fff;
+		font-size: 1em;
+		margin: 10px 0;
+	}
+	.statement {
+		color: #fff;
+	}
+	.statement .number {
+		box-shadow: 0 0 0 5px rgba(0,0,0, .1);
+		margin: 20px 0 0 0;
+	}
+	.statement .operation {
+		border-radius: 10px;
+		-webkit-box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+		box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+		margin: 0 15px;
+	}
+	.question .number, .question .answer {
+		-webkit-box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+		box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+	}
+	.question .equal {
+		margin: 0 10px;
+	}
+	ul.answers {
+		border-radius: 10px;
+		border:15px solid rgba(245,245,245,.3);
+		-webkit-box-shadow: 0 0 0 15px rgba(0,0,0,.1);
+		box-shadow: 0 0 0 15px rgba(0,0,0,.1);
+	}
+	#switch-operation {
+		margin: 30px auto 0;
+	}
+	.switch.game .answers {
+		border: 15px solid rgba(245,245,245,.3);
+		box-shadow: 0 0 0 5px rgba(0,0,0,.1);
+		margin: 0 5px;
+	}
+	#footer_wrap {
+		border-radius: 0;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+		-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+		opacity: .8;
+		padding: 20px 0 30px 10px;
+	}
+	footer .valid {
+		bottom: 20px;
+		clear: both;
+		display: block;
+		position: absolute;
+		right: 20px;
+		text-align: center;
+		width: 100px;
+	}
+	.logo-html5 {
+		display: none;
 	}
 
-	h1 {
-	font-size: 28px;
+	footer p {
+		font-size: 1em;
+		margin: 1px 0;
 	}
-
-	h2 {
-	font-size: 24px;
-	}
-
-	h3 {
-	font-size: 21px;
-	}
-
-	h4 {
-	font-size: 18px;
-	}
-
-	h5 {
-	font-size: 14px;
-	}
-
-	h6 {
-	font-size: 12px;
-	}
-
-	code, pre {
-	min-width: 320px;
-	max-width: 480px;
-	font-size: 11px;
-	}
-
 }

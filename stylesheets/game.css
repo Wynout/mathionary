@@ -164,7 +164,7 @@
 .operation.division,
 .answers.division{
 	background-color: #e99b0f;
-	color: rgb(94, 88, 76);
+	color: #38342B;
 }
 .division {
 	border: 15px solid rgba(245,245,245,.3);
@@ -260,7 +260,7 @@ div.percentage span {
 /*** question ***/
 .question {
 	font-size: 1.5em;
-	margin: 20px auto;
+	margin: 20px auto 30px;
 	text-align: center;
 }
 .question .statement {
@@ -300,6 +300,7 @@ div.percentage span {
 	height: 50px;
 	line-height: 48px;
 	min-width: 50px;
+	margin: 8px 0;
 }
 .number span {
 	margin: 0 15px;
@@ -315,7 +316,7 @@ div.percentage span {
 	height: 50px;
 	margin: 0 5px;
 }
-.question .question-text {
+.question-text {
 	font-size: 18px;
-	margin: 5px auto 0;
+	margin: 10px auto 0;
 }
