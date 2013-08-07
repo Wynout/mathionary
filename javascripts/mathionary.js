@@ -396,18 +396,20 @@ Game.prototype.events = {
             // Create new question when answered correctly
             if (self.isQuestionAnswered()) {
 
+                self.effects.onCorrectAnswer();
                 self.markAnswersAsUsed($selected);
 
                 if (self.isLevelFinished()===true) {
 
                     self.newLevelCycle();
-                    self.newQuestionCycle();
-
-                } else  {
-
-                    self.newQuestionCycle();
                 }
-                self.displayQuestion();
+
+                // Wait for CSS3 animation
+                setTimeout(function () {
+
+                    self.newQuestionCycle();
+                    self.displayQuestion();
+                }, 300);
 
             // Validate selected answer
             } else if($selected.length>0) {
@@ -506,7 +508,25 @@ Game.prototype.effects = {
                 self.displayQuestion();
                 self.$answers.find('li.solution').removeClass('solution');
             });
+    },
+
+    /**
+     * Brighten background color
+     *
+     * @this  {Game}
+     * @chainable
+     */
+    onCorrectAnswer: function () {
+
+        $('.darken').addClass('animate-brighten')
+
+          .delay(700).queue( function (next) {
+
+              $(this).removeClass('animate-brighten');
+              next();
+          });
     }
+
 };
 
 
