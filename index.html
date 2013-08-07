@@ -43,11 +43,6 @@
 	<div id="main_content_wrap" class="outer">
 		<section id="main_content" class="inner">
 
-			<!-- Demo Brighten background -->
-			<div style="padding:20px;text-align:center;">
-			    <button>Click to brighten</button>
-			</div>
-
 			<div class="game">
 				<div class="question">
 	                <div class="statement"></div>
@@ -129,23 +124,6 @@
 			container: 'div.game'
 		};
 		var game = new Game(config);
-
-		// Demo Brighten background
-		$('button').on('click', function () {
-
-		      var $self = $(this);
-		      $self.prop('disabled', true);
-
-		      $('.darken').addClass('animate-brighten')
-
-		          .delay(700).queue( function (next) {
-
-		              $(this).removeClass('animate-brighten');
-		              $self.prop('disabled', false);
-		              next();
-		          });
-
-		});
 	})();
 	</script>
 

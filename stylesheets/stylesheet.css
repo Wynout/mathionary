@@ -272,11 +272,11 @@ img {
 Full-Width Styles
 *******************************************************************************/
 .animate-brighten {
-    -webkit-animation: brightenLargeWidth .6s linear 0 infinite alternate;
-    -moz-animation: brightenLargeWidth .6s linear 0 infinite alternate;
-    -ms-animation: brightenLargeWidth .6s linear 0 infinite alternate;
-    -o-animation: brightenLargeWidth .6s linear 0 infinite alternate;
-    animation: brightenLargeWidth .6s linear 0 infinite alternate;
+    -webkit-animation: brightenLargeWidth .3s linear 0 infinite alternate;
+    -moz-animation: brightenLargeWidth .3s linear 0 infinite alternate;
+    -ms-animation: brightenLargeWidth .3s linear 0 infinite alternate;
+    -o-animation: brightenLargeWidth .3s linear 0 infinite alternate;
+    animation: brightenLargeWidth .3s linear 0 infinite alternate;
 
     -webkit-animation-iteration-count: 1;
     -moz-animation-iteration-count: 1;
@@ -551,24 +551,19 @@ Full-Width Styles
 
 /* Brighten animation for small devices */
 @keyframes "brightenSmallWidth" {
-	50%  { background-color: rgba(33, 33, 33, .7); }
-    100% { background-color: rgba(33, 33, 33, .8); }
+    100% { background-color: rgba(33, 33, 33, .75); }
 }
 @-moz-keyframes brightenSmallWidth {
-	50%  { background-color: rgba(33, 33, 33, .7); }
-    100% { background-color: rgba(33, 33, 33, .8); }
+    100% { background-color: rgba(33, 33, 33, .75); }
 }
 @-webkit-keyframes "brightenSmallWidth" {
-	50%  { background-color: rgba(33, 33, 33, .7); }
-    100% { background-color: rgba(33, 33, 33, .8); }
+    100% { background-color: rgba(33, 33, 33, .75); }
 }
 @-ms-keyframes "brightenSmallWidth" {
-	50%  { background-color: rgba(33, 33, 33, .7); }
-    100% { background-color: rgba(33, 33, 33, .8); }
+    100% { background-color: rgba(33, 33, 33, .75); }
 }
 @-o-keyframes "brightenSmallWidth" {
-	50%  { background-color: rgba(33, 33, 33, .7); }
-    100% { background-color: rgba(33, 33, 33, .8); }
+    100% { background-color: rgba(33, 33, 33, .75); }
 }
 .darken {
 	background-color: transparent;
@@ -586,11 +581,11 @@ Small Device Styles
 		min-width: 500px;
 	}
 	.animate-brighten {
-	    -webkit-animation: brightenSmallWidth .6s linear 0 infinite alternate;
-	    -moz-animation: brightenSmallWidth .6s linear 0 infinite alternate;
-	    -ms-animation: brightenSmallWidth .6s linear 0 infinite alternate;
-	    -o-animation: brightenSmallWidth .6s linear 0 infinite alternate;
-	    animation: brightenSmallWidth .6s linear 0 infinite alternate;
+	    -webkit-animation: brightenSmallWidth .3s ease-in-out 0 infinite alternate;
+	    -moz-animation: brightenSmallWidth .3s ease-in-out 0 infinite alternate;
+	    -ms-animation: brightenSmallWidth .3s ease-in-out 0 infinite alternate;
+	    -o-animation: brightenSmallWidth .3s ease-in-out 0 infinite alternate;
+	    animation: brightenSmallWidth .3s ease-in-out 0 infinite alternate;
 
 	    -webkit-animation-iteration-count: 1;
 	    -moz-animation-iteration-count: 1;
