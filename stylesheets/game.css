@@ -27,11 +27,11 @@
 	position: relative;
 }
 .answers li {
-	-webkit-transition: all .3s cubic-bezier(.02,.96,.05,.97);
-	-moz-transition: all .3s cubic-bezier(.02,.96,.05,.97);
-	-o-transition: all .3s cubic-bezier(.02,.96,.05,.97);
-	-ms-transition: all .3s cubic-bezier(.02,.96,.05,.97);
-	transition: all .3s cubic-bezier(.02,.96,.05,.97);
+	-webkit-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
+	-moz-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
+	-o-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
+	-ms-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
+	transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
 	cursor: pointer;
 	float: left;
 	font-size: 1.4em;
@@ -61,7 +61,10 @@
 	font-size: 35px;
 	line-height: 48px;
 }
-
+.answers li.invalid,
+.question span.invalid {
+	background-color: #990000;
+}
 /*** switch math operation ***/
 #switch-operation {
 	clear: both;
@@ -102,17 +105,17 @@
 	border: 15px solid rgba(245,245,245,.3);
 	color: rgba(245,245,245,.9);
 }
-.addition li.hover,
-.addition li.solution {
+.addition .hover,
+.addition .solution {
 	background-color: #0b0;
 	color: #fff;
 }
-.addition li.selected,
-.addition li.used {
+.addition .selected,
+.addition .used {
 	background-color: #494949;
 
 }
-.addition li.used {
+.addition .used {
 	background-color: rgba(245, 245, 245, .7);
 	color: transparent;
 }
@@ -124,17 +127,16 @@
 	border: 15px solid rgba(245,245,245,.3);
 	color: silver;
 }
-.subtraction li.hover,
-.subtraction li.solution {
+.subtraction .hover,
+.subtraction .solution {
 	background-color: #e64433;
 	color: #fff;
 }
-.subtraction li.selected,
-.subtraction li.used {
+.subtraction .selected,
+.subtraction .used {
 	background-color: #494949;
-
 }
-.subtraction li.used {
+.subtraction .used {
 	background-color: rgba(245, 245, 245, .7);
 	color: transparent;
 }
@@ -146,16 +148,16 @@
 	border: 15px solid rgba(245,245,245,.3);
 	color: silver;
 }
-.multiplication li.hover,
-.multiplication li.solution {
+.multiplication .hover,
+.multiplication .solution {
 	background-color: rgb(86, 163, 241);
 	color: #fff;
 }
-.multiplication li.selected,
-.multiplication li.used {
+.multiplication .selected,
+.multiplication .used {
 	background-color: #494949;
 }
-.multiplication li.used {
+.multiplication .used {
 	background-color: rgba(245, 245, 245, .7);
 	color: transparent;
 }
@@ -261,9 +263,6 @@ div.percentage span {
 .question {
 	font-size: 1.5em;
 	margin: 20px auto 30px;
-	text-align: center;
-}
-.question .statement {
 	text-align: center;
 }
 .question span {

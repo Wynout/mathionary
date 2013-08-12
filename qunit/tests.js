@@ -541,7 +541,7 @@ test('answerClick: Test if used answers cannot be selected', 1, function () {
     // Cannot select used answers. Used answers must be ignored.
     strictEqual($answer.hasClass('selected'), false, 'Answer elements with class "used" cannot get class "selected" on click.');
 });
-test('answerClick: Test if answer is correct', 2, function () {
+test('answerClick: Test if answer is correct', 1, function () {
 
     // Test mouse click event on <li /> element
     jQuery(
@@ -555,7 +555,6 @@ test('answerClick: Test if answer is correct', 2, function () {
     var $answer = this.Game.$answers.find('li').eq(2) // contains the answer 3
         .trigger('click');
     strictEqual($answer.hasClass('used'), true, 'Correct answer receives class "used" on click.');
-    strictEqual($('.darken').hasClass('animate-brighten'), true, 'On correct answer, ".darken" receives class "animate-brighten".');
 });
 test('answerClick: Test if Game state is saved', 1, function () {
 
