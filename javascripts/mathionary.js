@@ -463,10 +463,10 @@ Game.prototype.events = {
 Game.prototype.effects = {
 
     /**
-     * Shakes <ul> (not tested)
+     * Shows invalid answer
      *
      * @this  {Game}
-     * @param {Object} answer<li> element, wrapped in jQuery
+     * @param {Object} $answer <li> element, wrapped in jQuery
      * @chainable
      */
     onInvalidAnswer: function ($answer) {
@@ -474,59 +474,43 @@ Game.prototype.effects = {
         var self   = this,
             $spans = this.$statement.find('span.number');
 
-        // Initialize jRumble on <ul> and statement <spans>
-        this.$answers.jrumble({x:1, y:1, rotation:0});
-        $spans.jrumble({x:2, y:2, rotation:1});
-
-        // Shake answers element <ul>
-        this.$answers.trigger('startRumble'); // setTimeOut blocks code execution
-
         // Shake Statement element
         var $selected = this.$answers.find('li.selected'),
             index     = $selected.length>0 ? --$selected.length : 0;
 
-        // Shake statement span at the same time
-        $spans.eq(index).trigger('startRumble');
+        $spans.eq(index).addClass('invalid');
+        $answer.removeClass('selected').addClass('invalid');
+
         setTimeout(function () {
 
-            $answer.trigger('stopRumble');
-            $spans.trigger('stopRumble');
-        }, 250);
-
-        $spans.eq(index).animate({backgroundColor: '#990000'}, 325, 'swing', function ()  {
-
-            // After animation, return element to default style
             $spans.eq(index).removeAttr('style');
-        });
 
-        // Animate answer element <li> background color to red then to transparent
-        return $answer.animate({backgroundColor: '#990000'}, 250)
-            .animate({backgroundColor: 'transparent'}, 150, 'swing', function ()  {
+            self.resetAnswers($answer);
+            self.displayQuestion();
+            self.$answers.find('li.solution').removeClass('solution');
+            self.$answers.find('li').removeClass('invalid');
 
-                // After animation, return answer and statement to default
-                self.resetAnswers($answer);
-                self.displayQuestion();
-                self.$answers.find('li.solution').removeClass('solution');
-            });
+        }, 600);
+        return $answer;
     },
 
+
     /**
-     * Brighten background color
+     * Fade current Statement out and slide in new question
      *
      * @this  {Game}
      * @chainable
      */
     onCorrectAnswer: function () {
 
-        $('.darken').addClass('animate-brighten')
+        $('.question').fadeTo(300, 0, function () {
 
-          .delay(700).queue( function (next) {
-
-              $(this).removeClass('animate-brighten');
-              next();
-          });
+            $(this).css({
+                position: 'relative',
+                top: '200px'
+            }).animate({top:'0px',opacity: 1}, 600);
+        });
     }
-
 };
 
 
