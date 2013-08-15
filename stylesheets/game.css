@@ -63,7 +63,11 @@
 	font-size: 35px;
 	line-height: 48px;
 }
-.answers li.invalid,
+.answers li.invalid {
+	background-color: #990000;
+
+}
+
 /*** switch math operation ***/
 #switch-operation {
 	clear: both;
