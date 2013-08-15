@@ -5,7 +5,7 @@
 	-ms-user-select: none;
 	user-select: none;
 	display: block;
-	margin: 30px auto 0;
+	margin: -25px auto 0;
 	text-align: center;
 }
 
@@ -17,9 +17,11 @@
 
 /*** game answers ***/
 .answers {
-	border-radius: 15px;
-	-webkit-box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
-	box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
+	border-radius: 10px;
+	border:15px solid rgba(245,245,245,.3);
+	-webkit-box-shadow: 0 0 0 15px rgba(0,0,0,.1);
+	box-shadow: 0 0 0 15px rgba(0,0,0,.1);
+
 	display: inline-block;
 	list-style: none;
 	margin: 0 auto;
@@ -62,9 +64,6 @@
 	line-height: 48px;
 }
 .answers li.invalid,
-.question span.invalid {
-	background-color: #990000;
-}
 /*** switch math operation ***/
 #switch-operation {
 	clear: both;
@@ -72,7 +71,7 @@
 	font-size: 1.5em;
 	overflow: visible;
 	text-align: center;
-	margin: 20px auto;
+	margin: 30px auto 0;
 	width: 390px;
 }
 #switch-operation div {
@@ -96,6 +95,11 @@
 	-ms-transition: all .3s ease-out;
 	-o-transition: all .3s ease-out;
 	transition: all .3s ease-out;
+}
+.switch.game .answers {
+	border: 15px solid rgba(245,245,245,.3);
+	box-shadow: 0 0 0 5px rgba(0,0,0,.1);
+	margin: 0 5px;
 }
 
 /*** addition operator: green ***/
@@ -289,8 +293,8 @@ div.percentage span {
 }
 .question .number,
 .question .answer{
-	-webkit-box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
-	box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
+	-webkit-box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+	box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
 
 	background-color: #494949;
 	border-radius: 25px;
@@ -313,9 +317,29 @@ div.percentage span {
 .question .equal {
 	font-size: 50px;
 	height: 50px;
-	margin: 0 5px;
+	margin: 0 10px;
 }
 .question-text {
-	font-size: 18px;
-	margin: 10px auto 0;
+	color: #fff;
+	font-size: 1em;
+	margin: 10px 0;
 }
+
+.question span.invalid {
+	background-color: #990000;
+}
+.statement {
+	color: #fff;
+	text-align: center;
+}
+.statement .number {
+	box-shadow: 0 0 0 5px rgba(0,0,0, .1);
+	margin: 20px 0 0 0;
+}
+.statement .operation {
+	border-radius: 10px;
+	-webkit-box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+	box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+	margin: 0 15px;
+}
+
