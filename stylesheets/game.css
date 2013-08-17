@@ -42,6 +42,7 @@
 	list-style: none;
 	padding: 0;
 	text-align: center;
+	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 	width: 50px;
 }
 .answers .selected {
@@ -53,6 +54,7 @@
 .answers .used {
 	color: transparent;
 	cursor: default;
+	text-shadow: none;
 }
 .answers li:nth-child(8n+1) {
 	clear: left;
@@ -174,7 +176,8 @@
 .operation.division,
 .answers.division{
 	background-color: #e99b0f;
-	color: #38342B;
+	color: #fff;
+	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
 .division {
 	border: 15px solid rgba(245,245,245,.3);
@@ -277,6 +280,7 @@ div.percentage span {
 	cursor: default;
 	display: inline-block;
 	text-align: center;
+	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
 .operation.addition ,
 .operation.subtraction,
@@ -327,6 +331,7 @@ div.percentage span {
 	color: #fff;
 	font-size: 1em;
 	margin: 10px 0;
+	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
 
 .question span.invalid {
