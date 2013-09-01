@@ -110,7 +110,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
 
         localStorage.removeItem('should-not-exists');
 
-        this.Game.initialize.call(this.Game, 64);
+        this.Game.initialize();
     },
 
     // Teardown callback runs after each test
@@ -127,14 +127,14 @@ test('Test HTML elements', 5, function () {
         $level    = this.Game.$game.find('.level .number');
 
     // Answer elements created?
-    strictEqual($answers.length, 64, 'Game.$answers contains 64 answer elements.');
+    strictEqual($answers.length, 10, 'Game.$answers contains 10 answer elements.');
 
     // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
     // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
     // via $._data(element, "events"). Note that this is not a supported public interface;
     // the actual data structures may change incompatibly from version to version.
-    var events = $._data( $(this.Game.$answers).get(0), 'events');
-    var count = 0;
+    var events = $._data( $(this.Game.$answers).get(0), 'events'),
+        count  = 0;
     $.each(events, function (e) {
         count++;
     });
@@ -145,7 +145,7 @@ test('Test HTML elements', 5, function () {
     strictEqual(gameState.question.answersNeeded, 2, 'Game.state.question.answersNeeded equals to 2.');
 
     // Test if array gameState.answers contains answer objects
-    strictEqual(gameState.answers.length, 64, 'Game.state.answers.length equals to 64.');
+    strictEqual(gameState.answers.length, 10, 'Game.state.answers.length equals to 10.');
 });
 
 module('Game.prototype.initialize(): Test loadGameState', {
@@ -356,6 +356,7 @@ module('Game.prototype.bindEvents', {
     setup: function () {
 
         jQuery(
+        '<button class="reset">Reset</button>' +
         '<div id="switch-operation">' +
             '<div data-operation="multiplication"><ul></ul></div>' +
         '</div>' +
@@ -398,7 +399,17 @@ test('Test bindEvents for switch operation element', 1, function () {
         events   = $._data( $element.get(0), 'events' );
     strictEqual(typeof events.click, 'object', 'Switch operation element has a click event.');
 });
+test('Test bindEvent for reset button', 1, function () {
 
+    // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
+    // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
+    // via $._data(element, "events"). Note that this is not a supported public interface;
+    // the actual data structures may change incompatibly from version to version.
+    var $element = $('#qunit-fixture').find('button.reset'),
+        events   = $._data( $element.get(0), 'events' );
+        console.log($element);
+    strictEqual(typeof events.click, 'object', 'Reset button element has a click event.');
+});
 
 
 /**
@@ -491,7 +502,10 @@ test('answerMouseleave', 2, function () {
     strictEqual($answer.hasClass('hover'), false, 'Class "hover" is removed from answer element on mouseleave.');
     strictEqual($answer.hasClass('invalid-answer'), false, 'Class "invalid-answer" is removed from answer element on mouseleave.');
 });
-test('answerClick: Test toggle answer selection/deselection', 3, function () {
+test('answerClick: Test cannot select invalid answer', 1, function () {
+
+    this.Game.state.answers[0].selected = true; // selects number 2
+    this.Game.state.answers[1].selected = true; // selects number 3
 
     // Test mouse click event on <li /> element
     jQuery(
@@ -503,9 +517,26 @@ test('answerClick: Test toggle answer selection/deselection', 3, function () {
         .trigger('click');
 
     // Test if answer can be selected
-    strictEqual($answer.hasClass('selected'), true, 'Answer element receives class "selected" when selected.');
+    strictEqual($answer.hasClass('selected'), false, 'Invalid answer does not contain class "selected".');
 
     $answer = this.Game.$answers.find('li').eq()
+        .trigger('click');
+});
+test('answerClick: Test toggle answer selection/deselection', 3, function () {
+
+    // Test mouse click event on <li /> element
+    jQuery(
+    '<li data-answer="2">2</li>' +
+    '<li data-answer="3">3</li>'
+    ).appendTo(this.Game.$answers);
+
+    var $answer = this.Game.$answers.find('li').eq(1)
+        .trigger('click');
+
+    // Test if answer can be selected
+    strictEqual($answer.hasClass('selected'), true, 'Answer element receives class "selected" when selected.');
+
+    $answer = this.Game.$answers.find('li').eq(1)
         .trigger('click');
 
     // Test if answer can be deselected
@@ -558,7 +589,9 @@ test('answerClick: Test if answer is correct', 1, function () {
 });
 test('answerClick: Test if Game state is saved', 1, function () {
 
-     jQuery('<li data-index="0" data-answer="9" class="">9</li>')
+    jQuery(
+    '<li data-index="0" data-answer="9">9</li>' +
+    '<li data-index="1" data-answer="5">5</li>')
         .appendTo(this.Game.$answers);
 
     this.Game.state = {
@@ -584,7 +617,8 @@ test('answerClick: Test if Game state is saved', 1, function () {
         isSelected = obj.answers[0].selected===true ? true : false;
     }
 
-    strictEqual(isSelected, true, 'Game.state.answers[0].selected equals to true');
+    // Game state is saved before answer selection is toggles
+    strictEqual(isSelected, false, 'Game.state.answers[0].selected equals to false');
 });
 test('answerClick: Test if selected answer has a data attribute data-order=""', 1, function () {
 
@@ -718,7 +752,7 @@ test('Test creation of answer elements after level cycle', 1, function () {
 
     var level = this.Game.newLevelCycle.call(this.Game),
         answerCount = this.Game.$answers.find('li').length;
-    strictEqual(answerCount, 64, 'New level should contain 64 answers (default).');
+    strictEqual(answerCount, 10, 'New level should contain 10 answers (default).');
 });
 
 /**
@@ -742,14 +776,43 @@ module('Game.prototype.newAnswers()', {
         }, Game.prototype);
     }
 });
-test('Test if answer elements are created', 1, function () {
+test('Test if answer elements are created', 2, function () {
 
-    var $answers = this.Game.newAnswers(8);
-    strictEqual($answers.find('li').length, 8, 'Amount of answer elements created equals to 8.');
+    var $answers = this.Game.newAnswers();
+
+    strictEqual($answers.find('li').length, 10, 'Amount of answer elements created equals to 10.');
+
+    var testSequence    = [0,2,4,6,8,1,3,5,7,9],
+        correctSequence = true,
+        $elements       = $answers.find('li');
+
+    for (var i=0; i<testSequence.length; i++) {
+
+        var value = parseInt($elements.eq(i).attr('data-answer'), 10);
+        if (value!==testSequence[i]) {
+            correctSequence = false; break;
+        }
+    }
+    strictEqual(correctSequence, true, 'Correct answer sequence is 0,2,4,6,8,1,3,5,7,9');
+});
+test('Test if all answer elements contain the correct number', 1, function () {
+
+    var $answers = this.Game.newAnswers();
+
+    var result = true;
+    $answers.find('li').each(function() {
+
+        var $this = $(this);
+
+        if ($this.text()!==$this.attr('data-answer')) {
+            result = false;
+        }
+    });
+    strictEqual(result, true, 'All answer elements have a HTML5 data attribute with a number.');
 });
 test('Test if all answer elements have HTML5 data-index attribute', 1, function () {
 
-    var $answers = this.Game.newAnswers(8);
+    var $answers = this.Game.newAnswers();
 
     var result = true;
     $answers.find('li').each(function() {
@@ -762,9 +825,9 @@ test('Test if all answer elements have HTML5 data-index attribute', 1, function 
 });
 test('Test if all answer elements have HTML5 data-answer attribute', 1, function () {
 
-    var $answers = this.Game.newAnswers(8);
+    var $answers = this.Game.newAnswers(),
+        result   = true;
 
-    var result = true;
     $answers.find('li').each(function() {
 
         if (typeof $(this).attr('data-answer')==='undefined') {
@@ -776,10 +839,10 @@ test('Test if all answer elements have HTML5 data-answer attribute', 1, function
 });
 test('Test answer objects in Game.state.answers', 1, function () {
 
-    this.Game.newAnswers(8);
+    this.Game.newAnswers();
     var answers = this.Game.state.answers;
 
-    strictEqual(answers.length, 8, 'Game.state.answers.length equals to 8');
+    strictEqual(answers.length, 10, 'Game.state.answers.length equals to 8');
 });
 
 
@@ -850,7 +913,7 @@ test('Test calculate answer', 4, function () {
     answer = Game.prototype.calculate('division', 12, 4);
     strictEqual(answer, 3, '12 / 4 equals to 3.');
 });
-test('Test cannot calculate answer', 3, function () {
+test('Test cannot calculate answer', 4, function () {
 
     var answer;
 
@@ -862,6 +925,9 @@ test('Test cannot calculate answer', 3, function () {
 
     answer = Game.prototype.calculate('multiplication', NaN, NaN);
     strictEqual(isNaN(answer), true, 'NaN + NaN equals NaN.');
+
+    answer = Game.prototype.calculate('division', 1, 0);
+    strictEqual(answer, undefined, '1 / 0 equals undefined.');
 });
 
 
@@ -964,11 +1030,11 @@ module('Game.prototype.reset()', {
 test('Test reset game', 3, function () {
 
     this.Game.reset('subtraction');
-    strictEqual(this.Game.$answers.find('li').length, 64, 'New Game contains 64 new answers.');
+    strictEqual(this.Game.$answers.find('li').length, 10, 'New Game contains 10 new answers.');
     var string = localStorage.getItem('test-reset');
     var state = $.parseJSON(string);
     strictEqual(state.operation, 'subtraction', 'Game.state.operation equals to "subtraction".');
-        strictEqual(state.answers.length, 64, 'New State contains 64 new answers.');
+        strictEqual(state.answers.length, 10, 'New State contains 10 new answers.');
 });
 test('Test reset game level progress', 1, function () {
 
