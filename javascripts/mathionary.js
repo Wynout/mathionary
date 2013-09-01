@@ -155,12 +155,12 @@ function Game(config) {
         operation: 'subtraction',  // addition, subtraction, multiplication, division
         answers: [],
         question: {
-            answer: 0,
+            answer: null,
             answersNeeded: 0
         },
         user: {
-            answer: 0,
-            name: ''
+            answer: null,
+            name: 'Unknown'
         },
         level: 1
     };
@@ -203,15 +203,12 @@ Game.prototype.cacheDomElements = function ()  {
  * Initialize Game
  *
  * @this  {Game}
- * @param {Number} amount, amount of elements to create
  */
-Game.prototype.initialize = function (amount) {
-
-    amount = amount || 64;
+Game.prototype.initialize = function () {
 
     this.bindEvents();
 
-    var isGameStateLoaded = this.loadGameState(this.state.storageKey)
+    var isGameStateLoaded = this.loadGameState(this.state.storageKey);
 
     // New Game
     if (isGameStateLoaded===false) {
@@ -232,14 +229,13 @@ Game.prototype.initialize = function (amount) {
             this.displayQuestion();
         }
         this.initOperation();
-        this.initGauge({max: amount});
+        this.initGauge({max: 10});
         this.displayLevelProgress();
     } else  {
 
         this.reset();
         return;
     }
-
 };
 
 
@@ -327,6 +323,7 @@ Game.prototype.bindEvents = function () {
     this.events.answerMouseleave.call(this);
     this.events.answerClick.call(this);
     this.events.switchOperationClick.call(this);
+    this.events.resetClick.call(this);
 };
 
 
@@ -379,15 +376,19 @@ Game.prototype.events = {
                 return;
             }
 
+            // Game state is saved before toggle selection
+            self.saveGameState(self.state.storageKey);
+
             self.toggleSelected($this);
             var $selected = self.$answers.find('li.selected'),
                 x = parseInt(self.$answers.find('[data-order="0"]').attr('data-answer'), 10),
                 y = parseInt(self.$answers.find('[data-order="1"]').attr('data-answer'), 10);
 
             self.state.user.answer = null;
+
             if (!isNaN(x) && !isNaN(y)) {
 
-                self.state.user.answer = self.calculate(self.state.operation, x ,y);
+                self.state.user.answer = self.calculate(self.state.operation, x, y);
             } else if(!isNaN(x)) {
 
                 self.state.user.answer = x;
@@ -415,7 +416,7 @@ Game.prototype.events = {
             } else if($selected.length>0) {
 
                 var $solutions = self.getSolutionsCompletingQuestion($selected),
-                    invalid    = self.isInvalidAnswer($selected, $solutions); //invalid is array containing numbers
+                    invalid    = self.isInvalidAnswer($selected, $solutions); // array containing numbers
 
                 self.displayQuestion();
 
@@ -431,7 +432,6 @@ Game.prototype.events = {
             }
 
             self.displayLevelProgress();
-            self.saveGameState(self.state.storageKey);
         });
     },
 
@@ -451,6 +451,16 @@ Game.prototype.events = {
             self.initOperation(operation);
             self.initGauge();
             self.displayQuestion();
+        });
+    },
+
+    // Reset Click
+    resetClick: function () {
+
+        var self = this; // Self refers to the Game object
+        $('.reset').on('click', function () {
+
+            self.reset();
         });
     }
 };
@@ -502,6 +512,8 @@ Game.prototype.effects = {
      * @chainable
      */
     onCorrectAnswer: function () {
+
+        var self = this;
 
         $('.question').fadeTo(300, 0, function () {
 
@@ -578,39 +590,37 @@ Game.prototype.newLevelCycle = function () {
  * Populates this.state.answers with answer objects
  *
  * @this   {Game}
- * @param  {Number} amount, optional default 64
  * @return {Object} $answers (wrapped in jQuery)
  */
-Game.prototype.newAnswers = function (amount) {
+Game.prototype.newAnswers = function () {
 
-    // Default 64 elements are created
-    amount = amount || 64;
+
+    var self = this,
+        answers = [0,2,4,6,8,1,3,5,7,9];
 
     // Clear all answers
     this.$answers.find('li').remove('li');
     this.state.answers = [];
 
-    // Create {amount} answers with random value between 1-9
-    // and append them to the parent element <ul/>
-    for (var index=0; index<amount; index++) {
-
-        var randomNumber = Math.floor( Math.random()*9 + 1 );
+    // Append answers to the parent element <ul/>
+    $(answers).each(function (index, answer) {
 
         // Add new answer to Game State,
-        this.state.answers.push({
-            answer: randomNumber,
+        self.state.answers.push({
+            answer: index, // must be answer, write test first
             selected: false,
             used: false
         });
 
         // Append a new answer element to the DOM
-        $('<li></li>', {text: randomNumber})
+        $('<li></li>', {text: answer})
             // Attach HTML5 data attributes
             .attr('data-index', index)
-            .attr('data-answer', randomNumber)
+            .attr('data-answer', answer)
             // Append to parent element <ul/>
-            .appendTo(this.$answers);
-    }
+            .appendTo(self.$answers);
+    });
+
     return this.$answers;
 };
 
@@ -627,16 +637,18 @@ Game.prototype.newAnswers = function (amount) {
 Game.prototype.newQuestion = function(operation, $answers, selector) {
 
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
-    var $elements = this.getRandomArrayElements($answers, 2),
-        x         = parseInt($elements.eq(0).attr('data-answer'), 10),
-        y         = parseInt($elements.eq(1).attr('data-answer'), 10),
-        answer    = this.calculate(operation, x, y);
+    var $elements;
+    do {
+        $elements = this.getRandomArrayElements($answers, 2)
+    } while (operation=='division' && parseInt($elements.eq(1).attr('data-answer'), 10)===0);
 
-    // Return question object
-    var question = {
-        answer: answer,
-        answersNeeded: $elements.length
-    };
+    var x         = parseInt($elements.eq(0).attr('data-answer'), 10),
+        y         = parseInt($elements.eq(1).attr('data-answer'), 10),
+        answer    = this.calculate(operation, x, y),
+        question  = {
+            answer: answer,
+            answersNeeded: $elements.length
+        };
     return question;
 };
 
@@ -652,8 +664,10 @@ Game.prototype.newQuestion = function(operation, $answers, selector) {
  */
 Game.prototype.calculate = function (operation, x, y)  {
 
-    x = x || NaN;
-    y = y || NaN;
+    if (operation==='division' && y===0) {
+
+        return undefined;
+    }
 
     switch (operation) {
 
@@ -662,7 +676,6 @@ Game.prototype.calculate = function (operation, x, y)  {
         case 'multiplication'   : return x *= y;
         case 'division'         : return x /= y;
     }
-    return x;
 };
 
 
@@ -674,7 +687,7 @@ Game.prototype.calculate = function (operation, x, y)  {
  */
 Game.prototype.reset = function (operation) {
 
-    this.newAnswers();
+    this.newAnswers(10);
     this.newQuestionCycle(operation);
     this.initGauge({
         min: 0,
@@ -1113,10 +1126,11 @@ Game.prototype.loadGameState = function (prefix) {
         // Capture exception when JSON cannot be parsed
         return false;
     }
-    if (savedState===null) {
-        return false;
-    }
+    if (savedState===null) { return false; }
     $.extend(this.state, savedState);
+
+    if (this.state.question.answer===null) { return false; }
+    if (this.state.answers.length===0) { return false; }
     return true;
 };
 
