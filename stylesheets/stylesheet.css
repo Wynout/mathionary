@@ -95,6 +95,7 @@ img {
 	font-weight: 100;
 	line-height: 1em;
 	margin: 0;
+	max-width: 600px;
 	text-align: center;
 	text-shadow: #111 0px 0px 15px;
 }
@@ -103,7 +104,8 @@ img {
 	color: #fff;
 	font-size: 1.5em;
 	font-weight: 100;
-	margin: 10px 0;
+	margin: 10px auto;
+	max-width: 600px;
 	text-align: center;
 	text-shadow: #111 0px 0px 5px;
 }
