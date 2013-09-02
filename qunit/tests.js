@@ -407,7 +407,6 @@ test('Test bindEvent for reset button', 1, function () {
     // the actual data structures may change incompatibly from version to version.
     var $element = $('#qunit-fixture').find('button.reset'),
         events   = $._data( $element.get(0), 'events' );
-        console.log($element);
     strictEqual(typeof events.click, 'object', 'Reset button element has a click event.');
 });
 
@@ -1451,14 +1450,25 @@ test('Test if answers are setup', 12, function () {
 
     var answers = [
         {index: 0, answer: 1, selected: false, order: 1, used: true, completes: false},
-        {index: 1, answer: 2, selected: true, order: 0, used: false, completes: false}
+        {index: 1, answer: 2, selected: true, order: 0, used: false, completes: false},
+        // fill up to 12 answers, answers setup are truncated to 10 in total
+        {index: 2, answer: 3, selected: false, used: false, completes: false},
+        {index: 3, answer: 3, selected: false, used: false, completes: false},
+        {index: 4, answer: 3, selected: false, used: false, completes: false},
+        {index: 5, answer: 3, selected: false, used: false, completes: false},
+        {index: 6, answer: 3, selected: false, used: false, completes: false},
+        {index: 7, answer: 3, selected: false, used: false, completes: false},
+        {index: 8, answer: 3, selected: false, used: false, completes: false},
+        {index: 9, answer: 3, selected: false, used: false, completes: false},
+        {index: 10, answer: 3, selected: false, used: false, completes: false},
+        {index: 11, answer: 3, selected: false, used: false, completes: false}
     ];
 
     var result = this.Game.setupAnswerElements(answers);
     strictEqual(result, true, 'Returns true when answers are setup');
 
     var $answers = this.Game.$answers.find('li');
-    strictEqual($answers.length, 2, '<ul/> element contains 2 answers');
+    strictEqual($answers.length, 10, '<ul/> element contains 10 answers');
 
     strictEqual($answers.eq(0).attr('data-index'), '0', 'First <li/> element has data-index attribute equal to "0".');
     strictEqual($answers.eq(0).attr('data-answer'), '1', 'First <li/> element has data-answer attribute equal to "1".');
