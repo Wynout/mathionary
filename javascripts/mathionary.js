@@ -900,6 +900,7 @@ Game.prototype.addAnswerToOrder = function ($element) {
 
 /**
  * Populates $answers <ul/> with answers
+ * Answers are truncated to 10
  *
  * @this   {Game}
  * @param  {Array} answers [{index:0, answer: 5, selected:true, used:false, ...},...]
@@ -911,6 +912,8 @@ Game.prototype.setupAnswerElements = function (answers) {
 
     // Remove all answers from HTML
     this.$answers.remove('li');
+
+    answers = answers.slice(0,10);
 
     // Validate existence of answer properties
     var invalid = false,
