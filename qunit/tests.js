@@ -781,7 +781,7 @@ test('Test if answer elements are created', 2, function () {
 
     strictEqual($answers.find('li').length, 10, 'Amount of answer elements created equals to 10.');
 
-    var testSequence    = [0,2,4,6,8,1,3,5,7,9],
+    var testSequence    = [7,8,9,4,5,6,1,2,3,0],
         correctSequence = true,
         $elements       = $answers.find('li');
 
@@ -792,7 +792,7 @@ test('Test if answer elements are created', 2, function () {
             correctSequence = false; break;
         }
     }
-    strictEqual(correctSequence, true, 'Correct answer sequence is 0,2,4,6,8,1,3,5,7,9');
+    strictEqual(correctSequence, true, 'Correct answer sequence is 7,8,9,4,5,6,1,2,3,0');
 });
 test('Test if all answer elements contain the correct number', 1, function () {
 

@@ -110,8 +110,8 @@ img {
 	text-shadow: #111 0px 0px 5px;
 }
 #progress {
-  	width:170px;
-  	height:136px;
+  	width:340px;
+  	height:170px;
     display: block;
 	margin: 0 auto;
 	position: relative;
@@ -153,10 +153,9 @@ img {
 	box-shadow: 0 0 0 15px rgba(0,0,0,.1);
 
 	display: inline-block;
-	width: 100%;
 	list-style: none;
 	margin: 0 auto;
-	padding: 0;
+	padding: 2px;
 	position: relative;
 }
 .switch.game .answers {
@@ -169,16 +168,20 @@ img {
 	-o-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
 	-ms-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
 	transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
+	border: 3px solid rgba(245,245,245,.3);
+	border-radius: 15px;
+	box-shadow: 0px 0px 6px rgba(44, 36, 36,.6);
 	cursor: pointer;
 	float: left;
-	font-size: 1em;
-	line-height: 238%;
+	font-size: 2em;
+	line-height: 2em;
 	list-style: none;
+	margin: 4px;
 	padding: 0;
 	overflow: hidden;
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
-	width: 20%;
+	width: 2em;
 }
 .switch.game .answers li {
 	line-height: 200%;
@@ -188,20 +191,23 @@ img {
 .answers .selected {
 	border-radius: 50%;
 	color: #fff;
-	font-size: 1em;
 }
 .answers .used {
 	color: transparent;
 	cursor: default;
 	text-shadow: none;
 }
-.answers li:nth-child(5n+1) {
+.answers li:nth-child(3n+1) {
 	clear: left;
+}
+.answers li:nth-child(10) {
+	/*width: 100%;*/
+	margin: 1px;
+	padding 0 33%;
 }
 .answers li.solution {
 	border-radius: 50%;
 	color: #fff;
-	font-size: 1em;
 }
 .answers li.invalid {
 	background-color: #990000;
@@ -306,7 +312,7 @@ img {
 	background-color: #494949;
 }
 .multiplication .used {
-	background-color: rgba(245, 245, 245, .7);
+	background-color: rgba(245, 245, 245, .4);
 	color: transparent;
 }
 
@@ -536,12 +542,11 @@ div.percentage span {
 /*** Control aspect ratios ***/
 .wrapper {
 	position: relative;
-	width: 90%; /* <-- just a default, can be anything. */
-	left: -15px; /* offset for border*/
+	width: 50%; /* <-- just a default, can be anything. */
 }
 .three-by-two.aspect-ratio { padding-bottom: 66.666% }
+.three-by-four.aspect-ratio { padding-bottom: 66.666% }
 .four-by-three.aspect-ratio { padding-bottom: 75% }
-/*.four-by-three.aspect-ratio { padding-bottom: 100% }*/
 .five-by-two.aspect-ratio { padding-bottom: 40% }
 .sixteen-by-nine.aspect-ratio { padding-bottom: 56.25% }
 
@@ -564,6 +569,7 @@ div.percentage span {
 .main-box {
     max-width: 600px;
     margin: 0 auto;
+    width: 90%;
 }
 /* Styles for the content in the main box */
 .main-box > .content {
