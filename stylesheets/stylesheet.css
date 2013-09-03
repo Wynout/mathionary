@@ -184,6 +184,8 @@ img {
 	width: 2em;
 }
 .switch.game .answers li {
+	border: none;
+	box-shadow: none;
 	line-height: 200%;
 	width: 100%;
 	font-size: 2em;
@@ -202,7 +204,7 @@ img {
 }
 .answers li:nth-child(10) {
 	/*width: 100%;*/
-	margin: 1px;
+	margin: 1px 1px 3px 4px;
 	padding 0 33%;
 }
 .answers li.solution {
