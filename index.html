@@ -18,19 +18,18 @@
 
     <script src="javascripts/libraries/raphael/raphael.2.1.0.min.js"></script>
     <script src="javascripts/libraries/justgage/justgage.1.0.1-customized.js"></script>
+    <style>.ui-page { -webkit-backface-visibility: hidden; }</style>
 </head>
 <body class="addition-operation">
 
-<div data-role="page">
+<!-- Start of game page -->
+<div data-role="page" id="game-page">
 
     <div data-role="header" class="ui-bar-a">
-        <a href="#switch-operation-panel">Switch</a>
-        <script type="text/javascript">
-            $('#switch-operation-panel').panel('open');
 
-        </script>
+        <a href="#about" data-rel="dialog" data-transition="none" data-icon="info">About</a>
 
-        <h1>Mathionary</h1>
+        <h1>Exercise your Math skills!</h1>
     </div><!-- /header -->
 
     <div data-role="content">
@@ -38,16 +37,10 @@
         <div class="darken">
 
             <h1 id="project_title">Mathionary</h1>
-            <h2 id="project_tagline">Exercise your Math skills!</h2>
+            <!-- <h2 id="project_tagline">Exercise your Math skills!</h2> -->
             <div id="progress"><div id="gauge"></div></div>
 
             <div class="game">
-
-                <div class="question">
-                    <div class="statement"></div>
-                    <div class="question-text">Question here, please</div>
-                </div>
-
                 <script class="question-addition-template" type="text/template">
                     Which numbers add up to {{answer}}?
                 </script>
@@ -60,58 +53,50 @@
                 <script class="question-division-template" type="text/template">
                     Which numbers divide to {{answer}}?
                 </script>
-
-                <div class="wrapper main-box">
-                    <div class="three-by-four aspect-ratio"></div>
-                    <div class="content">
-                        <ul class="answers addition"></ul>
-                    </div>
+                <div class="question">
+                    <div class="question-text"></div>
+                    <div class="statement"></div>
                 </div>
 
-                <!-- Demo, basic ui style for changing difficulty -->
-                <form style="display:none;text-align:center">
-                    <div class="switch-difficulty">
-                        <input type="radio" id="switch-difficulty1" name="difficulty" /><label for="switch-difficulty1">Easy</label>
-                        <input type="radio" id="switch-difficulty2" name="difficulty" checked="checked" /><label for="switch-difficulty2">Medium</label>
-                        <input type="radio" id="switch-difficulty3" name="difficulty" /><label for="switch-difficulty3">Hard</label>
-                    </div>
-                </form>
+                <div class="buttons-wrapper">
+                    <ul class="answers buttons addition"></ul>
+                    <ul class="buttons operations">
+                        <li class="addition" data-operation="addition">&#43;</li>
+                        <li class="subtraction" data-operation="subtraction">&minus;</li>
+                        <li class="multiplication" data-operation="multiplication">&times;</li>
+                        <li class="division" data-operation="division">&divide;</li>
+                    </ul>
+                </div>
+
             </div><!-- /.game -->
 
         </div><!-- /.darken -->
+
     </div><!-- /content -->
 
-    <div data-role="footer" data-position="fixed">
-        <a href="#about-panel">Tech used</a>
-        <script type="text/javascript">
-            $('#about-panel').panel('open');
-        </script>
-    </div><!-- /footer -->
+</div><!-- /page game -->
+
+<!-- Start of about page: #about -->
+<div data-role="page" id="about">
+
+    <div data-role="content" data-theme="a"  class="ui-content">
+
+        <h2>Mathionary</h2>
+        <p>Written in <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a> using <a href="http://jquery.com/">jQuery</a>, <a href="http://en.wikipedia.org/wiki/HTML5">HTML5</a> and <a href="https://en.wikipedia.org/wiki/Cascading_Style_Sheets">CSS3</a></p>
+        <p>Project Management by <a href="https://www.pivotaltracker.com/s/projects/846635">Pivotal Tracker</a>
+        <p>Software Developed using <a href="http://lmgtfy.com/?q=agile+test-driven+development&amp;l=1">Agile TDD</a></p>
+        <p>Tested with <a href="qunit-tests.html">QUnit</a></p>
+        <p>Revision Controlled by <a href="http://git-scm.com/">git</a></p>
+        <p>Code Hosted by <a href="http://github.com">GitHub</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+        <p class="copyright">Code Maintained by <a href="https://github.com/Wynout">Wynout</a></p>
+
+        <p><a href="#game-page" data-rel="back" data-role="button" data-inline="true" data-icon="back">Close</a></p>
+    </div><!-- /content -->
 
 
-<div data-role="panel" id="switch-operation-panel" data-position="left" data-display="push">
-    <div id="switch-operation">
-        <div class="switch game" data-operation="addition"><ul class="answers addition inactive"><li>&#43;</li></ul></div>
-        <div class="switch game" data-operation="subtraction"><ul class="answers subtraction inactive"><li>&minus;</li></ul></div>
-        <div class="switch game" data-operation="multiplication"><ul class="answers multiplication inactive"><li>&times;</li></ul></div>
-        <div class="switch game" data-operation="division"><ul class="answers division inactive"><li>&divide;</li></ul></div>
-        <button class="reset">Reset</button>
-    </div>
-</div>
-<div data-role="panel" id="about-panel" data-position="left" data-display="push">
-    <h4>Heading</h4>
-    <p>Written in <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a> using <a href="http://jquery.com/">jQuery</a>, <a href="http://en.wikipedia.org/wiki/HTML5">HTML5</a> and <a href="https://en.wikipedia.org/wiki/Cascading_Style_Sheets">CSS3</a></p>
-    <p>Project Management by <a href="https://www.pivotaltracker.com/s/projects/846635">Pivotal Tracker</a>
-    <p>Software Developed using <a href="http://lmgtfy.com/?q=agile+test-driven+development&amp;l=1">Agile TDD</a></p>
-    <p>Tested with <a href="qunit-tests.html">QUnit</a></p>
-    <p>Revision Controlled by <a href="http://git-scm.com/">git</a></p>
-    <p>Code Hosted by <a href="http://github.com">GitHub</a></p>
-    <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-    <p class="copyright">Code Maintained by <a href="https://github.com/Wynout">Wynout</a></p>
-</div>
+</div><!-- /page popup -->
 
-
-</div><!-- /page -->
 
 <!-- Start Game -->
 <script src="javascripts/mathionary.js"></script>
@@ -124,11 +109,12 @@
     var game = new Game(config);
 })();
 
-// $('div.content').fitText(1.25);
-$('#project_title').fitText(0.75);
-$('#project_tagline').fitText(2.25);
-$('div.question-text').fitText(2.25);
+$('#game-page').on('pageinit', function () {
 
+    $('#project_title').fitText(0.75);
+    $('#project_tagline').fitText(2.25);
+    $('div.question-text').fitText(2, { minFontSize: '12px', maxFontSize: '24px' })
+});
 </script>
 
 </body>

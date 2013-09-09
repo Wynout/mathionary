@@ -24,7 +24,6 @@ h1 {
 h2 {
 	padding-bottom: 10px;
 	font-size: 32px;
-	background: url('../images/bg_hr.png') repeat-x bottom;
 }
 a {
 	text-decoration: none;
@@ -50,6 +49,9 @@ img {
 
 
 /*** jQuery.mobile ***/
+/* workaround flickers and flashes during or at the end of a transition */
+/*.ui-page { -webkit-backface-visibility: hidden; }*/
+
 .ui-header .ui-btn {
 	margin: 2px 0 0 0px;
 }
@@ -61,6 +63,9 @@ img {
 }
 /* Need to override else justgauge is being pushed down. */
 .ui-mobile [data-role=page] {
+	/*display: block;*/
+}
+#game-page {
 	display: block;
 }
 .ui-content {
@@ -71,6 +76,7 @@ img {
 
 /* .darken class height 100% */
 .ui-panel-content-wrap {
+	display: block;
 }
 .ui-page {
 }
@@ -78,6 +84,7 @@ img {
 }
 .ui-content {
 	max-width: 600px;
+	display: block;
 }
 .ui-panel-content-wrap {
 	width: 100%;
@@ -110,8 +117,9 @@ img {
 	text-shadow: #111 0px 0px 5px;
 }
 #progress {
-  	width:340px;
-  	height:170px;
+	display: block;
+  	width:123px;
+  	height:100px;
     display: block;
 	margin: 0 auto;
 	position: relative;
@@ -119,6 +127,7 @@ img {
 	right:0;
 }
 #gauge {
+	display: block;
 	width:inherit;
 	height:inherit;
 }
@@ -135,8 +144,12 @@ img {
 	-ms-user-select: none;
 	user-select: none;
 	display: block;
-	margin: -25px auto 25px;
-	text-align: center;
+	margin: 0;
+
+	/*border: 15px solid rgba(245,245,245,.3);
+	border-radius: 15px;
+	box-shadow: 0px 0px 5px rgba(44,36,36,.4);
+	position: relative;*/
 }
 
 /*** controls ***/
@@ -146,31 +159,24 @@ img {
 }
 
 /*** game answers ***/
-.answers {
+.buttons {
 	border-radius: 10px;
-	border:40% solid rgba(245,245,245,.3);
-	-webkit-box-shadow: 0 0 0 15px rgba(0,0,0,.1);
-	box-shadow: 0 0 0 15px rgba(0,0,0,.1);
-
+	border-width: 3px;
 	display: inline-block;
 	list-style: none;
 	margin: 0 auto;
-	padding: 2px;
+	padding: 0;
 	position: relative;
 }
-.switch.game .answers {
-	width: 100px;
-	height: 100px;
-}
-.answers li {
-	-webkit-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
+.buttons li {
+	/*-webkit-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
 	-moz-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
 	-o-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
 	-ms-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
-	transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
-	border: 3px solid rgba(245,245,245,.3);
+	transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);*/
+	border: 3px solid rgba(245,245,245,.2);
 	border-radius: 15px;
-	box-shadow: 0px 0px 6px rgba(44, 36, 36,.6);
+	box-shadow: 0 0 43px 5px rgba(0,0,0, .2);
 	cursor: pointer;
 	float: left;
 	font-size: 2em;
@@ -180,165 +186,110 @@ img {
 	padding: 0;
 	overflow: hidden;
 	text-align: center;
-	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);
 	width: 2em;
 }
-.switch.game .answers li {
-	line-height: 200%;
+
+.buttons-wrapper {
+	text-align: center;
 	width: 100%;
-	font-size: 2em;
 }
-.answers .selected {
-	border-radius: 50%;
-	color: #fff;
-}
-.answers .used {
-	color: transparent;
-	cursor: default;
-	text-shadow: none;
-}
+
+/*** answers ***/
 .answers li:nth-child(3n+1) {
 	clear: left;
 }
 .answers li:nth-child(10) {
-	/*width: 100%;*/
-	margin: 1px;
-	padding 0 33%;
+	margin: 4px 0 4px 4px;
+	padding: 0 33% 0 0;
 }
 .answers li.solution {
-	border-radius: 50%;
 	color: #fff;
 }
 .answers li.invalid {
 	background-color: #990000;
-
 }
 
-/*** switch math operation ***/
-#switch-operation {
-	clear: both;
-	height: 100px;
-	font-size: 1.5em;
-	overflow: visible;
-	text-align: center;
-	margin: 30px auto 0;
-	width: 100px;
-}
-#switch-operation div {
-	display: block;
-}
-#switch-operation .active{
-	cursor: default;
-}
-#switch-operation .inactive:hover {
-	cursor: pointer;
-	-webkit-opacity: .75;
-	-moz-opacity: .75;
-	opacity: .75;
-}
-#switch-operation .inactive {
-	-webkit-opacity: .25;
-	-moz-opacity: .25;
-	opacity: .25;
-	-webkit-transition: all .3s ease-out;
-	-moz-transition: all .3s ease-out;
-	-ms-transition: all .3s ease-out;
-	-o-transition: all .3s ease-out;
-	transition: all .3s ease-out;
-}
-.switch.game .answers {
-	border: 15px solid rgba(245,245,245,.3);
-	box-shadow: 0 0 0 5px rgba(0,0,0,.1);
-	margin: 20px 0;
-}
 
-/*** addition operator: green ***/
-.operation.addition,
-.answers.addition {
-	background-color: #090;
-	border: 15px solid rgba(245,245,245,.3);
+/*** addition operator specific ***/
+.addition-operation .buttons,
+.buttons .addition {
 	color: rgba(245,245,245,.9);
 }
-.addition .hover,
-.addition .solution {
+.addition-operation .hover,
+.addition-operation .solution,
+.addition-operation .addition.hover {
 	background-color: #0b0;
 	color: #fff;
 }
-.addition .selected,
-.addition .used {
-	background-color: #494949;
-
-}
-.addition .used {
-	background-color: rgba(245, 245, 245, .7);
-	color: transparent;
-}
-
-/*** subtraction operator: red ***/
-.operation.subtraction,
-.answers.subtraction {
-	background-color: #c43;
-	border: 15px solid rgba(245,245,245,.3);
+/*** subtraction operator specific ***/
+.subtraction-operation .buttons,
+.buttons .subtraction {
 	color: silver;
 }
-.subtraction .hover,
-.subtraction .solution {
+.subtraction-operation .hover,
+.subtraction-operation .solution,
+.subtraction.hover {
 	background-color: #e64433;
 	color: #fff;
 }
-.subtraction .selected,
-.subtraction .used {
-	background-color: #494949;
-}
-.subtraction .used {
-	background-color: rgba(245, 245, 245, .7);
-	color: transparent;
-}
-
-/*** multiplication operator: blue ***/
-.operation.multiplication,
-.answers.multiplication {
+/*** multiplication operator specific ***/
+.buttons .multiplication {
 	background-color: #27c;
-	border: 15px solid rgba(245,245,245,.3);
 	color: silver;
 }
-.multiplication .hover,
-.multiplication .solution {
+.multiplication-operation .buttons {
+	color: silver;
+}
+.multiplication-operation .hover,
+.multiplication-operation .solution,
+.multiplication.hover {
 	background-color: rgb(86, 163, 241);
 	color: #fff;
 }
-.multiplication .selected,
-.multiplication .used {
-	background-color: #494949;
-}
-.multiplication .used {
-	background-color: rgba(245, 245, 245, .4);
-	color: transparent;
-}
-
-/*** division operator: yellow ***/
-.operation.division,
-.answers.division{
+/*** division operator specific ***/
+.buttons .division {
 	background-color: #e99b0f;
 	color: #fff;
 	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
-.division {
-	border: 15px solid rgba(245,245,245,.3);
+.division-operation .buttons {
+	color: #fff;
 }
-.division .hover,
-.division .solution {
+.division-operation .hover,
+.division-operation .solution,
+.division.hover {
 	background-color: rgb(236, 170, 51);
 	color: #fff;
 }
-.division .selected,
-.division .used {
+
+.operations li {
+	clear: left;
+}
+
+/*** math operations specific ***/
+.buttons .addition {
+	background-color: #090;
+}
+.buttons .subtraction {
+	background-color: #c43;
+}
+/*.buttons .multiplication {
+}
+.buttons .division {
+}*/
+.buttons .selected{
+	color: #fff;
 	background-color: #494949;
 }
-.division .used {
-	background-color: rgba(245, 245, 245, .7);
+.buttons .used {
+	background-color: transparent;
 	color: transparent;
+	cursor: default;
+	text-shadow: none;
 }
+
+
 
 /*** level ***/
 .level {
@@ -417,7 +368,7 @@ div.percentage span {
 /*** question ***/
 .question {
 	font-size: 1.5em;
-	margin: 20px auto 30px;
+	margin: 0 auto 30px;
 	text-align: center;
 }
 .question span {
@@ -455,7 +406,6 @@ div.percentage span {
 	height: 50px;
 	line-height: 48px;
 	min-width: 50px;
-	margin: 8px 0;
 }
 .number span {
 	margin: 2px 15px 0 15px;
@@ -467,14 +417,15 @@ div.percentage span {
 	margin: 0 15px 0 -15px;
 }
 .question .equal {
-	font-size: 50px;
-	height: 50px;
-	margin: 0 10px;
+	font-size: 1.7em;
+	margin: 0 .25em;
 }
 .question-text {
+	line-height: 1em;
 	color: #fff;
 	font-size: 1em;
 	margin: 10px 0;
+	/*padding: 0 20%;*/
 	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
 
@@ -487,7 +438,6 @@ div.percentage span {
 }
 .statement .number {
 	box-shadow: 0 0 0 5px rgba(0,0,0, .1);
-	margin: 20px 0 0 0;
 }
 .statement .operation {
 	border-radius: 10px;
@@ -500,7 +450,7 @@ div.percentage span {
 
 
 /*** body class addition operation ***/
-.addition-operation .ui-panel-content-wrap {
+.addition-operation #game-page {
 	background-color: #093309; /* fallback */
 	background: -webkit-radial-gradient(#19A719, #093309);
 	background: -moz-radial-gradient(#19A719, #093309);
@@ -509,7 +459,7 @@ div.percentage span {
 	background: radial-gradient(#19A719, #093309);
 }
 /*** body class subtraction operation ***/
-.subtraction-operation .ui-panel-content-wrap {
+.subtraction-operation #game-page {
 	background-color: #210b08; /* fallback */
 	background: -webkit-radial-gradient(#c43, #210b08);
 	background: -moz-radial-gradient(#c43, #210b08);
@@ -518,7 +468,7 @@ div.percentage span {
 	background: radial-gradient(#c43, #210b08);
 }
 /*** body class multiplication operation ***/
-.multiplication-operation .ui-panel-content-wrap {
+.multiplication-operation #game-page {
 	background-color: #061321; /* fallback */
 	background: -webkit-radial-gradient(#27c, #061321);
 	background: -moz-radial-gradient(#27c, #061321);
@@ -527,7 +477,7 @@ div.percentage span {
 	background: radial-gradient(#27c, #061321);
 }
 /*** body class division operation ***/
-.division-operation .ui-panel-content-wrap {
+.division-operation #game-page {
 	background-color: #392503; /* fallback */
 	background: -webkit-radial-gradient(#e2920b, #392503);
 	background: -moz-radial-gradient(#e2920b, #392503);
@@ -538,8 +488,17 @@ div.percentage span {
 
 
 
-
 /*** Control aspect ratios ***/
+
+/*
+<div class="wrapper main-box">
+    <div class="three-by-four aspect-ratio"></div>
+    <div class="content">
+        <ul class="numbers buttons addition"></ul>
+    </div>
+</div>
+*/
+
 .wrapper {
 	position: relative;
 	width: 50%; /* <-- just a default, can be anything. */

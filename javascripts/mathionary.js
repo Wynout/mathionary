@@ -10,8 +10,8 @@
  * Game.prototype.bindEvents()
  *
  * Game.prototype.events = {
- *     answerMouseenter()
- *     answerMouseleave()
+ *     buttonMouseenter()
+ *     buttonMouseleave()
  *     answerClick()
  * }
  *
@@ -125,6 +125,13 @@ function Game(config) {
     this.$answers = null;
 
     /**
+     * Cached button elements, wrapped in jQuery
+     *
+     * @type {Object}
+     */
+    this.$buttons = null;
+
+    /**
      * Level progress gauge
      *
      * @type {Object}
@@ -184,9 +191,9 @@ Game.prototype.cacheDomElements = function ()  {
     this.$game = $(this.config.container);
     if (!this.$game.length) {
 
-        throw new Error("Game CacheDomElements: no html game element found, 'div.game'");
+        throw new Error("Game CacheDomElements: no html game elements found, 'div.game'");
     }
-    this.$answers = this.$game.find('ul').first();
+    this.$answers = this.$game.find('.answers').first();
     if (!this.$answers.length) {
 
         throw new Error("Game CacheDomElements: no html unordered' list element found, 'ul'");
@@ -195,6 +202,11 @@ Game.prototype.cacheDomElements = function ()  {
     if (!this.$statement.length) {
 
         throw new Error("Game CacheDomElements: no statement element found, 'div.statement'");
+    }
+    this.$buttons = $('.buttons');
+    if (!this.$buttons.length) {
+
+        throw new Error("Game CacheDomElements: no html button elements found, 'div.game'");
     }
 };
 
@@ -258,18 +270,37 @@ Game.prototype.initOperation = function (operation) {
     $(document.body).addClass(this.state.operation + '-operation');
 
     // Set classes on answers parent element <ul>
-    this.$answers.attr('class', 'answers ' + this.state.operation);
+    this.$answers.attr('class', 'buttons answers ' + this.state.operation);
 
     // Toggle active/inactive classes on <ul>
-    var $operations = $('div#switch-operation');
-    $operations.find('ul:not(.' + this.state.operation + ')')
-        .removeClass('active')
-        .addClass('inactive');
+    //
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+    var $operations = $('.operators');
+        $operations.find('ul:not(.' + this.state.operation + ')')
+            .removeClass('active')
+            .addClass('inactive');
 
     return $operations.find('ul.' + this.state.operation)
         .addClass('active')
         .removeClass('inactive');
-}
+};
 
 
 /**
@@ -319,8 +350,8 @@ Game.prototype.initGauge = function (config) {
  */
 Game.prototype.bindEvents = function () {
 
-    this.events.answerMouseenter.call(this);
-    this.events.answerMouseleave.call(this);
+    this.events.buttonMouseenter.call(this);
+    this.events.buttonMouseleave.call(this);
     this.events.answerClick.call(this);
     this.events.switchOperationClick.call(this);
     this.events.resetClick.call(this);
@@ -340,21 +371,21 @@ Game.prototype.events = {
 
     // Answer element mouseenter and mouseleave events
     // Add hover classes on elements
-    answerMouseenter: function () {
+    buttonMouseenter: function () {
 
         var self = this; // Self refers to the Game object
 
-        self.$answers.on('mouseenter', 'li', function () {
+        self.$buttons.on('mouseenter', 'li', function () {
 
             // This refers to answer element, wrapped in jQuery
             $(this).addClass('hover');
         });
     },
-    answerMouseleave: function() {
+    buttonMouseleave: function() {
 
         var self = this; // Self refers to the Game object
 
-        self.$answers.on('mouseleave', 'li', function () {
+        self.$buttons.on('mouseleave', 'li', function () {
 
             // This refers to answer element, wrapped in jQuery
             $(this).removeClass('hover invalid-answer');
@@ -439,7 +470,7 @@ Game.prototype.events = {
     switchOperationClick: function () {
 
         var self = this; // Self refers to the Game object
-        $('div#switch-operation').on('click', 'div.switch', function () {
+        $('.operations').on('click', 'li', function () {
 
             var $this     = $(this),
                 operation = $this.attr('data-operation');
