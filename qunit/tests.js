@@ -13,17 +13,28 @@ module('Game.prototype.cacheDomElements()', {
     // Setup callback runs before each test
     setup: function () {
 
+        jQuery(
+        '<div class="game"><div class="statement"></div><ul class="answers"></ul></div>' +
+        '<ul class="buttons">' +
+            '<li></li>' +
+        '</ul>')
+            .appendTo('#qunit-fixture');
+
         this.Game = $.extend({
             config: {
                 container: '#qunit-fixture div.game'
             },
-            $game: null
+            $game: null,
+            $buttons: null,
+            $answers: null,
+            $statement: null
         }, Game.prototype);
     }
 });
 test('Test throw Errors', 3, function () {
 
-    jQuery('<div class="game"></div>').appendTo('#qunit-fixture');
+    // Throws error
+    $('#qunit-fixture div.game').empty();
 
     // Game element not found
     raises(function () {
@@ -45,13 +56,12 @@ test('Test throw Errors', 3, function () {
         this.Game.cacheDomElements();
     }, Error, 'Must throw error when $statement element not found.');
 });
-test('Test if DOM elements are being cached', 3, function () {
-
-    jQuery('<div class="game"><div class="statement"></div><ul></ul></div>').appendTo('#qunit-fixture');
+test('Test if DOM elements are being cached', 4, function () {
 
     this.Game.cacheDomElements.call(this.Game);
 
     strictEqual(this.Game.$game.length, 1, 'Game.$game.length equals to 1.');
+    strictEqual(this.Game.$buttons.length, 1, 'Game.$buttons.length equals to 1.');
     strictEqual(this.Game.$answers.length, 1, 'Game.$answers.length equals to 1.');
     strictEqual(this.Game.$statement.length, 1, 'Game.$statement.length equals to 1.');
 });
@@ -77,7 +87,7 @@ module('Game.prototype.initialize(): Test initialize answers', {
                 '<div class="statement"></div>' +
                 '<div class="question-text"><!--Question text appended here?--></div>' +
             '</div>' +
-            '<ul></ul>'+
+            '<ul class="answers buttons"></ul>'+
         '</div>')
             .appendTo('#qunit-fixture');
 
@@ -102,7 +112,8 @@ module('Game.prototype.initialize(): Test initialize answers', {
                 }
             },
             $game: $('#qunit-fixture div.game'),
-            $answers: $('#qunit-fixture ul').first(),
+            $answers: $('#qunit-fixture ul.answers').first(),
+            $buttons: $('#qunit-fixture ul.buttons'),
             $statement: $('#qunit-fixture div.statement'),
             state: testState
 
@@ -159,7 +170,7 @@ module('Game.prototype.initialize(): Test loadGameState', {
             '<script class="question-template" type="game/template">' +
                 'Which numbers add up to: {{answer}}?.' +
             '</script>' +
-            '<ul></ul>' +
+            '<ul class="answers buttons"></ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
@@ -189,7 +200,8 @@ module('Game.prototype.initialize(): Test loadGameState', {
                 }
             },
             $game: $('#qunit-fixture div.game'),
-            $answers: $('#qunit-fixture ul').first(),
+            $answers: $('#qunit-fixture ul.answers').first(),
+            $buttons: $('#qunit-fixture ul.buttons'),
             $statement: $('#qunit-fixture div.statement'),
             state: testState
         }, Game.prototype);
@@ -231,12 +243,12 @@ module('Game.prototype.initOperation(): Test initOperation', {
     setup: function () {
 
         jQuery(
-        '<div id="switch-operation">' +
-            '<div class="switch game" data-operation="addition"><ul class="answers addition inactive"><li>&plus;</li></ul></div>' +
-            '<div class="switch game" data-operation="subtraction"><ul class="answers subtraction inactive"><li>&minus;</li></ul></div>' +
-            '<div class="switch game" data-operation="multiplication"><ul class="answers multiplication inactive"><li>&times;</li></ul></div>' +
-            '<div class="switch game" data-operation="division"><ul class="answers division inactive"><li>&divide;</li></ul></div>' +
-        '</div>' +
+        '<ul class="buttons operations">' +
+            '<li class="addition" data-operation="addition">&#43;</li>' +
+            '<li class="subtraction" data-operation="subtraction">&minus;</li>' +
+            '<li class="multiplication" data-operation="multiplication">&times;</li>' +
+            '<li class="division" data-operation="division">&divide;</li>' +
+        '</ul>' +
         '<div class="game">' +
             '<div class="statement"></div>' +
             '<ul></ul>' +
@@ -245,7 +257,7 @@ module('Game.prototype.initOperation(): Test initOperation', {
             .appendTo('#qunit-fixture');
 
         this.Game = $.extend({
-            $game: $('#qunit-fixture div.statement'),
+            $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture div.game').find('ul').first(),
             state: {
                 operation: null
@@ -270,34 +282,6 @@ test('Test body background class for current math operation', 5, function () {
     this.Game.state.operation = 'addition';
     $result = this.Game.initOperation();
     strictEqual($(document.body).hasClass('addition-operation'), true, 'Body get class "addition-operation" from Game.state.operation .');
-});
-test('Test operation classes on statement.', 6, function () {
-
-    var $operations = $('div#switch-operation'),
-        $result     = this.Game.initOperation('addition'),
-        $addition   = $operations.find('ul.addition');
-
-    strictEqual($result.hasClass('active'), true, 'Result has has class "active".');
-    strictEqual($result.hasClass('inactive'), false, 'Result does not have class "inactive".');
-
-    strictEqual($addition.hasClass('active'), true, 'Switch operation element has class "active".');
-    strictEqual($addition.hasClass('inactive'), false, 'Switch operation element does not have class "inactive".');
-    strictEqual($operations.find('ul.active').length, 1, 'One switch operation element has class "active".');
-    strictEqual($operations.find('ul.inactive').length, 3, 'Three switch operation elements have class "inactive".');
-});
-test('Test active/inactive classes on switch math operation buttons.', 6, function () {
-
-    var $operations = $('#qunit-fixture').find('div#switch-operation'),
-        $result     = this.Game.initOperation('addition'),
-        $addition   = $operations.find('ul.addition');
-
-    strictEqual($result.hasClass('active'), true, 'Result has has class "active".');
-    strictEqual($result.hasClass('inactive'), false, 'Result does not have class "inactive".');
-
-    strictEqual($addition.hasClass('active'), true, 'Switch operation element has class "active".');
-    strictEqual($addition.hasClass('inactive'), false, 'Switch operation element does not have class "inactive".');
-    strictEqual($operations.find('ul.active').length, 1, 'One switch operation element has class "active".');
-    strictEqual($operations.find('ul.inactive').length, 3, 'Three switch operation elements have class "inactive".');
 });
 
 
@@ -361,13 +345,14 @@ module('Game.prototype.bindEvents', {
             '<div data-operation="multiplication"><ul></ul></div>' +
         '</div>' +
         '<div class="game">' +
-            '<ul></ul>' +
+            '<ul class="answers buttons operations"><li></li></ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
         this.Game = $.extend({
             $game: $('#qunit-fixture div.game'),
-            $answers: $('#qunit-fixture ul').first(),
+            $answers: $('#qunit-fixture .answers').first(),
+            $buttons: $('#qunit-fixture .buttons'),
             state: {
                 level: 1
             }
@@ -395,7 +380,7 @@ test('Test bindEvents for switch operation element', 1, function () {
     // .data() This is now removed in 1.8, but you can still get to the events data for debugging purposes
     // via $._data(element, "events"). Note that this is not a supported public interface;
     // the actual data structures may change incompatibly from version to version.
-    var $element = $('#qunit-fixture').find('div#switch-operation ul'),
+    var $element = $('.operations'),
         events   = $._data( $element.get(0), 'events' );
     strictEqual(typeof events.click, 'object', 'Switch operation element has a click event.');
 });
@@ -431,7 +416,7 @@ module('Game.prototype.events', {
                 '<div class="statement"></div>' +
                 '<div class="question-text"></div>' +
             '</div>' +
-            '<ul></ul>' +
+            '<ul class="answers buttons"></ul>' +
         '</div>' +
         '</div>')
             .appendTo('#qunit-fixture');
@@ -463,6 +448,7 @@ module('Game.prototype.events', {
             },
             $game: $('#qunit-fixture div.game'),
             $answers: $('#qunit-fixture ul').first(),
+            $buttons: $('#qunit-fixture .buttons'),
             $statement: $('div.statement'),
             state: this.testState
         }, Game.prototype);
@@ -493,7 +479,8 @@ test('answerMouseenter', 1, function () {
 test('answerMouseleave', 2, function () {
 
     // Test mouseleave event on <li /> element
-    jQuery('<li class="hover invalid-answer" data-answer="1">1</li>').appendTo(this.Game.$answers);
+    jQuery('<li class="hover invalid-answer" data-answer="1">1</li>')
+        .appendTo(this.Game.$answers);
     var $answer = this.Game.$answers.find('li').first()
         .addClass('hover')
         .trigger('mouseleave');
