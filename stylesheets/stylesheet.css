@@ -206,10 +206,15 @@ img {
 .answers li.solution {
 	color: #fff;
 }
-.answers li.invalid {
-	background-color: #990000;
+.answers li.invalid,
+.question span.invalid {
+	border: 1px solid rgba(0,0,0,.2);
+	background-color: #b00;
+	border-radius: 50%;
 }
-
+.answers li.invalid {
+	border-width: 2px;
+}
 
 /*** addition operator specific ***/
 .addition-operation .hover,
@@ -425,14 +430,12 @@ div.percentage span {
 	margin: 0 0 5% 0;
 	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
-.question span.invalid {
-	background-color: #990000;
-}
 .statement {
 	color: #fff;
 	text-align: center;
 }
 .statement .number {
+	border: 1px solid rgba(0,0,0,.2);
 	box-shadow: 0 0 0 5px rgba(0,0,0, .1);
 }
 .statement .operation {
