@@ -46,8 +46,6 @@ img {
 
 
 
-
-
 /*** jQuery.mobile ***/
 /* workaround flickers and flashes during or at the end of a transition */
 /*.ui-page { -webkit-backface-visibility: hidden; }*/
@@ -66,7 +64,10 @@ img {
 	/*display: block;*/
 }
 #game-page {
-	display: block;
+	display: inline-block;
+	text-align: center;
+	width: 100%;
+
 }
 .ui-content {
 	overflow: visible;
@@ -120,7 +121,6 @@ img {
 	display: block;
   	width:123px;
   	height:100px;
-    display: block;
 	margin: 0 auto;
 	position: relative;
 	bottom:10px;
@@ -143,13 +143,16 @@ img {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	display: block;
+	display: inline-block;
 	margin: 0;
+	padding: 5% 2%;
+	text-align: center;
+	width: 90%;
 
-	/*border: 15px solid rgba(245,245,245,.3);
+	border: 1px solid rgba(245,245,245,.1);
 	border-radius: 15px;
-	box-shadow: 0px 0px 5px rgba(44,36,36,.4);
-	position: relative;*/
+	/*box-shadow: 0 0 100px 5px rgba(39, 147, 252, .4);*/
+	box-shadow: 0 0 100px 5px rgba(0, 0, 0, .3);
 }
 
 /*** controls ***/
@@ -166,32 +169,29 @@ img {
 	list-style: none;
 	margin: 0 auto;
 	padding: 0;
-	position: relative;
 }
 .buttons li {
-	/*-webkit-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
-	-moz-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
-	-o-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
-	-ms-transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);
-	transition: border-radius .1s cubic-bezier(.02,.96,.05,.97);*/
-	border: 3px solid rgba(245,245,245,.2);
-	border-radius: 15px;
-	box-shadow: 0 0 43px 5px rgba(0,0,0, .2);
+	border: 2px solid rgba(0,0,0,.2);
+	border-radius: 10px;
+	box-shadow: 0 0 0px 5px rgba(0,0,0, .1);
 	cursor: pointer;
+	color: #fff;
 	float: left;
 	font-size: 2em;
 	line-height: 2em;
 	list-style: none;
-	margin: 4px;
+	margin: 5px;
 	padding: 0;
+	outline: none;
 	overflow: hidden;
 	text-align: center;
-	text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);
+	text-shadow: 0px 0px 4px #000;
 	width: 2em;
 }
-
 .buttons-wrapper {
+	display: inline-block;
 	text-align: center;
+	vertical-align: top;
 	width: 100%;
 }
 
@@ -200,7 +200,7 @@ img {
 	clear: left;
 }
 .answers li:nth-child(10) {
-	margin: 4px 0 4px 4px;
+	margin: 5px 0 5px 5px;
 	padding: 0 33% 0 0;
 }
 .answers li.solution {
@@ -212,75 +212,75 @@ img {
 
 
 /*** addition operator specific ***/
-.addition-operation .buttons,
-.buttons .addition {
-	color: rgba(245,245,245,.9);
-}
 .addition-operation .hover,
-.addition-operation .solution,
-.addition-operation .addition.hover {
+.addition-operation .solution
+ {
 	background-color: #0b0;
-	color: #fff;
 }
 /*** subtraction operator specific ***/
-.subtraction-operation .buttons,
-.buttons .subtraction {
-	color: silver;
-}
 .subtraction-operation .hover,
-.subtraction-operation .solution,
-.subtraction.hover {
+.subtraction-operation .solution {
 	background-color: #e64433;
-	color: #fff;
 }
 /*** multiplication operator specific ***/
-.buttons .multiplication {
-	background-color: #27c;
-	color: silver;
-}
-.multiplication-operation .buttons {
-	color: silver;
-}
 .multiplication-operation .hover,
-.multiplication-operation .solution,
-.multiplication.hover {
+.multiplication-operation .solution {
 	background-color: rgb(86, 163, 241);
-	color: #fff;
 }
 /*** division operator specific ***/
-.buttons .division {
-	background-color: #e99b0f;
-	color: #fff;
-	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
-}
-.division-operation .buttons {
-	color: #fff;
-}
 .division-operation .hover,
-.division-operation .solution,
-.division.hover {
+.division-operation .solution {
 	background-color: rgb(236, 170, 51);
-	color: #fff;
 }
-
+.operations {
+	margin-left: 1%;
+}
 .operations li {
 	clear: left;
 }
 
 /*** math operations specific ***/
-.buttons .addition {
+.addition.active,
+.operation.addition,
+.addition .selected {
+	border-color: #0b0;
+	background-color: #00c500; 					  /* lighten */
+	box-shadow: 0 0 15px 5px rgba(0, 218, 0, .4); /* glow */
+}
+.addition.inactive {
 	background-color: #090;
 }
-.buttons .subtraction {
-	background-color: #c43;
+.subtraction.active,
+.operation.subtraction,
+.subtraction .selected {
+	background-color: #e65546; 						/* lighten */
+	box-shadow: 0 0 15px 5px rgba(230, 68, 51, .6); /* glow */
+	border-color: #e64433;
 }
-/*.buttons .multiplication {
+.subtraction.inactive {
+	background-color: #e64433; 						/* darken */
 }
-.buttons .division {
-}*/
-.buttons .selected{
-	color: #fff;
-	background-color: #494949;
+.multiplication.active,
+.operation.multiplication,
+.multiplication .selected {
+	background-color: #2793ff;
+	box-shadow: 0 0 15px 5px rgba(39, 147, 252, .4); /* glow */
+}
+.multiplication.inactive {
+	background-color: rgba(29, 142, 255,.7);
+}
+.division.active,
+.operation.division,
+.division .selected {
+	background-color: #eea31d; 						 /* lighten */
+	box-shadow: 0 0 15px 5px rgba(252, 175, 39, .4); /* glow */
+}
+.division.inactive {
+	background-color: #e99b0f;
+}
+.buttons .selected,
+.buttons .active {
+	border-radius: 50%;
 }
 .buttons .used {
 	background-color: transparent;
@@ -384,8 +384,6 @@ div.percentage span {
 	border-radius: 12px;
 	border-width: 10px;
 	color: #fff;
-	-webkit-box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
-	box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
 	display: inline-block;
 	font-size: 35px;
 	height: 40px;
@@ -424,11 +422,9 @@ div.percentage span {
 	line-height: 1em;
 	color: #fff;
 	font-size: 1em;
-	margin: 10px 0;
-	/*padding: 0 20%;*/
+	margin: 0 0 5% 0;
 	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
 }
-
 .question span.invalid {
 	background-color: #990000;
 }
@@ -440,12 +436,9 @@ div.percentage span {
 	box-shadow: 0 0 0 5px rgba(0,0,0, .1);
 }
 .statement .operation {
-	border-radius: 10px;
-	-webkit-box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
-	box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
+	border-radius: 25%;
 	margin: 0 15px;
 }
-
 
 
 

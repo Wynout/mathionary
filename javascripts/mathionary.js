@@ -255,9 +255,7 @@ Game.prototype.initialize = function () {
  * Initializes a Math operation
  *
  * @this   {Game}
- * @param  {String} operation, switches to operation
- * @return {Object} switch operation element, wrapped in jQuery
- * @chainable
+ * @param  {String} operation
  */
 Game.prototype.initOperation = function (operation) {
 
@@ -272,32 +270,12 @@ Game.prototype.initOperation = function (operation) {
     // Set classes on answers parent element <ul>
     this.$answers.attr('class', 'buttons answers ' + this.state.operation);
 
-    // Toggle active/inactive classes on <ul>
-    //
-
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-    var $operations = $('.operators');
-        $operations.find('ul:not(.' + this.state.operation + ')')
+    // Set active/inactive classes for current operation
+    var $operations = $('.operations');
+        $operations.find('li:not(.' + this.state.operation + ')')
             .removeClass('active')
             .addClass('inactive');
-
-    return $operations.find('ul.' + this.state.operation)
+    $operations.find('li.' + this.state.operation)
         .addClass('active')
         .removeClass('inactive');
 };
@@ -670,7 +648,7 @@ Game.prototype.newQuestion = function(operation, $answers, selector) {
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
     var $elements;
     do {
-        $elements = this.getRandomArrayElements($answers, 2)
+        $elements = this.getRandomArrayElements($answers, 2);
     } while (operation=='division' && parseInt($elements.eq(1).attr('data-answer'), 10)===0);
 
     var x         = parseInt($elements.eq(0).attr('data-answer'), 10),
@@ -1073,7 +1051,7 @@ Game.prototype.displayQuestion = function () {
 
     if ($answers.find('li.selected')) {
 
-        x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10),
+        x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10);
         y = parseInt($answers.find('li[data-order="1"]').attr('data-answer'), 10);
         xString = isNaN(x) ? '?' : x.toString();
         yString = isNaN(y) ? '?' : y.toString();
@@ -1098,9 +1076,9 @@ Game.prototype.displayQuestion = function () {
 
     // Answer: group repeating decimals with a Vinculus overbar.
     var setClass  = '',
-        setAnswer = this.state.question.answer;
-    if (this.state.question.answer%1!==0
-        &&(props = this.getRepeatingDecimalProperties(this.state.question.answer)).length>0) {
+        setAnswer = this.state.question.answer,
+        props;
+    if (this.state.question.answer%1!==0 && (props = this.getRepeatingDecimalProperties(this.state.question.answer)).length>0) {
 
         setAnswer = props[0] + '.' + props[1];
         $(span, {text: setAnswer}).appendTo($span);
@@ -1109,8 +1087,8 @@ Game.prototype.displayQuestion = function () {
         if (props[2]!=='') {
 
             // 1/3 = 0.33... show double repeating decimal for making question clear to user, No test written.
-            answer    = props[1]!=='' ? (setAnswer + props[2]) : (setAnswer + props[2] + props[2])
-            answer    += '...'
+            answer    = props[1]!=='' ? (setAnswer + props[2]) : (setAnswer + props[2] + props[2]);
+            answer    += '...';
             setAnswer = props[2]; // show repeating decimal
             setClass  = 'vinculus';
         }
@@ -1119,7 +1097,7 @@ Game.prototype.displayQuestion = function () {
     $(span, {class: setClass, text: setAnswer}).appendTo($span);
 
     // Question template
-    questionText = this.renderTemplate(this.getTemplate(selector), {answer: answer}),
+    questionText = this.renderTemplate(this.getTemplate(selector), {answer: answer});
     $question.find('.question-text').text(questionText);
 
     return $question;
