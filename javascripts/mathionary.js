@@ -648,7 +648,7 @@ Game.prototype.newQuestion = function(operation, $answers, selector) {
     // Choose 2 random available answers using Fisher-Yates shuffle algorithm.
     var $elements;
     do {
-        $elements = this.getRandomArrayElements($answers, 2)
+        $elements = this.getRandomArrayElements($answers, 2);
     } while (operation=='division' && parseInt($elements.eq(1).attr('data-answer'), 10)===0);
 
     var x         = parseInt($elements.eq(0).attr('data-answer'), 10),
@@ -1051,7 +1051,7 @@ Game.prototype.displayQuestion = function () {
 
     if ($answers.find('li.selected')) {
 
-        x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10),
+        x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10);
         y = parseInt($answers.find('li[data-order="1"]').attr('data-answer'), 10);
         xString = isNaN(x) ? '?' : x.toString();
         yString = isNaN(y) ? '?' : y.toString();
@@ -1078,8 +1078,7 @@ Game.prototype.displayQuestion = function () {
     var setClass  = '',
         setAnswer = this.state.question.answer,
         props;
-    if (this.state.question.answer%1!==0
-        &&(props = this.getRepeatingDecimalProperties(this.state.question.answer)).length>0) {
+    if (this.state.question.answer%1!==0 && (props = this.getRepeatingDecimalProperties(this.state.question.answer)).length>0) {
 
         setAnswer = props[0] + '.' + props[1];
         $(span, {text: setAnswer}).appendTo($span);
@@ -1088,8 +1087,8 @@ Game.prototype.displayQuestion = function () {
         if (props[2]!=='') {
 
             // 1/3 = 0.33... show double repeating decimal for making question clear to user, No test written.
-            answer    = props[1]!=='' ? (setAnswer + props[2]) : (setAnswer + props[2] + props[2])
-            answer    += '...'
+            answer    = props[1]!=='' ? (setAnswer + props[2]) : (setAnswer + props[2] + props[2]);
+            answer    += '...';
             setAnswer = props[2]; // show repeating decimal
             setClass  = 'vinculus';
         }
@@ -1098,7 +1097,7 @@ Game.prototype.displayQuestion = function () {
     $(span, {class: setClass, text: setAnswer}).appendTo($span);
 
     // Question template
-    questionText = this.renderTemplate(this.getTemplate(selector), {answer: answer}),
+    questionText = this.renderTemplate(this.getTemplate(selector), {answer: answer});
     $question.find('.question-text').text(questionText);
 
     return $question;
