@@ -237,7 +237,7 @@ test('Test loading Game State from Storage', 6, function () {
 /**
  * Game.prototype.initOperation
  */
-module('Game.prototype.initOperation(): Test initOperation', {
+module('Game.prototype.initOperation()', {
 
     // Setup callback runs before each test
     setup: function () {
@@ -267,23 +267,82 @@ module('Game.prototype.initOperation(): Test initOperation', {
 });
 test('Test body background class for current math operation', 5, function () {
 
-    var $result = this.Game.initOperation('addition');
+    this.Game.initOperation('addition');
     strictEqual($(document.body).hasClass('addition-operation'), true, 'Body has class "addition-operation".');
 
-    $result = this.Game.initOperation('subtraction');
+    this.Game.initOperation('subtraction');
     strictEqual($(document.body).hasClass('subtraction-operation'), true, 'Body has class "subtraction-operation".');
 
-    $result = this.Game.initOperation('multiplication');
+    this.Game.initOperation('multiplication');
     strictEqual($(document.body).hasClass('multiplication-operation'), true, 'Body has class "multiplication-operation".');
 
-    $result = this.Game.initOperation('division');
+    this.Game.initOperation('division');
     strictEqual($(document.body).hasClass('division-operation'), true, 'Body has class "division-operation".');
 
     this.Game.state.operation = 'addition';
-    $result = this.Game.initOperation();
+    this.Game.initOperation();
     strictEqual($(document.body).hasClass('addition-operation'), true, 'Body get class "addition-operation" from Game.state.operation .');
 });
+test('Test active/inactive classes on addition operation', 4, function () {
 
+    this.Game.initOperation('addition');
+
+    var $operations = $('#qunit-fixture ul.operations'),
+        count = $operations.find('li').length;
+
+    // li.addition has class "active"
+    strictEqual($operations.find('li.addition').hasClass('active'), true, 'li.addition has class "active".');
+    strictEqual($operations.find('li.active').length, 1, 'Only 1 active operation allowed.');
+
+    // li.addition does not have class "inactive"
+    strictEqual($operations.find('li.addition').hasClass('inactive'), false, 'li.addition does not have class "active".');
+    strictEqual($operations.find('li.inactive').length, --count, 'Rest of list items have class "inactive".');
+});
+test('Test active/inactive classes on subtraction operation', 4, function () {
+
+    this.Game.initOperation('subtraction');
+
+    var $operations = $('#qunit-fixture ul.operations'),
+        count = $operations.find('li').length;
+
+    // li.subtraction has class "active"
+    strictEqual($operations.find('li.subtraction').hasClass('active'), true, 'li.subtraction has class "active".');
+    strictEqual($operations.find('li.active').length, 1, 'Only 1 active operation allowed.');
+
+    // li.subtraction does not have class "inactive"
+    strictEqual($operations.find('li.subtraction').hasClass('inactive'), false, 'li.subtraction does not have class "active".');
+    strictEqual($operations.find('li.inactive').length, --count, 'Rest of list items have class "inactive".');
+});
+test('Test active/inactive classes on multiplication operation', 4, function () {
+
+    this.Game.initOperation('multiplication');
+
+    var $operations = $('#qunit-fixture ul.operations'),
+        count = $operations.find('li').length;
+
+    // li.multiplication has class "active"
+    strictEqual($operations.find('li.multiplication').hasClass('active'), true, 'li.multiplication has class "active".');
+    strictEqual($operations.find('li.active').length, 1, 'Only 1 active operation allowed.');
+
+    // li.multiplication does not have class "inactive"
+    strictEqual($operations.find('li.multiplication').hasClass('inactive'), false, 'li.multiplication does not have class "active".');
+    strictEqual($operations.find('li.inactive').length, --count, 'Rest of list items have class "inactive".');
+});
+test('Test active/inactive classes on division operation', 4, function () {
+
+    this.Game.initOperation('division');
+
+    var $operations = $('#qunit-fixture ul.operations'),
+        count = $operations.find('li').length;
+
+    // li.division has class "active"
+    strictEqual($operations.find('li.division').hasClass('active'), true, 'li.division has class "active".');
+    strictEqual($operations.find('li.active').length, 1, 'Only 1 active operation allowed.');
+
+    // li.division does not have class "inactive"
+    strictEqual($operations.find('li.division').hasClass('inactive'), false, 'li.division does not have class "active".');
+    strictEqual($operations.find('li.inactive').length, --count, 'Rest of list items have class "inactive".');
+});
 
 
 /**

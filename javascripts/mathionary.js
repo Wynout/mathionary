@@ -255,9 +255,7 @@ Game.prototype.initialize = function () {
  * Initializes a Math operation
  *
  * @this   {Game}
- * @param  {String} operation, switches to operation
- * @return {Object} switch operation element, wrapped in jQuery
- * @chainable
+ * @param  {String} operation
  */
 Game.prototype.initOperation = function (operation) {
 
@@ -272,32 +270,12 @@ Game.prototype.initOperation = function (operation) {
     // Set classes on answers parent element <ul>
     this.$answers.attr('class', 'buttons answers ' + this.state.operation);
 
-    // Toggle active/inactive classes on <ul>
-    //
-
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-    var $operations = $('.operators');
-        $operations.find('ul:not(.' + this.state.operation + ')')
+    // Set active/inactive classes for current operation
+    var $operations = $('.operations');
+        $operations.find('li:not(.' + this.state.operation + ')')
             .removeClass('active')
             .addClass('inactive');
-
-    return $operations.find('ul.' + this.state.operation)
+    $operations.find('li.' + this.state.operation)
         .addClass('active')
         .removeClass('inactive');
 };
