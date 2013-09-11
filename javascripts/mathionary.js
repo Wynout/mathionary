@@ -1076,7 +1076,8 @@ Game.prototype.displayQuestion = function () {
 
     // Answer: group repeating decimals with a Vinculus overbar.
     var setClass  = '',
-        setAnswer = this.state.question.answer;
+        setAnswer = this.state.question.answer,
+        props;
     if (this.state.question.answer%1!==0
         &&(props = this.getRepeatingDecimalProperties(this.state.question.answer)).length>0) {
 
