@@ -1795,7 +1795,7 @@ test('Test .displayQuestion() Test classes for all math operations', 12, functio
     strictEqual($span.hasClass('division'), true, 'div.statement contains one <span> element with class "division".');
     strictEqual($span.text(), '÷', 'span.operation contains string "&divide;".');
 });
-test('Test .displayQuestion() Statement shows given answer for x', 2, function () {
+test('Test .displayQuestion() Statement shows given answer for x', 4, function () {
 
     // Remove answers
     this.Game.$answers.find('li').remove();
@@ -1811,15 +1811,18 @@ test('Test .displayQuestion() Statement shows given answer for x', 2, function (
 
     this.Game.displayQuestion();
 
-    // First span.number contains the single answer.
-    var first = this.Game.$statement.find('span.number').eq(0);
-    strictEqual(first.text(), '5', 'First span.number contains the string "5".');
+    // First span.number contains the single answer entered.
+    // First span.number contains class "active".
+    var $spans = this.Game.$statement.find('span.number');
+    strictEqual($spans.eq(0).text(), '5', 'First span.number contains the string "5".');
+    strictEqual($spans.eq(0).hasClass('active'), true, 'First span.number contains class "active".');
 
     // Second span.number contains the string '?'.
-    var second = this.Game.$statement.find('span.number').eq(1);
-    strictEqual(second.text(), '?', 'Second span.number contains the string "?".');
+    // Second span.number does not contain class "active".
+    strictEqual($spans.eq(1).text(), '?', 'Second span.number contains the string "?".');
+    strictEqual($spans.eq(1).hasClass('active'), false, 'Second span.number does not contain class "active".');
 });
-test('Test .displayQuestion() Statement contains 2 answers for x and y', 2, function () {
+test('Test .displayQuestion() Statement contains 2 answers for x and y', 4, function () {
 
     // Setup test "<span>1</span> <span>+<span> <span>5</span> = 6"
     this.Game.state.operation       = 'addition';
@@ -1828,13 +1831,17 @@ test('Test .displayQuestion() Statement contains 2 answers for x and y', 2, func
 
     this.Game.displayQuestion();
 
+    var $spans = this.Game.$statement.find('span.number');
+
     // First span.number contains the first answer.
-    var first = this.Game.$statement.find('span.number').eq(0);
-    strictEqual(first.text(), '1', 'First span.number contains the string "1".');
+    // First span.number contains class "active".
+    strictEqual($spans.eq(0).text(), '1', 'First span.number contains the string "1".');
+    strictEqual($spans.eq(0).hasClass('active'), true, 'First span.number contains class "active".');
 
     // Second span.number contains the second answer.
-    var second = this.Game.$statement.find('span.number').eq(1);
-    strictEqual(second.text(), '5', 'Second span.number contains the string "5".');
+    // Second span.number contains class "active".
+    strictEqual($spans.eq(1).text(), '5', 'Second span.number contains the string "5".');
+    strictEqual($spans.eq(1).hasClass('active'), true, 'Second span.number contains class "active".');
 });
 test('Test .displayQuestion() Test if repeating decimals are grouped by vinculus', 2, function () {
 

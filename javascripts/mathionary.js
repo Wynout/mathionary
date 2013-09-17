@@ -1035,8 +1035,8 @@ Game.prototype.displayQuestion = function () {
         operation    = this.state.operation,
         $span        = null,
         span         = '<span></span>',
-        x, xString   = '?',
-        y, yString   = '?',
+        x, xString   = '?', xClasses,
+        y, yString   = '?', yClasses,
         answer       = !isNaN(this.state.question.answer) ? this.state.question.answer : '?',
         $answer      = null,
         $question    = this.$game.find('div.question'),
@@ -1049,23 +1049,25 @@ Game.prototype.displayQuestion = function () {
             division       : '&divide;'
         };
 
-    if ($answers.find('li.selected')) {
+    if ($answers.find('li.selected').length>0) {
 
         x = parseInt($answers.find('li[data-order="0"]').attr('data-answer'), 10);
         y = parseInt($answers.find('li[data-order="1"]').attr('data-answer'), 10);
         xString = isNaN(x) ? '?' : x.toString();
         yString = isNaN(y) ? '?' : y.toString();
     }
+    xClasses = xString==='?' ? 'number' : 'number active';
+    yClasses = yString==='?' ? 'number' : 'number active';
 
     // X
-    $span = $(span, {class: 'number'}).appendTo(this.$statement);
+    $span = $(span, {class: xClasses}).appendTo(this.$statement);
     $(span, {text: xString}).appendTo($span);
 
     // Operation
     $(span, {class: 'operation '+operation, html: operations[operation]}).appendTo(this.$statement);
 
     // Y
-    $span = $(span, {class: 'number'}).appendTo(this.$statement);
+    $span = $(span, {class: yClasses}).appendTo(this.$statement);
     $(span, {text: yString}).appendTo($span);
 
     // =

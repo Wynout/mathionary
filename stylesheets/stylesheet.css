@@ -49,25 +49,10 @@ img {
 /*** jQuery.mobile ***/
 /* workaround flickers and flashes during or at the end of a transition */
 /*.ui-page { -webkit-backface-visibility: hidden; }*/
-
-.ui-header .ui-btn {
-	margin: 2px 0 0 0px;
-}
-.ui-footer .ui-btn {
-	margin: 2px 0 2px 5px;
-}
-.ui-footer p{
-	text-align: center;
-}
-/* Need to override else justgauge is being pushed down. */
-.ui-mobile [data-role=page] {
-	/*display: block;*/
-}
 #game-page {
 	display: inline-block;
 	text-align: center;
 	width: 100%;
-
 }
 .ui-content {
 	overflow: visible;
@@ -79,13 +64,9 @@ img {
 .ui-panel-content-wrap {
 	display: block;
 }
-.ui-page {
-}
-.ui-mobile .ui-header, .ui-mobile .ui-footer {
-}
 .ui-content {
-	max-width: 600px;
 	display: block;
+	max-width: 600px;
 }
 .ui-panel-content-wrap {
 	width: 100%;
@@ -105,7 +86,7 @@ img {
 	margin: 0;
 	max-width: 600px;
 	text-align: center;
-	text-shadow: #111 0px 0px 15px;
+	text-shadow: #111 0 0 15px;
 }
 #project_tagline {
 	background: none;
@@ -115,7 +96,7 @@ img {
 	margin: 10px auto;
 	max-width: 600px;
 	text-align: center;
-	text-shadow: #111 0px 0px 5px;
+	text-shadow: #111 0 0 5px;
 }
 #progress {
 	display: block;
@@ -171,9 +152,10 @@ img {
 	padding: 0;
 }
 .buttons li {
+	/*background-color: #444;*/
 	border: 2px solid rgba(0,0,0,.2);
 	border-radius: 10px;
-	box-shadow: 0 0 0px 5px rgba(0,0,0, .1);
+	box-shadow: 0 0 0 5px rgba(0,0,0, .1);
 	cursor: pointer;
 	color: #fff;
 	float: left;
@@ -185,7 +167,7 @@ img {
 	outline: none;
 	overflow: hidden;
 	text-align: center;
-	text-shadow: 0px 0px 4px #000;
+	text-shadow: 0 0 4px #000;
 	width: 2em;
 }
 .buttons-wrapper {
@@ -194,6 +176,7 @@ img {
 	vertical-align: top;
 	width: 100%;
 }
+
 
 /*** answers ***/
 .answers li:nth-child(3n+1) {
@@ -207,8 +190,8 @@ img {
 	color: #fff;
 }
 .answers li.invalid,
-.question span.invalid {
-	border: 1px solid rgba(0,0,0,.2);
+.statement span.invalid {
+	border: 2px solid rgba(0,0,0,.2);
 	background-color: #b00;
 	border-radius: 50%;
 }
@@ -218,8 +201,7 @@ img {
 
 /*** addition operator specific ***/
 .addition-operation .hover,
-.addition-operation .solution
- {
+.addition-operation .solution {
 	background-color: #0b0;
 }
 /*** subtraction operator specific ***/
@@ -242,58 +224,65 @@ img {
 }
 .operations li {
 	clear: left;
+	background-color: #00c500;
+}
+.operations .hover {
+	border-radius: 50%;
 }
 
 /*** math operations specific ***/
-.addition.active,
-.operation.addition,
+/* addition */
+.addition-operation .active,
+.statement .addition,
 .addition .selected {
-	border-color: #0b0;
-	background-color: #00c500; 					  /* lighten */
-	box-shadow: 0 0 15px 5px rgba(0, 218, 0, .4); /* glow */
+	background-color: #00c200;
+	box-shadow: 0 0 15px 5px rgba(32, 212, 32, 0.5);
 }
 .addition.inactive {
 	background-color: #090;
 }
-.subtraction.active,
-.operation.subtraction,
+/* subtraction */
+.subtraction-operation .active,
+.statement .subtraction,
 .subtraction .selected {
-	background-color: #e65546; 						/* lighten */
-	box-shadow: 0 0 15px 5px rgba(230, 68, 51, .6); /* glow */
-	border-color: #e64433;
+	background-color: #e65546;
+	box-shadow: 0 0 15px 5px rgba(230, 68, 51, .6);
 }
 .subtraction.inactive {
-	background-color: #e64433; 						/* darken */
+	background-color: #e64433;
 }
-.multiplication.active,
-.operation.multiplication,
+/* multiplication */
+.multiplication-operation .active,
+.statement .multiplication,
 .multiplication .selected {
 	background-color: #2793ff;
-	box-shadow: 0 0 15px 5px rgba(39, 147, 252, .4); /* glow */
+	box-shadow: 0 0 15px 5px rgba(39, 147, 252, .4);
 }
 .multiplication.inactive {
 	background-color: rgba(29, 142, 255,.7);
 }
-.division.active,
+/* division */
+.division-operation .active,
 .operation.division,
 .division .selected {
-	background-color: #eea31d; 						 /* lighten */
-	box-shadow: 0 0 15px 5px rgba(252, 175, 39, .4); /* glow */
+	background-color: #eea31d;
+	box-shadow: 0 0 15px 5px rgba(252, 175, 39, .4);
 }
 .division.inactive {
 	background-color: #e99b0f;
 }
+
+
 .buttons .selected,
 .buttons .active {
 	border-radius: 50%;
 }
 .buttons .used {
-	background-color: transparent;
+	background-color: #444;
 	color: transparent;
 	cursor: default;
 	text-shadow: none;
 }
-
 
 
 /*** level ***/
@@ -373,7 +362,7 @@ div.percentage span {
 /*** question ***/
 .question {
 	font-size: 1.5em;
-	margin: 0 auto 30px;
+	margin: 0 auto 5%;
 	text-align: center;
 }
 .question span {
@@ -381,13 +370,13 @@ div.percentage span {
 	display: inline-block;
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(2,2,2,.4);
+	margin: 5px 0;
 }
 .operation.addition ,
 .operation.subtraction,
 .operation.multiplication,
 .operation.division {
 	border-radius: 12px;
-	border-width: 10px;
 	color: #fff;
 	display: inline-block;
 	font-size: 35px;
@@ -397,13 +386,14 @@ div.percentage span {
 	text-align: center;
 	width: 40px;
 }
-.question .number,
-.question .answer{
+.number,
+.answer {
 	-webkit-box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
 	box-shadow: 0 0 0 5px rgba(0, 0, 0, .1);
 
 	background-color: #494949;
-	border-radius: 25px;
+	border: 2px solid rgba(0,0,0,.2);
+	border-radius: 50px;
 	color: #fff;
 	font-size: 35px;
 	height: 50px;
@@ -434,12 +424,9 @@ div.percentage span {
 	color: #fff;
 	text-align: center;
 }
-.statement .number {
-	border: 1px solid rgba(0,0,0,.2);
-	box-shadow: 0 0 0 5px rgba(0,0,0, .1);
-}
-.statement .operation {
+.operation {
 	border-radius: 25%;
+	border: 2px solid rgba(0,0,0,.2);
 	margin: 0 15px;
 }
 
@@ -485,7 +472,6 @@ div.percentage span {
 
 
 /*** Control aspect ratios ***/
-
 /*
 <div class="wrapper main-box">
     <div class="three-by-four aspect-ratio"></div>
