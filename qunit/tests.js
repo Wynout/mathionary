@@ -1125,9 +1125,9 @@ test('Test deselection of answers', 4, function () {
 
 
 /**
- * Game.prototype.getSolutionsCompletingQuestion()
+ * Game.prototype.getSolutions()
  */
-module('Game.prototype.getSolutionsCompletingQuestion()', {
+module('Game.prototype.getSolutions()', {
 
     // Setup callback runs before each test
     setup: function () {
@@ -1141,9 +1141,9 @@ module('Game.prototype.getSolutionsCompletingQuestion()', {
             .appendTo('#qunit-fixture');
 
         var testState = {
-            operation: 'multiplication',
+            operation: '',
             question: {
-                answer: 12
+                answer: null
             }
         };
 
@@ -1153,36 +1153,89 @@ module('Game.prototype.getSolutionsCompletingQuestion()', {
         }, Game.prototype);
     }
 });
-test('Test get solutions that solve the question', 3, function () {
+test('Test no solutions found', 1, function () {
+
+    this.Game.state.operation       = 'addition';
+    this.Game.state.question.answer = 42;
 
     jQuery(
+        '<li data-answer="0">0</li>' +
+        '<li data-answer="1">1</li>' +
+        '<li data-answer="2">2</li>' +
+        '<li data-answer="3">3</li>' +
         '<li data-answer="4">4</li>' +
+        '<li data-answer="5">5</li>' +
         '<li data-answer="6">6</li>' +
-        '<li class="used" data-answer="7">7</li>' +
-        '<li class="used" data-answer="9">9</li>' +
-        '<li data-answer="4">4</li>' +
-        '<li class="selected" data-order="0" data-answer="3">3</li>' // answer number 3 selected
+        '<li data-answer="7">7</li>' +
+        '<li data-answer="8">8</li>' +
+        '<li data-answer="9">9</li>'
     ).appendTo(this.Game.$answers);
 
-    var $selected  = this.Game.$answers.find('li.selected'),
-        $solutions = this.Game.getSolutionsCompletingQuestion($selected);
-
-    strictEqual($solutions.length, 2, 'solutions.length equals to 2.');
-    strictEqual($solutions.eq(0).attr('data-answer'), '4', 'First element data-answer equals to string "4".');
-    strictEqual($solutions.eq(1).attr('data-answer'), '4', 'Second element data-answer equals to string "4".');
+    var solutions = this.Game.getSolutions();
+    strictEqual(solutions.length, 0, 'No solutions for answer 42');
 });
-test('Test cannot solve the question', 1, function () {
+test('Test get all solutions that multiply to 12 when no numbers are selected', 5, function () {
+
+    this.Game.state.operation       = 'multiplication';
+    this.Game.state.question.answer = 12;
 
     jQuery(
+        '<li data-answer="0">0</li>' +
+        '<li data-answer="1">1</li>' +
+        '<li data-answer="2">2</li>' +
+        '<li data-answer="3">3</li>' +
+        '<li data-answer="4">4</li>' +
+        '<li data-answer="5">5</li>' +
         '<li data-answer="6">6</li>' +
-        '<li class="used" data-answer="7">7</li>' +
-        '<li class="used" data-answer="9">9</li>' +
-        '<li class="selected" order="0" data-answer="3">3</li>' // answer number 3 selected
+        '<li data-answer="7">7</li>' +
+        '<li data-answer="8">8</li>' +
+        '<li data-answer="9">9</li>'
     ).appendTo(this.Game.$answers);
 
-    var $selected = this.Game.$answers.find('li.selected'),
-        elements = this.Game.getSolutionsCompletingQuestion();
-    strictEqual(elements.length, 0, 'elements.length equals to 0.');
+    var solutions = this.Game.getSolutions(),
+        $solution, x, y;
+
+    strictEqual(solutions.length, 2, 'Two solutions multiply to 12 (6*2, 4*3).');
+
+    $solution = $(solutions[0]);
+    x = parseInt($solution.eq(0).attr('data-answer'), 10);
+    y = parseInt($solution.eq(1).attr('data-answer'), 10);
+    strictEqual(x, 6, 'First solution x equals to 6.');
+    strictEqual(y, 2, 'First solution y equals to 2.');
+
+    $solution = $(solutions[1]);
+    x = parseInt($solution.eq(0).attr('data-answer'), 10);
+    y = parseInt($solution.eq(1).attr('data-answer'), 10);
+    strictEqual(x, 4, 'First solution x equals to 4.');
+    strictEqual(y, 3, 'First solution y equals to 3.');
+});
+test('Test get all solutions for 2 * x = 12, with number 2 selected', 3, function () {
+
+    this.Game.state.operation       = 'multiplication';
+    this.Game.state.question.answer = 12;
+
+    jQuery(
+        '<li data-answer="0">0</li>' +
+        '<li data-answer="1">1</li>' +
+        '<li data-answer="2" class="selected">2</li>' +
+        '<li data-answer="3">3</li>' +
+        '<li data-answer="4">4</li>' +
+        '<li data-answer="5">5</li>' +
+        '<li data-answer="6">6</li>' +
+        '<li data-answer="7">7</li>' +
+        '<li data-answer="8">8</li>' +
+        '<li data-answer="9">9</li>'
+    ).appendTo(this.Game.$answers);
+
+    var solutions = this.Game.getSolutions(),
+        $solution = $(solutions[0]),
+        x, y;
+
+    strictEqual(solutions.length, 1, 'Only one solution multiplies to 12 (6*2).');
+    x = parseInt($solution.eq(0).attr('data-answer'), 10);
+    y = parseInt($solution.eq(1).attr('data-answer'), 10);
+    strictEqual(x, 2, 'x equals to 2.');
+    strictEqual(y, 6, 'y equals to 6.');
 });
 
 
@@ -1588,20 +1641,16 @@ test('Test display invalid answer', 1 , function () {
 
 
 /**
- * Game.prototype.displaySolution()
+ * Game.prototype.displaySolutions()
  */
-module('Game.prototype.displaySolution()', {
+module('Game.prototype.displaySolutions()', {
 
     // Setup callback runs before each test
     setup: function () {
 
         jQuery(
         '<div class="game">'+
-            '<ul>' +
-                '<li class="selected" data-order="0" data-answer="2">2</li>' +
-                '<li data-answer="3">3</li>' + // solution
-                '<li data-answer="3">3</li>' + // solution
-            '</ul>'+
+            '<ul></ul>' +
         '</div>')
             .appendTo('#qunit-fixture');
 
@@ -1610,26 +1659,82 @@ module('Game.prototype.displaySolution()', {
             $answers: $('#qunit-fixture ul').first(),
             $statement: $('#qunit-fixture div.statement'),
             state: {
-                operation: 'addition',
+                operation: 'multiplication',
                 question: {
-                    text: 'Which numbers adds up to 5?',
-                    answer: 5
-                },
-                user: {
                     answer: null
                 }
             }
         }, Game.prototype);
     }
 });
-test('Test display solutions', 2 , function () {
+test('Test display 2 solutions', 8 , function () {
 
-    var $solutions = this.Game.$answers.find('li:not(.selected)'),
-        $result    = this.Game.displaySolution($solutions);
-    strictEqual($result.eq(0).hasClass('solution'), true, 'Answer element receives class "solution".');
-    strictEqual($result.eq(1).hasClass('solution'), true, 'Answer element receives class "solution".');
+    jQuery(
+        '<li data-answer="0">0</li>' +
+        '<li data-answer="1">1</li>' +
+        '<li data-answer="2">2</li>' +
+        '<li data-answer="3">3</li>' +
+        '<li data-answer="4">4</li>' +
+        '<li data-answer="5">5</li>' +
+        '<li data-answer="6">6</li>' +
+        '<li data-answer="7">7</li>' +
+        '<li data-answer="8">8</li>' +
+        '<li data-answer="9">9</li>'
+    ).appendTo(this.Game.$answers);
+
+    this.Game.state.question.answer = 6;
+
+    var $answers = this.Game.$answers;
+    this.Game.displaySolutions();
+
+    // First solution: 1*6
+    strictEqual($answers.find('[data-answer="1"]').hasClass('first solution of-two'), true, 'First solution: number 1 has classes "first solution of-two".');
+    strictEqual($answers.find('[data-answer="6"]').hasClass('first solution of-two'), true, 'First solution: number 6 has classes "first solution of-two".');
+    // Second solution: 2*3
+    strictEqual($answers.find('[data-answer="2"]').hasClass('second solution of-two'), true, 'Second solution: number 2 has classes "second solution of-two".');
+    strictEqual($answers.find('[data-answer="3"]').hasClass('second solution of-two'), true, 'Second solution: number 3 has classes "second solution of-two".');
+
+    strictEqual($answers.find('li.solution').length, 4, 'Class "solution" count on all numbers is 4.');
+    strictEqual($answers.find('li.first').length, 2, 'Class "first" count on all numbers is 2.');
+    strictEqual($answers.find('li.second').length, 2, 'Class "second" count on all numbers is 2.');
+    strictEqual($answers.find('li.of-two').length, 4, 'Class "of-two" count on all numbers is 4.');
 });
+test('Test display 9 solutions', 8 , function () {
 
+    jQuery(
+        '<li data-answer="0">0</li>' +
+        '<li data-answer="1">1</li>' +
+        '<li data-answer="2">2</li>' +
+        '<li data-answer="3">3</li>' +
+        '<li data-answer="4">4</li>' +
+        '<li data-answer="5">5</li>' +
+        '<li data-answer="6">6</li>' +
+        '<li data-answer="7">7</li>' +
+        '<li data-answer="8">8</li>' +
+        '<li data-answer="9">9</li>'
+    ).appendTo(this.Game.$answers);
+
+    this.Game.state.question.answer = 0; // nine possibilities
+
+    var $answers = this.Game.$answers;
+    var solutions = this.Game.displaySolutions();
+
+    console.log(solutions);
+
+
+
+    // First solution: 1*6
+    // strictEqual($answers.find('[data-answer="1"]').hasClass('first solution of-two'), true, 'First solution: number 1 has classes "first solution of-two".');
+    // strictEqual($answers.find('[data-answer="6"]').hasClass('first solution of-two'), true, 'First solution: number 6 has classes "first solution of-two".');
+    // Second solution: 2*3
+    // strictEqual($answers.find('[data-answer="2"]').hasClass('second solution of-two'), true, 'Second solution: number 2 has classes "second solution of-two".');
+    // strictEqual($answers.find('[data-answer="3"]').hasClass('second solution of-two'), true, 'Second solution: number 3 has classes "second solution of-two".');
+
+    // strictEqual($answers.find('li.solution').length, 4, 'Class "solution" count on all numbers is 4.');
+    // strictEqual($answers.find('li.first').length, 2, 'Class "first" count on all numbers is 2.');
+    // strictEqual($answers.find('li.second').length, 2, 'Class "second" count on all numbers is 2.');
+    // strictEqual($answers.find('li.of-two').length, 4, 'Class "of-two" count on all numbers is 4.');
+});
 
 
 /**

@@ -29,7 +29,7 @@
  * Game.prototype.toggleSelected()
  * Game.prototype.resetAnswers()
  * Game.prototype.getAvailableAnswers()
- * Game.prototype.getSolutionsCompletingQuestion()
+ * Game.prototype.getSolutions()
  * Game.prototype.isAnswerMarkedAsUsed()
  * Game.prototype.isInvalidAnswer()
  * Game.prototype.isQuestionAnswered()
@@ -40,7 +40,7 @@
  * Game.prototype.setupAnswerElements()
  *
  * Game.prototype.displayInvalidAnswer()
- * Game.prototype.displaySolution()
+ * Game.prototype.displaySolutions()
  * Game.prototype.displayLevelProgress()
  * Game.prototype.displayQuestion()
  *
@@ -424,15 +424,14 @@ Game.prototype.events = {
             // Validate selected answer
             } else if($selected.length>0) {
 
-                var $solutions = self.getSolutionsCompletingQuestion($selected),
-                    invalid    = self.isInvalidAnswer($selected, $solutions); // array containing numbers
+                var solutions = self.getSolutions(),
+                    invalid    = self.isInvalidAnswer($selected, solutions); // array containing numbers
 
                 self.displayQuestion();
 
                 if (invalid.length!==0) {
 
                     self.displayInvalidAnswer.call(self, $this); // self Game, $this element
-                    self.displaySolution.call(self, $solutions); // self Game
                 }
             // No answer selected.
             } else  {
@@ -763,29 +762,100 @@ Game.prototype.getAvailableAnswers = function () {
 /**
  * Returns array containing <li> elements that solve the question
  *
+ * First index contains x, second index contains y.
+ * X contains always the highest number (x*y)=(6*2)
+ *
  * @this   {Game}
- * @param  {Object} $answers parent element <ul> wrapped in jQuery
- * @return {Object} $solutions containing <li> elements answering question
+ * @param  {Object}
+ * @return {Array} containing array with <li> elements.
  */
-Game.prototype.getSolutionsCompletingQuestion = function ($selected) {
+Game.prototype.getSolutions = function () {
 
-    var self       = this,
-        x          = parseInt(this.$answers.find('li[data-order="0"]').attr('data-answer'), 10),
-        $available = this.getAvailableAnswers(),
-        $solutions = $([]);
+    var self        = this,
+        $available  = this.getAvailableAnswers(),
+        hasSelected = this.$answers.find('li.selected').length>0 ? true : false,
+        $current,
+        answer,
+        distinct    = [],
+        solutions   = [],
+        tmp,
+        unique      = true,
+        x, $x,
+        y, $y;
 
-     $solutions = $available.map(function () {
+    if ($available.length===0) {
+        return [];
+    }
 
-        var $this     = $(this), // refers to answer element <li>
-            y         = parseInt($this.attr('data-answer'), 10),
-            answer    = self.calculate(self.state.operation, x, y);
+    // Find solutions
+    $available.each(function (i) {
 
-        if (answer===self.state.question.answer) {
+        $x = $(this);
+        x  = parseInt($x.attr('data-answer'), 10);
 
-            return this; // solution found.
+        if (hasSelected===true && $x.hasClass('selected')===false) {
+
+            return true; // continue to next iteration
+        }
+
+        for (var j=0; j<$available.length; j++) {
+
+            // Answer can be only used one time
+            if (i===j) {
+
+                continue;
+            }
+
+            $y     = $available.eq(j),
+            y      = parseInt($y.attr('data-answer'), 10),
+            answer = self.calculate(self.state.operation, x, y);
+
+            if (answer===self.state.question.answer) {
+
+                solutions.push([$x.get(0), $y.get(0)]);
+            }
         }
     });
-    return $solutions;
+
+    // Filter out duplicate solutions
+    for (var i=solutions.length-1; i>=0; i--) { // loop backwards, because of splice
+
+        $current = $(solutions[i]);
+        x = parseInt($current.eq(0).attr('data-answer'), 10);
+        y = parseInt($current.eq(1).attr('data-answer'), 10);
+
+        // Order x,y descending
+        if (y>x) {
+
+           tmp = x; x = y; y = tmp;
+        }
+
+        $.each(distinct, function () {
+
+            if (this[0]===x && this[1]===y) {
+                unique = false;
+                return;
+            }
+        });
+
+        if (unique) {
+
+            distinct.push([x,y]);
+        } else {
+
+            solutions.splice(i, 1);
+        }
+    }
+
+    // Sort solutions by x descending
+    solutions.sort(function (a, b) {
+
+        a = parseInt($(a[0]).attr('data-answer'), 10);
+        b = parseInt($(b[0]).attr('data-answer'), 10);
+        return b-a;
+    });
+
+    return solutions
 };
 
 
@@ -807,12 +877,12 @@ Game.prototype.isAnswerMarkedAsUsed = function ($answer) {
  *
  * @this   {Game}
  * @param  {Object} $selected, answer elements wrapped in jQuery
- * @param  {Object} $solutions, elements wrapped in jQuery
+ * @param  {Object} solutions, elements wrapped in jQuery
  * @return {Object} array containing numbers indicating invalid type.
  */
-Game.prototype.isInvalidAnswer = function ($selected, $solutions) {
+Game.prototype.isInvalidAnswer = function ($selected, solutions) {
 
-    $solutions    = $solutions || $([]);
+    solutions    = solutions || $([]);
 
     var self      = this,
         invalid   = [],
@@ -823,7 +893,7 @@ Game.prototype.isInvalidAnswer = function ($selected, $solutions) {
         y         = parseInt(this.$answers.find('li[data-order="1"]').attr('data-answer'), 10);
 
     // Current answer cannot complete question
-    if ($selected.length>0 && $solutions.length===0) {
+    if ($selected.length>0 && solutions.length===0) {
 
         invalid.push(1);
     }
@@ -868,11 +938,11 @@ Game.prototype.isQuestionAnswered = function () {
  * @param  {Object} $elements, wrapped in jQuery
  * @return {Object} elements, wrapped in jQuery
  */
-    Game.prototype.markAnswersAsUsed = function ($elements) {
+Game.prototype.markAnswersAsUsed = function ($elements) {
 
-        return $elements.removeClass('selected')
-            .removeClass('solution')
-            .addClass('used');
+    return $elements.removeClass('selected')
+        .removeClass('solution')
+        .addClass('used');
 };
 
 
@@ -993,16 +1063,48 @@ Game.prototype.displayInvalidAnswer = function ($answer) {
 
 
 /**
- * Display solution to question
+ * Display solutions to question
  *
  * @this   {Game}
- * @param  {Object} $solutions elements, wrapped in jQuery
- * @return {Object} $solutions elements, wrapped in jQuery
+ * @param  {Number} timing milliseconds
  * @chainable
  */
-Game.prototype.displaySolution = function ($solutions) {
+Game.prototype.displaySolutions = function (timing) {
 
-    return $solutions.addClass('solution');
+    var solutions = this.getSolutions();
+
+    var of = 'of-';
+    switch (solutions.length) {
+        case 1: of += 'one'; break;
+        case 2: of += 'two'; break;
+        case 3: of += 'three'; break;
+        case 4: of += 'four'; break;
+        case 5: of += 'five'; break;
+        case 6: of += 'six'; break;
+        case 7: of += 'seven'; break;
+        case 8: of += 'eigth'; break;
+        case 9: of += 'nine'; break;
+    }
+
+    $.each(solutions, function (index, solution) {
+
+        var sequence = '';
+        switch (index) {
+            case 0: sequence = 'first'; break;
+            case 1: sequence = 'second'; break;
+            case 2: sequence = 'third'; break;
+            case 3: sequence = 'fourth'; break;
+            case 4: sequence = 'fifth'; break;
+            case 5: sequence = 'sixth'; break;
+            case 6: sequence = 'seventh'; break;
+            case 7: sequence = 'eight'; break;
+            case 8: sequence = 'ninth'; break;
+        }
+        console.log('classnames: '+sequence + ' solution ' + of);
+        $(solution).addClass(sequence + ' solution ' + of);
+    });
+
+    return solutions;
 };
 
 

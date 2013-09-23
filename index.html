@@ -40,6 +40,99 @@
             <!-- <h2 id="project_tagline">Exercise your Math skills!</h2> -->
             <div id="progress"><div id="gauge"></div></div>
 
+
+<div class="test-container first solution of-four"></div>
+<div class="test-container second solution of-four"></div>
+<div class="test-container third solution of-four"></div>
+<div class="test-container fourth solution of-four"></div>
+<style>
+
+
+/*@keyframes first {
+    from {background: red;}
+    to {background: yellow;}
+}*/
+
+@-webkit-keyframes show-solution { /* Safari and Chrome */
+
+    0%, 50%, 100% {
+        background: transparent;
+    }
+    25% {
+        background: yellow;
+    }
+}
+
+
+.test-container {
+    width: 100px;
+    height: 100px;
+    background: transparent;
+}
+
+.solution {
+    background-color: transparent !important;
+    border-radius: 50%;
+    -webkit-animation-name: show-solution;
+    -webkit-animation-iteration-count: infinite;
+}
+.first {
+    -webkit-animation-delay: 0;
+}
+.second {
+    -webkit-animation-delay: 1s;
+}
+.third {
+    -webkit-animation-delay: 2s;
+}
+.fourth {
+    -webkit-animation-delay: 3s;
+}
+.fifth {
+    -webkit-animation-delay: 4s;
+}
+.sixth {
+    -webkit-animation-delay: 4s;
+}
+.seventh {
+    -webkit-animation-delay: 4s;
+}
+.eighth {
+    -webkit-animation-delay: 4s;
+}
+.ninth {
+    -webkit-animation-delay: 4s;
+}
+
+.of-one {
+    -webkit-animation-duration: 1s;
+}
+.of-two {
+    -webkit-animation-duration: 2s;
+}
+.of-three {
+    -webkit-animation-duration: 3s;
+}
+.of-four {
+    -webkit-animation-duration: 4s;
+}
+.of-five {
+    -webkit-animation-duration: 5s;
+}
+.of-six {
+    -webkit-animation-duration: 6s;
+}
+.of-seven {
+    -webkit-animation-duration: 7s;
+}
+.of-eigth {
+    -webkit-animation-duration: 8s;
+}
+.of-nine {
+    -webkit-animation-duration: 9s;
+}
+</style>
+
             <div class="game">
                 <script class="question-addition-template" type="text/template">
                     Which numbers add up to {{answer}}?
@@ -106,7 +199,7 @@
     var config =  {
         container: 'div.game'
     };
-    var game = new Game(config);
+    window.game = new Game(config);
 })();
 
 $('#game-page').on('pageinit', function () {
