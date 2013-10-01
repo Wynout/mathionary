@@ -59,7 +59,9 @@
                 </div>
 
                 <div class="buttons-wrapper">
-                    <ul class="answers buttons addition"></ul>
+                    <ul class="answers buttons addition">
+                        <li class="display-solutions">?</li>
+                    </ul>
                     <ul class="buttons operations">
                         <li class="addition" data-operation="addition">&#43;</li>
                         <li class="subtraction" data-operation="subtraction">&minus;</li>
@@ -106,7 +108,7 @@
     var config =  {
         container: 'div.game'
     };
-    var game = new Game(config);
+    window.game = new Game(config);
 })();
 
 $('#game-page').on('pageinit', function () {
